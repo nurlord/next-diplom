@@ -1,304 +1,94 @@
 "use client";
 
-import { useState } from "react";
-import {
-  CheckCircle2,
-  Lock,
-  Zap,
-  Gem,
-  Users,
-  MessageCircle,
-  ShieldCheck,
-} from "lucide-react";
-import Image from "next/image";
+import { useMySubscriptions } from "@/api/hooks";
+import { MessageCircle, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { useAuthContext } from "@/providers/AuthProvider";
 
-// --- MOCK DATA ---
-const CREATOR = {
-  name: "Alex Design_Lab",
-  handle: "@alex_ui_ux",
-  bio: "Ex-Spotify Designer sharing exclusive figma resources, tutorials, and career advice.",
-  subscribers: "14.2K",
-  posts: 128,
-  avatar:
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=b6e3f4",
-};
+export default function HomePage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const { data: subsRes, isLoading: subsLoading } = useMySubscriptions(
+    { limit: 20 },
+  );
 
-const TIERS = [
-  {
-    id: 1,
-    name: "Supporter",
-    price: 2, // TON
-    period: "month",
-    color: "from-blue-500 to-cyan-500",
-    benefits: [
-      "Access to private Telegram Channel",
-      "Weekly design tips",
-      "Community chat access",
-    ],
-  },
-  {
-    id: 2,
-    name: "Pro Mentor",
-    price: 10, // TON
-    period: "month",
-    popular: true,
-    color: "from-purple-500 to-pink-500",
-    benefits: [
-      "Everything in Supporter",
-      "Source Figma files",
-      "1 Monthly portfolio review",
-      "Direct DM access",
-    ],
-  },
-];
+  const subscriptions = subsRes?.data?.items || [];
 
-const FEED_PREVIEW = [
-  {
-    id: 1,
-    title: "How to price your work in 2026",
-    date: "2 hours ago",
-    locked: true,
-  },
-  {
-    id: 2,
-    title: "Free UI Kit: Neo-Brutalism",
-    date: "Yesterday",
-    locked: true,
-  },
-  {
-    id: 3,
-    title: "My switch to Framer (Public)",
-    date: "3 days ago",
-    locked: false,
-  },
-];
+  if (authLoading || subsLoading) {
+    return <div className="p-8 text-center text-neutral-500 animate-pulse">Loading subscriptions...</div>;
+  }
 
-export default function Home() {
-  const [loading, setLoading] = useState<number | null>(null);
-  const [subscribed, setSubscribed] = useState(false);
-
-  // Simulate Payment Process
-  const handleSubscribe = (tierId: number) => {
-    setLoading(tierId);
-    setTimeout(() => {
-      setLoading(null);
-      setSubscribed(true);
-    }, 2000); // 2 second fake delay
-  };
-
-  if (subscribed) {
+  if (!isAuthenticated) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center p-6 text-center space-y-6 animate-in fade-in zoom-in duration-300">
-        <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center">
-          <CheckCircle2 className="w-10 h-10 text-green-500" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
-          <p className="text-neutral-400">
-            You have sent{" "}
-            <span className="text-white font-semibold">10 TON</span> to{" "}
-            {CREATOR.name}.
-          </p>
-        </div>
-
-        {/* The "Super App" Magic: Auto-invite */}
-        <div className="w-full bg-neutral-800 p-4 rounded-xl border border-neutral-700">
-          <p className="text-sm text-neutral-400 mb-3">
-            Your Private Invite Link:
-          </p>
-          <button className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all">
-            <MessageCircle size={18} />
-            Join Private Channel
-          </button>
-        </div>
-
-        <button
-          onClick={() => setSubscribed(false)}
-          className="text-sm text-neutral-500 underline mt-4"
-        >
-          Back to prototype
-        </button>
+      <div className="flex flex-col items-center justify-center p-8 text-center h-[50vh]">
+        <h2 className="text-xl font-bold mb-2">Welcome!</h2>
+        <p className="text-neutral-400">Please open this Mini App from Telegram to log in.</p>
       </div>
     );
   }
 
   return (
-    <div className="">
-      {/* --- HERO SECTION --- */}
-      <div className="relative">
-        {/* Cover Image */}
-        <div className="h-32 w-full bg-linear-to-r from-neutral-800 to-neutral-700"></div>
-
-        <div className="px-5">
-          {/* Avatar */}
-          <div className="relative -mt-12 mb-3">
-            <Image
-              src={CREATOR.avatar}
-              width="96"
-              height="96"
-              unoptimized
-              alt="Creator"
-              className="w-24 h-24 rounded-full border-4 border-neutral-900 bg-white"
-            />
-            <div className="absolute bottom-1 right-1 bg-blue-500 p-1 rounded-full border-2 border-neutral-900">
-              <CheckCircle2 size={12} className="text-white" />
-            </div>
-          </div>
-
-          {/* Info */}
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-xl font-bold flex items-center gap-2">
-                {CREATOR.name}
-              </h1>
-              <p className="text-sm text-neutral-400">{CREATOR.handle}</p>
-            </div>
-            {/* Social Proof Badge */}
-            <div className="bg-neutral-800 px-3 py-1 rounded-full text-xs font-medium border border-neutral-700 flex items-center gap-1.5">
-              <Users size={12} className="text-blue-400" />
-              {CREATOR.subscribers}
-            </div>
-          </div>
-
-          <p className="mt-3 text-neutral-300 text-sm leading-relaxed">
-            {CREATOR.bio}
-          </p>
-        </div>
+    <div className="pb-14 pt-6 px-5 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">My Subscriptions</h1>
       </div>
 
-      <hr className="border-neutral-800 my-6" />
-
-      {/* --- TIERS SECTION --- */}
-      <div className="px-5 space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-lg">Choose Plan</h3>
-          <span className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
-            Pay via TON
-          </span>
-        </div>
-
-        <div className="grid gap-4">
-          {TIERS.map((tier) => (
+      {subscriptions.length > 0 ? (
+        <div className="space-y-4 shadow-xl">
+          {subscriptions.map((sub) => (
             <div
-              key={tier.id}
-              className={`relative p-5 rounded-2xl border ${tier.popular ? "border-purple-500/50 bg-neutral-800/80" : "border-neutral-800 bg-neutral-800/40"}`}
+              key={sub.subscription_id}
+              className="bg-neutral-800/60 border border-neutral-800 rounded-2xl p-4 flex flex-col gap-4 shadow-lg"
             >
-              {tier.popular && (
-                <div className="absolute -top-3 right-4 bg-linear-to-r from-purple-500 to-pink-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  Best Value
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center font-bold text-lg shadow-inner">
+                  {sub.chat_title?.[0] || "?"}
                 </div>
-              )}
-
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h4 className="font-bold text-lg">{tier.name}</h4>
-                  <div className="flex items-end gap-1 mt-1">
-                    <span className="text-2xl font-bold text-white flex items-center gap-1">
-                      <Gem
-                        size={20}
-                        className="text-blue-400 fill-blue-400/20"
-                      />
-                      {tier.price}
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg leading-tight">{sub.chat_title}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      {sub.plan_title}
                     </span>
-                    <span className="text-sm text-neutral-500 mb-1">
-                      TON / {tier.period}
+                    <span className="text-xs text-neutral-400">
+                      Active until {sub.expires_at ? new Date(sub.expires_at).toLocaleDateString() : 'Forever'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <ul className="space-y-2 mb-5">
-                {tier.benefits.map((benefit, i) => (
-                  <li
-                    key={i}
-                    className="text-sm text-neutral-300 flex items-start gap-2"
-                  >
-                    <CheckCircle2
-                      size={16}
-                      className="text-neutral-500 mt-0.5 shrink-0"
-                    />
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={() => handleSubscribe(tier.id)}
-                disabled={loading !== null}
-                className={`w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center justify-center gap-2
-                  ${
-                    tier.popular
-                      ? "bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-900/20"
-                      : "bg-neutral-700 hover:bg-neutral-600 text-white"
-                  }`}
-              >
-                {loading === tier.id ? (
-                  <span className="animate-pulse">Processing TON...</span>
-                ) : (
-                  <>
-                    Subscribe with Wallet{" "}
-                    <Zap size={16} className="fill-white" />
-                  </>
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <hr className="border-neutral-800 my-8" />
-
-      {/* --- LOCKED CONTENT PREVIEW (THE "BOOSTY" PART) --- */}
-      <div className="px-5">
-        <h3 className="font-semibold text-lg mb-4">Recent Posts</h3>
-        <div className="space-y-4">
-          {FEED_PREVIEW.map((post) => (
-            <div
-              key={post.id}
-              className="bg-neutral-800/50 border border-neutral-800 rounded-xl overflow-hidden"
-            >
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-neutral-500">{post.date}</span>
-                  {post.locked ? (
-                    <Lock size={14} className="text-neutral-500" />
-                  ) : (
-                    <span className="text-xs text-green-500">Free</span>
-                  )}
-                </div>
-                <h4 className="font-medium">{post.title}</h4>
+              <div className="pt-3 border-t border-neutral-700/50 flex gap-2">
+                <Link
+                  href={`/chats/${sub.chat_id}`}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-white bg-neutral-700/50 hover:bg-neutral-700 rounded-xl transition-colors"
+                >
+                  <ExternalLink size={16} /> Details
+                </Link>
+                <button className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-95">
+                  <MessageCircle size={16} /> Open Chat
+                </button>
               </div>
-
-              {/* Locked State Blur */}
-              {post.locked && (
-                <div className="relative h-24 bg-neutral-900/50 p-4 flex items-center justify-center">
-                  <div className="absolute inset-0 backdrop-blur-md flex items-center justify-center bg-black/20">
-                    <div className="bg-neutral-900/80 px-4 py-2 rounded-lg flex items-center gap-2 border border-neutral-700">
-                      <Lock size={14} />
-                      <span className="text-xs font-medium">
-                        Subscribers only
-                      </span>
-                    </div>
-                  </div>
-                  {/* Fake text to look like blurred content */}
-                  <p className="text-neutral-700 select-none blur-sm">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    do eiusmod tempor.
-                  </p>
-                </div>
-              )}
             </div>
           ))}
         </div>
-      </div>
-
-      {/* --- FLOATING SECURE BADGE --- */}
-      <div className="flex justify-center mt-10 mb-4 opacity-50">
-        <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 uppercase tracking-widest">
-          <ShieldCheck size={12} />
-          Secured by TON
+      ) : (
+        <div className="text-center bg-neutral-900 border border-neutral-800 p-8 rounded-2xl shadow-xl space-y-4">
+          <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mx-auto text-neutral-500 border border-neutral-700 shadow-inner">
+            <MessageCircle size={32} />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-1">No Active Subscriptions</h3>
+            <p className="text-sm text-neutral-400">
+              Discover amazing creators and premium channels on the Explore page.
+            </p>
+          </div>
+          <Link
+            href="/explore"
+            className="inline-block mt-2 px-6 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-neutral-200 transition-colors shadow-lg active:scale-95"
+          >
+            Start Exploring
+          </Link>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -9,8 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
+    "@telegram-apps/sdk": "^3.11.8",
+    "@telegram-apps/sdk-react": "^3.3.9",
+    "ky": "^1.14.3",
     "lucide-react": "^0.563.0",
     "next": "16.1.4",
+    "openapi-fetch": "^0.17.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
