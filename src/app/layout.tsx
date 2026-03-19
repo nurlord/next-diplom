@@ -3,12 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import { QueryProvider } from "@/providers/QueryProvider";
-import dynamic from "next/dynamic";
-
-const AuthProvider = dynamic(
-  () => import("@/providers/AuthProvider").then((mod) => mod.AuthProvider),
-  { ssr: false }
-);
+import { DynamicAuthProvider } from "@/providers/DynamicAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,7 +25,7 @@ export default function RootLayout({
         className={`${inter.className} bg-neutral-950 text-white h-dvh w-screen flex justify-center overflow-hidden`}
       >
         <QueryProvider>
-          <AuthProvider>
+          <DynamicAuthProvider>
             {/* Mobile Container Simulation */}
             {/* We use 'flex flex-col' to separate content from the bottom nav */}
             <div className="w-full max-w-lg bg-neutral-900 h-full flex flex-col shadow-2xl shadow-black border-x border-neutral-800 relative">
@@ -54,7 +49,7 @@ export default function RootLayout({
                 <NavBar />
               </div>
             </div>
-          </AuthProvider>
+          </DynamicAuthProvider>
         </QueryProvider>
       </body>
     </html>
