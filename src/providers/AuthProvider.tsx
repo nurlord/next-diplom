@@ -1,7 +1,6 @@
 'use client';
 
-import { useRawInitData } from '@telegram-apps/sdk-react';
-import { init, mockTelegramEnv } from '@telegram-apps/sdk';
+import { init, mockTelegramEnv, retrieveLaunchParams } from '@telegram-apps/sdk';
 import { useEffect, useState, createContext, useContext } from 'react';
 import { useAuth } from '@/api/hooks';
 
@@ -76,7 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const initDataRaw = useRawInitData();
   const { mutateAsync: authenticate } = useAuth();
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -84,14 +82,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    // If not in Telegram environment or missing initData, just finish loading (dev mock could be added here)
-    if (!initDataRaw) {
-      console.warn("No Telegram init data found. Not inside Telegram?");
-      setIsLoading(false);
-      return;
-    }
-
     const checkAuth = async () => {
+      let initDataRaw = '';
+      
+      try {
+        const lp = retrieveLaunchParams();
+        initDataRaw = (lp as any).initDataRaw || '';
+      } catch (e) {
+        console.warn("Could not retrieve launch params:", e);
+      }
+
+      if (!initDataRaw) {
+        console.warn("No Telegram init data found. Not inside Telegram?");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const response = await authenticate({ initData: initDataRaw });
         
@@ -113,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, [initDataRaw, authenticate]);
+  }, [authenticate]);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, isLoading, userId }}>
