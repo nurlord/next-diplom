@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       try {
         const lp = retrieveLaunchParams();
-        initDataRaw = (lp as any).initDataRaw || '';
+        initDataRaw = (lp as { initDataRaw?: string }).initDataRaw || '';
       } catch (e) {
         console.warn("Could not retrieve launch params:", e);
       }
