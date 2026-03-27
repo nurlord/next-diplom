@@ -4,7 +4,7 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { DynamicAuthProvider } from "@/providers/DynamicAuthProvider";
-import { TelegramInit } from "@/providers/TelegramInit";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,6 +13,23 @@ export const metadata: Metadata = {
   description: "Support creators via TON",
 };
 
+// This inline script runs synchronously during HTML parsing — before ANY
+// Next.js JavaScript bundles load. It grabs the Telegram launch params from
+// the URL hash/query and stores them in sessionStorage under the key that
+// @telegram-apps/bridge SDK expects ("tapps/launchParams").
+// Without this, Next.js App Router strips the URL hash during hydration,
+// and by the time our React code calls retrieveLaunchParams(), the data is gone.
+const CAPTURE_TG_PARAMS_SCRIPT = `
+(function(){
+  try {
+    var raw = location.href.replace(/^[^?#]*[?#]/, '').replace(/[?#]/g, '&');
+    if (raw && raw.indexOf('tgWebAppData') !== -1) {
+      sessionStorage.setItem('tapps/launchParams', JSON.stringify(raw));
+    }
+  } catch(e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,12 +37,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <Script
+          id="tg-launch-params"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: CAPTURE_TG_PARAMS_SCRIPT }}
+        />
+      </head>
       <body
         // 1. Lock the screen height to the viewport (100dvh for mobile browsers)
         // 2. Prevent default browser scrolling on the body (overflow-hidden)
         className={`${inter.className} bg-neutral-950 text-white h-dvh w-screen flex justify-center overflow-hidden`}
       >
-        <TelegramInit />
         <QueryProvider>
           <DynamicAuthProvider>
             {/* Mobile Container Simulation */}
