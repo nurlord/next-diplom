@@ -10,15 +10,30 @@ import {
   Pencil,
   History,
   Truck,
+  RotateCw,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { useUserProfile, useChats, useChatSubscriptionStats, useChatPlans, useCreateChatPlan, useUpdateUserProfile, useChatAnalytics, useChatSubscriptions, useUpdateChatSubscriptionStatus, useBroadcasts, useCreateBroadcast, useSendBroadcast, useCreateGift, useCreatePromoCode, usePrivateChatSettings, useUpdatePrivateChatSettings, useDialogs, useDialogMessages, useSendMessageToDialog, useUpdateDialogStatus, useUpdatePlan, useBroadcastDeliveries, useSubscriptionEvents, useCreatorAnalytics, useDeleteUserProfile, usePlatformAnalytics } from "@/api/hooks";
+import { queryKeys, useUserProfile, useChats, useChatSubscriptionStats, useChatPlans, useCreateChatPlan, useUpdateUserProfile, useChatAnalytics, useChatSubscriptions, useUpdateChatSubscriptionStatus, useBroadcasts, useCreateBroadcast, useSendBroadcast, useCreateGift, useCreatePromoCode, usePrivateChatSettings, useUpdatePrivateChatSettings, useDialogs, useDialogMessages, useSendMessageToDialog, useUpdateDialogStatus, useUpdatePlan, useBroadcastDeliveries, useSubscriptionEvents, useCreatorAnalytics, useDeleteUserProfile, usePlatformAnalytics } from "@/api/hooks";
 
 export default function AdminDashboard() {
   const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Debug log for troubleshooting registration
+  useEffect(() => {
+    if (userId) {
+      console.log("AdminDashboard: Current UserId:", userId);
+    }
+  }, [userId]);
+  
+  const handleSync = async () => {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.chats });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.user });
+  };
   
   const { data: userRes, isLoading: isUserLoading } = useUserProfile({ enabled: isAuthenticated });
   const user = userRes?.data;
@@ -290,7 +305,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="pb-24 pt-6 px-5 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Top Bar */}
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-3">
           <Image
@@ -311,12 +325,21 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-        <button 
-          onClick={openProfileModal}
-          className="p-2 bg-neutral-800 rounded-full border border-neutral-700"
-        >
-          <Settings size={18} className="text-neutral-400" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handleSync}
+            className="p-2 bg-neutral-800 rounded-full border border-neutral-700 active:rotate-180 transition-transform duration-500"
+            title="Sync data"
+          >
+            <RotateCw size={18} className="text-neutral-400" />
+          </button>
+          <button 
+            onClick={openProfileModal}
+            className="p-2 bg-neutral-800 rounded-full border border-neutral-700"
+          >
+            <Settings size={18} className="text-neutral-400" />
+          </button>
+        </div>
       </div>
 
       {/* Balance Card (The "Wallet") */}
@@ -1155,13 +1178,14 @@ function RegistrationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
         </div>
 
         <button 
-          onClick={() => {
+          onClick={async () => {
             onClose();
+            // Invalidate queries instead of full reload for better DX
             window.location.reload();
           }}
           className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-blue-600/20"
         >
-          I&apos;ve added the bot
+          Check Registration Status
         </button>
       </div>
     </div>
