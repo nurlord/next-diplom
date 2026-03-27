@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useChatById, useChatPlans, useSubscribeToPlan } from "@/api/hooks";
+import { useChatById, useChatPlans, useSubscribeToPlan, useApplyPromoCode, usePreviewPromoCode } from "@/api/hooks";
 import {
   CheckCircle2,
   Lock,
   Zap,
   Gem,
-  Users,
   MessageCircle,
   ShieldCheck,
   ArrowLeft
@@ -16,6 +15,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useAuthContext } from "@/providers/AuthProvider";
+import ReviewSection from "@/components/ReviewSection";
 
 const FEED_PREVIEW = [
   {
@@ -50,10 +50,15 @@ export default function ChatSubscriptionPage() {
   const plans = plansRes?.data || [];
 
   const { mutateAsync: subscribe, isPending: isSubscribing } = useSubscribeToPlan();
+  const { mutateAsync: applyPromo, isPending: isApplyingPromo } = useApplyPromoCode();
 
   const [loadingPlanId, setLoadingPlanId] = useState<number | null>(null);
   const [successData, setSuccessData] = useState<{ invite_link?: string; amount?: number } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [promoCode, setPromoCode] = useState("");
+  const [promoPreview, setPromoPreview] = useState<{ original_price?: number; final_price?: number; discount_type?: string; discount_value?: number } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const { mutateAsync: previewPromo, isPending: isPreviewing } = usePreviewPromoCode();
 
   const handleSubscribe = async (planId: number, price?: number) => {
     if (!isAuthenticated) {
@@ -63,14 +68,30 @@ export default function ChatSubscriptionPage() {
     setLoadingPlanId(planId);
     setErrorMsg(null);
     try {
-      // In MVP without payments, this just returns an invite link immediately
-      const res = await subscribe({ chatId, planId });
+      let res;
+      if (promoCode) {
+        res = await applyPromo({ planId, data: { code: promoCode } });
+      } else {
+        res = await subscribe({ chatId, planId });
+      }
       setSuccessData({ invite_link: res.data?.invite_link, amount: price });
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
       setErrorMsg("Subscription failed. Please try again.");
     } finally {
       setLoadingPlanId(null);
+    }
+  };
+
+  const handlePreviewPromo = async (planId: number) => {
+    if (!promoCode) return;
+    setPromoError(null);
+    try {
+      const res = await previewPromo({ planId, data: { code: promoCode } });
+      setPromoPreview(res.data);
+    } catch {
+      setPromoError("Invalid promo code.");
+      setPromoPreview(null);
     }
   };
 
@@ -184,7 +205,7 @@ export default function ChatSubscriptionPage() {
       {/* --- TIERS SECTION --- */}
       <div className="px-5 space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-lg">Choose Plan</h3>
+          <h3 className="font-semibold text-lg text-white">Choose Plan</h3>
           <span className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
             Pay via TON
           </span>
@@ -195,6 +216,39 @@ export default function ChatSubscriptionPage() {
             {errorMsg}
           </div>
         )}
+
+        <div className="bg-neutral-800/40 border border-neutral-800 p-4 rounded-xl space-y-3">
+          <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest">
+            Have a promo code?
+          </label>
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              value={promoCode}
+              onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoPreview(null); setPromoError(null); }}
+              placeholder="ENTER CODE"
+              className="flex-1 bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors uppercase font-mono"
+            />
+            {promoCode && !promoPreview && (
+              <button
+                type="button"
+                onClick={() => plans[0]?.id && handlePreviewPromo(plans[0].id)}
+                disabled={isPreviewing}
+                className="px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-xs font-bold rounded-lg border border-neutral-600 transition-colors disabled:opacity-50"
+              >
+                {isPreviewing ? "…" : "Check"}
+              </button>
+            )}
+          </div>
+          {promoPreview && (
+            <div className="text-sm bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-green-400">
+              <span className="line-through text-neutral-500 mr-2">{promoPreview.original_price} TON</span>
+              → <span className="font-bold">{promoPreview.final_price} TON</span>
+              {" "}({promoPreview.discount_type === "percentage" ? `${promoPreview.discount_value}% off` : `${promoPreview.discount_value} TON off`})
+            </div>
+          )}
+          {promoError && <p className="text-xs text-red-400">{promoError}</p>}
+        </div>
 
         {plans.length > 0 ? (
           <div className="grid gap-4">
@@ -248,7 +302,7 @@ export default function ChatSubscriptionPage() {
 
                   <button
                     onClick={() => handleSubscribe(tier.id!, tier.price)}
-                    disabled={loadingPlanId !== null || isSubscribing}
+                    disabled={loadingPlanId !== null || isSubscribing || isApplyingPromo}
                     className={`w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center justify-center gap-2
                       ${
                         isPopular
@@ -280,7 +334,7 @@ export default function ChatSubscriptionPage() {
 
       {/* --- LOCKED CONTENT PREVIEW --- */}
       <div className="px-5">
-        <h3 className="font-semibold text-lg mb-4">Recent Posts</h3>
+        <h3 className="font-semibold text-lg text-white mb-4">Recent Posts</h3>
         <div className="space-y-4">
           {FEED_PREVIEW.map((post) => (
             <div
@@ -319,6 +373,11 @@ export default function ChatSubscriptionPage() {
           ))}
         </div>
       </div>
+
+      <hr className="border-neutral-800 my-8 mx-5" />
+
+      {/* --- REVIEWS SECTION --- */}
+      <ReviewSection chatId={chatId} />
 
       <div className="flex justify-center mt-10 mb-4 opacity-50">
         <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 uppercase tracking-widest">

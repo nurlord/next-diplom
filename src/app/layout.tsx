@@ -36,13 +36,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
       <head>
         <Script
           id="tg-launch-params"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: CAPTURE_TG_PARAMS_SCRIPT }}
         />
+        {/* Force dark theme on all browsers/WebViews regardless of OS theme */}
+        <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#0a0a0a" />
       </head>
       <body
         // 1. Lock the screen height to the viewport (100dvh for mobile browsers)
