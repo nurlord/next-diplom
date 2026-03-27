@@ -13,6 +13,7 @@ export interface Chat {
   isPremium?: boolean;
   ownerID?: number;
   title?: string;
+  Title?: string;
   type?: string;
   updatedAt?: string;
   username?: string;
