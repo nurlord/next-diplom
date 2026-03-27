@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useChatById, useChatPlans, useSubscribeToPlan, useApplyPromoCode, usePreviewPromoCode } from "@/api/hooks";
+import {
+  useChatById,
+  useChatPlans,
+  useSubscribeToPlan,
+  useApplyPromoCode,
+  usePreviewPromoCode,
+} from "@/api/hooks";
 import {
   CheckCircle2,
   Lock,
@@ -10,7 +16,7 @@ import {
   Gem,
   MessageCircle,
   ShieldCheck,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,22 +49,39 @@ export default function ChatSubscriptionPage() {
   const chatId = Number(id);
   const { isAuthenticated } = useAuthContext();
 
-  const { data: chatRes, isLoading: chatLoading, error: chatError } = useChatById(chatId, { enabled: !!chatId });
+  const {
+    data: chatRes,
+    isLoading: chatLoading,
+    error: chatError,
+  } = useChatById(chatId, { enabled: !!chatId });
   const chat = chatRes?.data;
 
-  const { data: plansRes, isLoading: plansLoading } = useChatPlans(chatId, { enabled: !!chatId });
+  const { data: plansRes, isLoading: plansLoading } = useChatPlans(chatId, {
+    enabled: !!chatId,
+  });
   const plans = plansRes?.data || [];
 
-  const { mutateAsync: subscribe, isPending: isSubscribing } = useSubscribeToPlan();
-  const { mutateAsync: applyPromo, isPending: isApplyingPromo } = useApplyPromoCode();
+  const { mutateAsync: subscribe, isPending: isSubscribing } =
+    useSubscribeToPlan();
+  const { mutateAsync: applyPromo, isPending: isApplyingPromo } =
+    useApplyPromoCode();
 
   const [loadingPlanId, setLoadingPlanId] = useState<number | null>(null);
-  const [successData, setSuccessData] = useState<{ invite_link?: string; amount?: number } | null>(null);
+  const [successData, setSuccessData] = useState<{
+    invite_link?: string;
+    amount?: number;
+  } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState("");
-  const [promoPreview, setPromoPreview] = useState<{ original_price?: number; final_price?: number; discount_type?: string; discount_value?: number } | null>(null);
+  const [promoPreview, setPromoPreview] = useState<{
+    original_price?: number;
+    final_price?: number;
+    discount_type?: string;
+    discount_value?: number;
+  } | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
-  const { mutateAsync: previewPromo, isPending: isPreviewing } = usePreviewPromoCode();
+  const { mutateAsync: previewPromo, isPending: isPreviewing } =
+    usePreviewPromoCode();
 
   const handleSubscribe = async (planId: number, price?: number) => {
     if (!isAuthenticated) {
@@ -96,11 +119,17 @@ export default function ChatSubscriptionPage() {
   };
 
   if (chatLoading || plansLoading) {
-    return <div className="p-8 text-center text-neutral-500 animate-pulse">Loading channel info...</div>;
+    return (
+      <div className="p-8 text-center text-neutral-500 animate-pulse">
+        Loading channel info...
+      </div>
+    );
   }
 
   if (chatError || !chat) {
-    return <div className="p-8 text-center text-red-500">Channel not found.</div>;
+    return (
+      <div className="p-8 text-center text-red-500">Channel not found.</div>
+    );
   }
 
   if (successData) {
@@ -125,7 +154,7 @@ export default function ChatSubscriptionPage() {
             Your Private Invite Link:
           </p>
           {successData.invite_link ? (
-            <a 
+            <a
               href={successData.invite_link}
               target="_blank"
               rel="noopener noreferrer"
@@ -135,14 +164,13 @@ export default function ChatSubscriptionPage() {
               Join Private Channel
             </a>
           ) : (
-            <p className="text-red-400 text-sm">Failed to generate invite link. Please contact support.</p>
+            <p className="text-red-400 text-sm">
+              Failed to generate invite link. Please contact support.
+            </p>
           )}
         </div>
 
-        <Link
-          href="/"
-          className="text-sm text-neutral-500 underline mt-4"
-        >
+        <Link href="/" className="text-sm text-neutral-500 underline mt-4">
           Go to My Subscriptions
         </Link>
       </div>
@@ -153,7 +181,10 @@ export default function ChatSubscriptionPage() {
     <div className="pb-24">
       {/* Top Header Navigation */}
       <div className="absolute top-4 left-4 z-10">
-        <Link href="/explore" className="w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/10 hover:bg-black/60 transition">
+        <Link
+          href="/explore"
+          className="w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/10 hover:bg-black/60 transition"
+        >
           <ArrowLeft size={20} />
         </Link>
       </div>
@@ -184,9 +215,12 @@ export default function ChatSubscriptionPage() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-xl font-bold flex items-center gap-2">
-                {chat.title}
+                {chat.Title}
               </h1>
-              <p className="text-sm text-neutral-400">@{chat.username || chat.title?.replace(/\s+/g, '').toLowerCase()}</p>
+              {/* <p className="text-sm text-neutral-400"> */}
+              {/*   @ */}
+              {/*   {chat.username || chat.title?.replace(/\s+/g, "").toLowerCase()} */}
+              {/* </p> */}
             </div>
             {/* Category Badge */}
             <div className="bg-neutral-800 px-3 py-1 rounded-full text-xs font-medium border border-neutral-700 text-blue-400 flex items-center gap-1.5">
@@ -195,7 +229,8 @@ export default function ChatSubscriptionPage() {
           </div>
 
           <p className="mt-3 text-neutral-300 text-sm leading-relaxed">
-            {chat.description || "The best premium content available on Telegram. Subscribe now to gain access."}
+            {chat.description ||
+              "The best premium content available on Telegram. Subscribe now to gain access."}
           </p>
         </div>
       </div>
@@ -222,10 +257,14 @@ export default function ChatSubscriptionPage() {
             Have a promo code?
           </label>
           <div className="flex gap-2">
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={promoCode}
-              onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoPreview(null); setPromoError(null); }}
+              onChange={(e) => {
+                setPromoCode(e.target.value.toUpperCase());
+                setPromoPreview(null);
+                setPromoError(null);
+              }}
               placeholder="ENTER CODE"
               className="flex-1 bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors uppercase font-mono"
             />
@@ -242,9 +281,16 @@ export default function ChatSubscriptionPage() {
           </div>
           {promoPreview && (
             <div className="text-sm bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-green-400">
-              <span className="line-through text-neutral-500 mr-2">{promoPreview.original_price} TON</span>
-              → <span className="font-bold">{promoPreview.final_price} TON</span>
-              {" "}({promoPreview.discount_type === "percentage" ? `${promoPreview.discount_value}% off` : `${promoPreview.discount_value} TON off`})
+              <span className="line-through text-neutral-500 mr-2">
+                {promoPreview.original_price} TON
+              </span>
+              →{" "}
+              <span className="font-bold">{promoPreview.final_price} TON</span>{" "}
+              (
+              {promoPreview.discount_type === "percentage"
+                ? `${promoPreview.discount_value}% off`
+                : `${promoPreview.discount_value} TON off`}
+              )
             </div>
           )}
           {promoError && <p className="text-xs text-red-400">{promoError}</p>}
@@ -285,16 +331,25 @@ export default function ChatSubscriptionPage() {
 
                   <ul className="space-y-2 mb-5">
                     <li className="text-sm text-neutral-300 flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-neutral-500 mt-0.5 shrink-0" />
+                      <CheckCircle2
+                        size={16}
+                        className="text-neutral-500 mt-0.5 shrink-0"
+                      />
                       Access to private {chat.type}
                     </li>
                     <li className="text-sm text-neutral-300 flex items-start gap-2">
-                      <CheckCircle2 size={16} className="text-neutral-500 mt-0.5 shrink-0" />
+                      <CheckCircle2
+                        size={16}
+                        className="text-neutral-500 mt-0.5 shrink-0"
+                      />
                       Direct interaction with creator
                     </li>
                     {tier.trial_days ? (
                       <li className="text-sm text-emerald-400 flex items-start gap-2">
-                        <CheckCircle2 size={16} className="text-emerald-500 mt-0.5 shrink-0" />
+                        <CheckCircle2
+                          size={16}
+                          className="text-emerald-500 mt-0.5 shrink-0"
+                        />
                         Includes {tier.trial_days} days free trial
                       </li>
                     ) : null}
@@ -302,7 +357,9 @@ export default function ChatSubscriptionPage() {
 
                   <button
                     onClick={() => handleSubscribe(tier.id!, tier.price)}
-                    disabled={loadingPlanId !== null || isSubscribing || isApplyingPromo}
+                    disabled={
+                      loadingPlanId !== null || isSubscribing || isApplyingPromo
+                    }
                     className={`w-full py-3 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center justify-center gap-2
                       ${
                         isPopular
@@ -325,7 +382,9 @@ export default function ChatSubscriptionPage() {
           </div>
         ) : (
           <div className="p-6 text-center border border-neutral-800 rounded-xl bg-neutral-900">
-            <p className="text-neutral-500">No subscription plans available yet.</p>
+            <p className="text-neutral-500">
+              No subscription plans available yet.
+            </p>
           </div>
         )}
       </div>
