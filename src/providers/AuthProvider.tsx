@@ -1,6 +1,6 @@
 'use client';
 
-import { init, mockTelegramEnv, retrieveLaunchParams } from '@telegram-apps/sdk';
+import { init, mockTelegramEnv, retrieveRawInitData } from '@telegram-apps/sdk';
 import { useEffect, useState, createContext, useContext } from 'react';
 import { useAuth } from '@/api/hooks';
 
@@ -89,10 +89,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let initDataRaw = '';
       
       try {
-        const lp = retrieveLaunchParams();
-        initDataRaw = (lp as { initDataRaw?: string }).initDataRaw || '';
+        // retrieveRawInitData() returns the raw tgWebAppData query string
+        // that the backend expects for signature verification.
+        // NOTE: retrieveLaunchParams().initDataRaw does NOT exist in SDK v3 —
+        // the parsed object has tgWebAppData as a nested object, not a raw string.
+        initDataRaw = retrieveRawInitData() || '';
       } catch (e) {
-        console.warn("Could not retrieve launch params:", e);
+        console.warn("Could not retrieve init data:", e);
       }
 
       if (!initDataRaw) {
