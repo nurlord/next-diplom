@@ -4,6 +4,7 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { DynamicAuthProvider } from "@/providers/DynamicAuthProvider";
+import { TelegramInit } from "@/providers/TelegramInit";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
         // 2. Prevent default browser scrolling on the body (overflow-hidden)
         className={`${inter.className} bg-neutral-950 text-white h-dvh w-screen flex justify-center overflow-hidden`}
       >
+        <TelegramInit />
         <QueryProvider>
           <DynamicAuthProvider>
             {/* Mobile Container Simulation */}
