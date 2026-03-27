@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const { isAuthenticated, isLoading: authLoading, authError } = useAuthContext();
   const { data: subsRes, isLoading: subsLoading } = useMySubscriptions(
     { limit: 20 },
     { enabled: isAuthenticated }
@@ -22,7 +22,13 @@ export default function HomePage() {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center h-[50vh]">
         <h2 className="text-xl font-bold mb-2">Welcome!</h2>
-        <p className="text-neutral-400">Please open this Mini App from Telegram to log in.</p>
+        {authError ? (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mt-4 max-w-sm">
+            <p className="text-red-400 text-sm">{authError}</p>
+          </div>
+        ) : (
+          <p className="text-neutral-400">Please open this Mini App from Telegram to log in.</p>
+        )}
       </div>
     );
   }

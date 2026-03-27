@@ -58,12 +58,14 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   userId: number | null;
+  authError: string | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   userId: null,
+  authError: null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -79,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -94,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!initDataRaw) {
         console.warn("No Telegram init data found. Not inside Telegram?");
+        setAuthError("Please open from Telegram. No initData found.");
         setIsLoading(false);
         return;
       }
@@ -110,8 +114,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setIsAuthenticated(true);
         setUserId(response.data.user_id ?? null);
-      } catch (error) {
+        setAuthError(null);
+      } catch (error: any) {
         console.error("Authentication failed", error);
+        setAuthError(error?.message || "Authentication logic failed");
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -122,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [authenticate]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, userId }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, userId, authError }}>
       {isLoading ? (
         <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-white">
           <p>Loading app...</p>
