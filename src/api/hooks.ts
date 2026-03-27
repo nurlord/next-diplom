@@ -30,10 +30,11 @@ export const useRefreshToken = () => {
 };
 
 // --- User Hooks ---
-export const useUserProfile = () => {
+export const useUserProfile = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.user,
     queryFn: () => requests.getUserProfile(),
+    enabled: options?.enabled,
   });
 };
 
@@ -58,17 +59,19 @@ export const useDeleteUserProfile = () => {
 };
 
 // --- Chat Hooks ---
-export const useChats = (params?: requests.GetChatsParams) => {
+export const useChats = (params?: requests.GetChatsParams, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [...queryKeys.chats, params],
     queryFn: () => requests.getChats(params),
+    enabled: options?.enabled,
   });
 };
 
-export const useChatCategories = () => {
+export const useChatCategories = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.categories,
     queryFn: () => requests.getChatCategories(),
+    enabled: options?.enabled,
   });
 };
 
@@ -120,17 +123,19 @@ export const useUpdatePlan = () => {
 };
 
 // --- Creator Subscriptions Hooks ---
-export const useChatSubscriptions = (chatId: number, params?: requests.GetChatSubscriptionsParams) => {
+export const useChatSubscriptions = (chatId: number, params?: requests.GetChatSubscriptionsParams, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [...queryKeys.chatSubscriptions(chatId), params],
     queryFn: () => requests.getChatSubscriptions(chatId, params),
+    enabled: options?.enabled,
   });
 };
 
-export const useChatSubscriptionStats = (chatId: number) => {
+export const useChatSubscriptionStats = (chatId: number, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.chatStats(chatId),
     queryFn: () => requests.getChatSubscriptionStats(chatId),
+    enabled: options?.enabled,
   });
 };
 
@@ -146,25 +151,28 @@ export const useUpdateChatSubscriptionStatus = () => {
   });
 };
 
-export const useSubscriptionEvents = (chatId: number, subscriptionId: number, params?: requests.GetSubscriptionEventsParams) => {
+export const useSubscriptionEvents = (chatId: number, subscriptionId: number, params?: requests.GetSubscriptionEventsParams, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [...queryKeys.subscriptionEvents(chatId, subscriptionId), params],
     queryFn: () => requests.getSubscriptionEvents(chatId, subscriptionId, params),
+    enabled: options?.enabled,
   });
 };
 
 // --- User Subscriptions Hooks ---
-export const useMySubscriptions = (params?: requests.GetMySubscriptionsParams) => {
+export const useMySubscriptions = (params?: requests.GetMySubscriptionsParams, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [...queryKeys.mySubscriptions, params],
     queryFn: () => requests.getMySubscriptions(params),
+    enabled: options?.enabled,
   });
 };
 
-export const useInviteLink = (chatId: number) => {
+export const useInviteLink = (chatId: number, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.invite(chatId),
     queryFn: () => requests.getInviteLink(chatId),
+    enabled: options?.enabled,
   });
 };
 

@@ -9,6 +9,7 @@ export default function HomePage() {
   const { isAuthenticated, isLoading: authLoading } = useAuthContext();
   const { data: subsRes, isLoading: subsLoading } = useMySubscriptions(
     { limit: 20 },
+    { enabled: isAuthenticated }
   );
 
   const subscriptions = subsRes?.data?.items || [];

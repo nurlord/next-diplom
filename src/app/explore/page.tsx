@@ -16,13 +16,13 @@ export default function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: categoriesRes } = useChatCategories();
+  const { data: categoriesRes } = useChatCategories({ enabled: isAuthenticated });
   const categories = categoriesRes?.data || [];
 
   const { data: chatsRes, isLoading: chatsLoading } = useChats({
     category_id: selectedCategory,
     // Add text search if API supports it, currently API swagger doesn't have a q/search param, so client side filter or just list
-  });
+  }, { enabled: isAuthenticated });
 
   const chats = chatsRes?.data?.items || [];
   

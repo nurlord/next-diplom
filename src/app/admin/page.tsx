@@ -15,21 +15,22 @@ import { useUserProfile, useChats, useChatSubscriptionStats, useChatPlans, useCr
 export default function AdminDashboard() {
   const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
   
-  const { data: userRes, isLoading: isUserLoading } = useUserProfile();
+  const { data: userRes, isLoading: isUserLoading } = useUserProfile({ enabled: isAuthenticated });
   const user = userRes?.data;
 
   // Assume the user owns chats. Fetch them.
-  const { data: chatsRes, isLoading: isChatsLoading } = useChats(
-    userId ? { owner_id: userId } : undefined
+  const { data: chatsRes } = useChats(
+    userId ? { owner_id: userId } : undefined,
+    { enabled: !!userId }
   );
   
   // For MVP, just pick the first chat they own for the dashboard
   const myChat = chatsRes?.data?.items?.[0];
 
-  const { data: statsRes } = useChatSubscriptionStats(myChat?.id || 0);
+  const { data: statsRes } = useChatSubscriptionStats(myChat?.id || 0, { enabled: !!myChat?.id });
   const stats = statsRes?.data;
 
-  const { data: plansRes } = useChatPlans(myChat?.id || 0);
+  const { data: plansRes } = useChatPlans(myChat?.id || 0, { enabled: !!myChat?.id });
   const plans = plansRes?.data;
 
   // Create Plan Form State
@@ -132,7 +133,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="bg-neutral-800/50 border border-neutral-800 p-6 rounded-xl text-center">
-          <p className="text-sm text-neutral-400 mb-3">You don't have any registered chats.</p>
+          <p className="text-sm text-neutral-400 mb-3">You don&apos;t have any registered chats.</p>
           <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">
             Register a Channel
           </button>

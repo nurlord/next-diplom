@@ -1,7 +1,7 @@
 import ky from 'ky';
 
 export const apiClient = ky.create({
-  prefixUrl: typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_API_URL || '') : '', // Use relative path in browser to trigger next.config.ts proxy, mitigating CORS
+  prefixUrl: process.env.NEXT_PUBLIC_API_URL || '', // Base path for the API
   hooks: {
     beforeRequest: [
       (request) => {
