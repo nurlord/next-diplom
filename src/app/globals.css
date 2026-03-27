@@ -66,3 +66,13 @@ body {
 @utility pt-safe {
   padding-top: env(safe-area-inset-top);
 }
+
+/* ─── Prevent Auto-Zoom on Input Focus (Mobile) ─────────────────────── */
+/* Mobile browsers (iOS) auto-zoom if font-size < 16px on inputs.       */
+@media screen and (max-width: 768px) {
+  input, 
+  textarea, 
+  select {
+    font-size: 16px !important;
+  }
+}
