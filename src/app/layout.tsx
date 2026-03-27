@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
@@ -11,6 +11,15 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "TON Creator | Premium Access",
   description: "Support creators via TON",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  // Also good for PWAs/Mini Apps to prevent undesired rubber-banding if needed
+  viewportFit: "cover",
 };
 
 // This inline script runs synchronously during HTML parsing — before ANY
