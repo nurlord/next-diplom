@@ -18,6 +18,7 @@ import { useUserProfile, useChats, useChatSubscriptionStats, useChatPlans, useCr
 
 export default function AdminDashboard() {
   const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   
   const { data: userRes, isLoading: isUserLoading } = useUserProfile({ enabled: isAuthenticated });
   const user = userRes?.data;
@@ -447,7 +448,10 @@ export default function AdminDashboard() {
       {!myChat && (
         <div className="bg-neutral-800/50 border border-neutral-800 p-6 rounded-xl text-center">
           <p className="text-sm text-neutral-400 mb-3">You don&apos;t have any registered chats.</p>
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">
+          <button 
+            onClick={() => setShowRegisterModal(true)}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors"
+          >
             Register a Channel
           </button>
         </div>
@@ -762,6 +766,11 @@ export default function AdminDashboard() {
         onDelete={handleDeleteProfile}
         isLoading={isUpdatingProfile}
         isDeleting={isDeletingProfile}
+      />
+
+      <RegistrationModal 
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
       />
 
       {/* Gift Creation Modal */}
@@ -1101,6 +1110,60 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function RegistrationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-neutral-500 hover:text-white"
+        >
+          <X size={20} />
+        </button>
+        <h3 className="text-lg font-bold mb-4">Register your Channel</h3>
+        
+        <div className="space-y-6">
+          <div className="flex gap-4">
+            <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold shrink-0">1</div>
+            <div>
+              <p className="font-semibold text-sm">Add our Bot</p>
+              <p className="text-xs text-neutral-500 mt-1">Add the project bot to your Telegram Channel or Group as a member.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold shrink-0">2</div>
+            <div>
+              <p className="font-semibold text-sm">Promote to Admin</p>
+              <p className="text-xs text-neutral-500 mt-1">Give the bot Administrative permissions (specifically permission to manage chat and invite users).</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold shrink-0">3</div>
+            <div>
+              <p className="font-semibold text-sm">Automatic Detection</p>
+              <p className="text-xs text-neutral-500 mt-1">Once promoted, the system will detect the bot and automatically register your channel here.</p>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={() => {
+            onClose();
+            window.location.reload();
+          }}
+          className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-blue-600/20"
+        >
+          I&apos;ve added the bot
+        </button>
+      </div>
     </div>
   );
 }
