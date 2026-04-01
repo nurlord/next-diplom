@@ -11,12 +11,13 @@ import {
   History,
   Truck,
   RotateCw,
+  ChevronDown,
 } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "@/providers/AuthProvider";
-import { queryKeys, useUserProfile, useChats, useChatSubscriptionStats, useChatPlans, useCreateChatPlan, useUpdateUserProfile, useChatAnalytics, useChatSubscriptions, useUpdateChatSubscriptionStatus, useBroadcasts, useCreateBroadcast, useSendBroadcast, useCreateGift, useCreatePromoCode, usePrivateChatSettings, useUpdatePrivateChatSettings, useDialogs, useDialogMessages, useSendMessageToDialog, useUpdateDialogStatus, useUpdatePlan, useBroadcastDeliveries, useSubscriptionEvents, useCreatorAnalytics, useDeleteUserProfile, usePlatformAnalytics } from "@/api/hooks";
+import { queryKeys, useUserProfile, useChats, useChatSubscriptionStats, useChatPlans, useCreateChatPlan, useUpdateUserProfile, useChatAnalytics, useChatSubscriptions, useUpdateChatSubscriptionStatus, useBroadcasts, useCreateBroadcast, useSendBroadcast, useCreateGift, useCreatePromoCode, usePrivateChatSettings, useUpdatePrivateChatSettings, useDialogs, useDialogMessages, useSendMessageToDialog, useUpdateDialogStatus, useUpdatePlan, useBroadcastDeliveries, useSubscriptionEvents, useCreatorAnalytics, useDeleteUserProfile, usePlatformAnalytics, useChatCategories, useUpdateChat, useChatById } from "@/api/hooks";
 
 export default function AdminDashboard() {
   const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
@@ -50,6 +51,8 @@ export default function AdminDashboard() {
   const { data: statsRes } = useChatSubscriptionStats(myChat?.id || 0, { enabled: !!myChat?.id });
   const stats = statsRes?.data;
 
+  const { data: chatDetailRes } = useChatById(myChat?.id || 0, { enabled: !!myChat?.id });
+
   const { data: plansRes } = useChatPlans(myChat?.id || 0, { enabled: !!myChat?.id });
   const plans = plansRes?.data;
 
@@ -73,10 +76,10 @@ export default function AdminDashboard() {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [newPlan, setNewPlan] = useState({
     title: "",
-    price: 0,
+    price: "0",
     plan_type: "periodic",
-    duration_days: 30,
-    trial_days: 0,
+    duration_days: "30",
+    trial_days: "0",
   });
   const { mutateAsync: createPlan, isPending: isCreatingPlan } = useCreateChatPlan();
 
@@ -84,9 +87,15 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!myChat?.id) return;
     try {
-      await createPlan({ chatId: myChat.id, data: newPlan });
+      const payload = {
+        ...newPlan,
+        price: parseFloat(newPlan.price) || 0,
+        duration_days: newPlan.plan_type === 'lifetime' ? 0 : (parseInt(newPlan.duration_days) || 30),
+        trial_days: parseInt(newPlan.trial_days) || 0,
+      };
+      await createPlan({ chatId: myChat.id, data: payload });
       setShowPlanModal(false);
-      setNewPlan({ title: "", price: 0, plan_type: "periodic", duration_days: 30, trial_days: 0 });
+      setNewPlan({ title: "", price: "0", plan_type: "periodic", duration_days: "30", trial_days: "0" });
     } catch (err) {
       console.error("Failed to create plan", err);
       alert("Failed to create plan. Check console.");
@@ -262,18 +271,59 @@ export default function AdminDashboard() {
   };
 
   // Edit plan state
-  const [editingPlan, setEditingPlan] = useState<{ id: number; price: number; status: string; trial_days: number } | null>(null);
+  const [editingPlan, setEditingPlan] = useState<{ id: number; price: string; status: string; trial_days: string } | null>(null);
   const { mutateAsync: updatePlan, isPending: isUpdatingPlan } = useUpdatePlan();
 
   const handleEditPlan = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingPlan) return;
+    if (!editingPlan || !myChat?.id) return;
     try {
-      await updatePlan({ planId: editingPlan.id, data: { price: editingPlan.price, status: editingPlan.status, trial_days: editingPlan.trial_days } });
+      await updatePlan({ 
+        planId: editingPlan.id, 
+        chatId: myChat.id,
+        data: { 
+          price: parseFloat(editingPlan.price) || 0, 
+          status: editingPlan.status, 
+          trial_days: parseInt(editingPlan.trial_days) || 0 
+        } 
+      });
       setEditingPlan(null);
     } catch (err) {
       console.error("Failed to update plan", err);
       alert("Failed to update plan.");
+    }
+  };
+
+  // Chat/Channel Settings State
+  const [showChatModal, setShowChatModal] = useState(false);
+  const { data: catRes } = useChatCategories({ enabled: isAuthenticated });
+  const categories = catRes?.data || [];
+  const [chatForm, setChatForm] = useState({
+    category_id: 0,
+    description: "",
+  });
+  const { mutateAsync: updateChat, isPending: isUpdatingChat } = useUpdateChat();
+
+  const openChatModal = () => {
+    const chatDetail = chatDetailRes?.data;
+    if (chatDetail) {
+      setChatForm({
+        category_id: chatDetail.categoryID || 0,
+        description: chatDetail.description || "",
+      });
+      setShowChatModal(true);
+    }
+  };
+
+  const handleUpdateChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!myChat?.id) return;
+    try {
+      await updateChat({ chatId: myChat.id, data: chatForm });
+      setShowChatModal(false);
+    } catch (err) {
+      console.error("Failed to update chat", err);
+      alert("Failed to update channel settings.");
     }
   };
 
@@ -326,6 +376,15 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {myChat && (
+            <button 
+              onClick={openChatModal}
+              className="p-2 bg-neutral-800 rounded-full border border-neutral-700"
+              title="Channel Settings"
+            >
+              <Users size={18} className="text-neutral-400" />
+            </button>
+          )}
           <button 
             onClick={handleSync}
             className="p-2 bg-neutral-800 rounded-full border border-neutral-700 active:rotate-180 transition-transform duration-500"
@@ -336,6 +395,7 @@ export default function AdminDashboard() {
           <button 
             onClick={openProfileModal}
             className="p-2 bg-neutral-800 rounded-full border border-neutral-700"
+            title="Profile Settings"
           >
             <Settings size={18} className="text-neutral-400" />
           </button>
@@ -652,7 +712,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setEditingPlan({ id: plan.id!, price: plan.price!, status: plan.status || 'active', trial_days: plan.trial_days || 0 })}
+                        onClick={() => setEditingPlan({ id: plan.id!, price: String(plan.price || 0), status: plan.status || 'active', trial_days: String(plan.trial_days || 0) })}
                         className="p-1.5 text-neutral-500 hover:text-blue-400 hover:bg-neutral-800 rounded-lg transition-colors"
                         title="Edit plan"
                       >
@@ -719,11 +779,9 @@ export default function AdminDashboard() {
                   <label className="block text-xs text-neutral-400 mb-1">Price (TON)</label>
                   <input 
                     required
-                    type="number" 
-                    min="0"
-                    step="0.1"
-                    value={newPlan.price || ""}
-                    onChange={e => setNewPlan({...newPlan, price: parseFloat(e.target.value) || 0})}
+                    type="text" 
+                    value={newPlan.price}
+                    onChange={e => setNewPlan({...newPlan, price: e.target.value})}
                     className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" 
                     placeholder="0.0" 
                   />
@@ -747,20 +805,18 @@ export default function AdminDashboard() {
                     <label className="block text-xs text-neutral-400 mb-1">Duration (Days)</label>
                     <input 
                       required
-                      type="number" 
-                      min="1"
-                      value={newPlan.duration_days || ""}
-                      onChange={e => setNewPlan({...newPlan, duration_days: parseInt(e.target.value) || 30})}
+                      type="text" 
+                      value={newPlan.duration_days}
+                      onChange={e => setNewPlan({...newPlan, duration_days: e.target.value})}
                       className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" 
                     />
                   </div>
                   <div className="flex-1">
                     <label className="block text-xs text-neutral-400 mb-1">Trial (Days)</label>
                     <input 
-                      type="number" 
-                      min="0"
-                      value={newPlan.trial_days || ""}
-                      onChange={e => setNewPlan({...newPlan, trial_days: parseInt(e.target.value) || 0})}
+                      type="text" 
+                      value={newPlan.trial_days}
+                      onChange={e => setNewPlan({...newPlan, trial_days: e.target.value})}
                       className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" 
                     />
                   </div>
@@ -981,18 +1037,18 @@ export default function AdminDashboard() {
               <div>
                 <label className="block text-xs text-neutral-400 mb-1">Price (TON)</label>
                 <input
-                  required type="number" min="0" step="0.1"
+                  required type="text"
                   value={editingPlan.price}
-                  onChange={e => setEditingPlan({ ...editingPlan, price: parseFloat(e.target.value) || 0 })}
+                  onChange={e => setEditingPlan({ ...editingPlan, price: e.target.value })}
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block text-xs text-neutral-400 mb-1">Trial Days</label>
                 <input
-                  type="number" min="0"
+                  type="text"
                   value={editingPlan.trial_days}
-                  onChange={e => setEditingPlan({ ...editingPlan, trial_days: parseInt(e.target.value) || 0 })}
+                  onChange={e => setEditingPlan({ ...editingPlan, trial_days: e.target.value })}
                   className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                 />
               </div>
@@ -1133,6 +1189,15 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+      <ChatModal 
+        isOpen={showChatModal}
+        onClose={() => setShowChatModal(false)}
+        form={chatForm}
+        setForm={setChatForm}
+        onSubmit={handleUpdateChat}
+        isLoading={isUpdatingChat}
+        categories={categories}
+      />
     </div>
   );
 }
@@ -1276,6 +1341,78 @@ function ProfileModal({
             {isDeleting ? "Deleting..." : "Delete Account"}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+function ChatModal({
+  isOpen,
+  onClose,
+  form,
+  setForm,
+  onSubmit,
+  isLoading,
+  categories,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  form: { category_id: number; description: string };
+  setForm: React.Dispatch<React.SetStateAction<{ category_id: number; description: string }>>;
+  onSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean;
+  categories: any[];
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-neutral-500 hover:text-white">
+          <X size={20} />
+        </button>
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-white">
+          <Users size={20} className="text-blue-400" />
+          Channel Settings
+        </h3>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs text-neutral-400 mb-1">Category</label>
+            <div className="relative">
+              <select
+                required
+                value={form.category_id}
+                onChange={e => setForm({ ...form, category_id: parseInt(e.target.value) || 0 })}
+                className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 appearance-none text-white"
+              >
+                <option value={0}>Select a category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.category}</option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-neutral-500">
+                <ChevronDown size={14} />
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-neutral-400 mb-1">Description</label>
+            <textarea
+              required
+              rows={4}
+              value={form.description}
+              onChange={e => setForm({ ...form, description: e.target.value })}
+              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 text-white resize-none"
+              placeholder="Tell users about your channel..."
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full mt-2 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 text-white flex items-center justify-center gap-2"
+          >
+            {isLoading ? "Saving..." : "Save Settings"}
+          </button>
+        </form>
       </div>
     </div>
   );

@@ -136,6 +136,11 @@ export interface UpdateUserRequest {
   username?: string;
 }
 
+export interface UpdateChatReq {
+  category_id?: number;
+  description?: string;
+}
+
 // Envelope responses definition
 export interface ErrorResponse {
   code?: string;

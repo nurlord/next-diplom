@@ -46,6 +46,11 @@ export const getChatCategories = () =>
 export const getChatById = (chat_id: number) =>
   apiClient.get(`api/chats/${chat_id}`).json<T.ResponseEnvelope<T.Chat>>();
 
+export const updateChat = (chat_id: number, data: T.UpdateChatReq) =>
+  apiClient
+    .patch(`api/chats/${chat_id}`, { json: data })
+    .json<T.ResponseEnvelope<T.Chat>>();
+
 // Plans
 export const getChatPlans = (chat_id: number) =>
   apiClient

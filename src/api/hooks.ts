@@ -92,6 +92,18 @@ export const useChatById = (chatId: number, options?: { enabled?: boolean }) => 
   });
 };
 
+export const useUpdateChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ chatId, data }: { chatId: number; data: T.UpdateChatReq }) => 
+      requests.updateChat(chatId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.chat(variables.chatId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.chats });
+    },
+  });
+};
+
 // --- Plan Hooks ---
 export const useChatPlans = (chatId: number, options?: { enabled?: boolean }) => {
   return useQuery({
@@ -123,10 +135,13 @@ export const usePlanById = (planId: number, options?: { enabled?: boolean }) => 
 export const useUpdatePlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ planId, data }: { planId: number; data: T.UpdateSubscriptionPlanReq }) => 
+    mutationFn: ({ planId, data, chatId }: { planId: number; data: T.UpdateSubscriptionPlanReq; chatId?: number }) => 
       requests.updatePlan(planId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.plan(variables.planId) });
+      if (variables.chatId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.plans(variables.chatId) });
+      }
     },
   });
 };
