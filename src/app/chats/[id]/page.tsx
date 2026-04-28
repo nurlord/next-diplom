@@ -74,10 +74,9 @@ export default function ChatSubscriptionPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState("");
   const [promoPreview, setPromoPreview] = useState<{
-    original_price?: number;
-    final_price?: number;
-    discount_type?: string;
-    discount_value?: number;
+    original_amount?: number;
+    final_amount?: number;
+    discount_amount?: number;
   } | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
   const { mutateAsync: previewPromo, isPending: isPreviewing } =
@@ -93,10 +92,9 @@ export default function ChatSubscriptionPage() {
     try {
       let res;
       if (promoCode) {
-        res = await applyPromo({ planId, data: { code: promoCode } });
-      } else {
-        res = await subscribe({ chatId, planId });
+        await applyPromo({ planId, data: { code: promoCode } });
       }
+      res = await subscribe({ chatId, planId });
       setSuccessData({ invite_link: res.data?.invite_link, amount: price });
     } catch (e: unknown) {
       console.error(e);
@@ -282,14 +280,12 @@ export default function ChatSubscriptionPage() {
           {promoPreview && (
             <div className="text-sm bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-green-400">
               <span className="line-through text-neutral-500 mr-2">
-                {promoPreview.original_price} TON
+                {promoPreview.original_amount} TON
               </span>
               →{" "}
-              <span className="font-bold">{promoPreview.final_price} TON</span>{" "}
+              <span className="font-bold">{promoPreview.final_amount} TON</span>{" "}
               (
-              {promoPreview.discount_type === "percentage"
-                ? `${promoPreview.discount_value}% off`
-                : `${promoPreview.discount_value} TON off`}
+              {promoPreview.discount_amount} TON off
               )
             </div>
           )}

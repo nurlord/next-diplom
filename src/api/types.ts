@@ -283,7 +283,7 @@ export interface Gift {
 export interface CreatePromoCodeReq {
   plan_id?: number;
   code: string;
-  discount_type: string; // 'percentage' | 'fixed'
+  discount_type: string; // 'percent' | 'fixed'
   discount_value: number;
   max_redemptions?: number;
   per_user_limit?: number;
@@ -311,11 +311,11 @@ export interface PromoCodePreviewReq {
 }
 
 export interface PromoCodePreview {
+  promo_code_id?: number;
   code?: string;
-  discount_type?: string;
-  discount_value?: number;
-  original_price?: number;
-  final_price?: number;
+  discount_amount?: number;
+  original_amount?: number;
+  final_amount?: number;
 }
 
 export interface ApplyPromoCodeReq {
@@ -324,8 +324,11 @@ export interface ApplyPromoCodeReq {
 }
 
 export interface PromoCodeApplyResult {
-  subscription_id?: number;
-  invite_link?: string;
+  promo_code_id?: number;
+  code?: string;
+  discount_amount?: number;
+  original_amount?: number;
+  final_amount?: number;
 }
 
 // --- Analytics ---

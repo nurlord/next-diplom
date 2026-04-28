@@ -734,7 +734,7 @@ function PromoSection({ chatId, plans }: any) {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     code: "",
-    discount_type: "percentage",
+    discount_type: "percent",
     discount_value: 10,
     plan_id: plans[0]?.id,
   });
@@ -794,14 +794,28 @@ function PromoSection({ chatId, plans }: any) {
                   </option>
                 ))}
               </select>
-              <input
-                type="number"
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-sm"
-                value={form.discount_value}
-                onChange={(e) =>
-                  setForm({ ...form, discount_value: e.target.value as any })
-                }
-              />
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Discount Type</label>
+                <select
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-sm"
+                  value={form.discount_type}
+                  onChange={(e) => setForm({ ...form, discount_type: e.target.value })}
+                >
+                  <option value="percent">Percent (%)</option>
+                  <option value="fixed">Fixed (TON)</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Discount Value</label>
+                <input
+                  type="number"
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-sm"
+                  value={form.discount_value}
+                  onChange={(e) =>
+                    setForm({ ...form, discount_value: e.target.value as any })
+                  }
+                />
+              </div>
               <button
                 type="submit"
                 className="w-full py-3 bg-blue-600 rounded-xl text-xs font-bold"
