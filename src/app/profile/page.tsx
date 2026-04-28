@@ -210,8 +210,8 @@ export default function ProfilePage() {
 
       {/* Edit Profile Modal */}
       {showProfileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto pt-12 pb-24">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl relative">
              <button onClick={() => setShowProfileModal(false)} className="absolute top-6 right-6 text-neutral-500 hover:text-white transition-colors">
                 <Settings className="animate-spin-slow" size={24} />
              </button>

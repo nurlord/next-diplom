@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { retrieveLaunchParams } from '@tma.js/sdk';
 
 // This executes at the module scope on the client side, running *before* Next.js 
@@ -17,5 +18,18 @@ if (typeof window !== 'undefined') {
 }
 
 export function TelegramInit() {
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        // Attempt to expand the webapp to full height
+        if ((window as any).Telegram?.WebApp) {
+          (window as any).Telegram.WebApp.expand();
+          (window as any).Telegram.WebApp.ready();
+        }
+      } catch (e) {
+        console.error('Failed to expand Telegram WebApp', e);
+      }
+    }
+  }, []);
   return null;
 }

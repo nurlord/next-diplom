@@ -15,7 +15,9 @@ export default function ExplorePage() {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
+  const [selectedCategory, setSelectedCategory] = useState<
+    number | undefined
+  >();
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [isPremiumOnly, setIsPremiumOnly] = useState<boolean | undefined>();
@@ -23,19 +25,24 @@ export default function ExplorePage() {
 
   const activeFilterCount = (isPremiumOnly ? 1 : 0) + (selectedType ? 1 : 0);
 
-  const { data: categoriesRes } = useChatCategories({ enabled: isAuthenticated });
+  const { data: categoriesRes } = useChatCategories({
+    enabled: isAuthenticated,
+  });
   const categories = categoriesRes?.data || [];
 
-  const { data: chatsRes, isLoading: chatsLoading } = useChats({
-    category_id: selectedCategory,
-    is_premium: isPremiumOnly,
-    type: selectedType,
-  }, { enabled: isAuthenticated });
+  const { data: chatsRes, isLoading: chatsLoading } = useChats(
+    {
+      category_id: selectedCategory,
+      is_premium: isPremiumOnly,
+      type: selectedType,
+    },
+    { enabled: isAuthenticated },
+  );
 
   const chats = chatsRes?.data?.items || [];
 
-  const filteredChats = chats.filter(c =>
-    c.title?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredChats = chats.filter((c) =>
+    c.title?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleMouseDown = (e: MouseEvent) => {
@@ -66,7 +73,7 @@ export default function ExplorePage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-white">Discover</h1>
         <button
-          onClick={() => setShowFilters(v => !v)}
+          onClick={() => setShowFilters((v) => !v)}
           className={`relative p-2 rounded-full border transition-colors ${
             showFilters || activeFilterCount > 0
               ? "bg-blue-600 border-blue-500 text-white"
@@ -86,9 +93,14 @@ export default function ExplorePage() {
       {showFilters && (
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex justify-between items-center">
-            <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Filters</p>
+            <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
+              Filters
+            </p>
             {activeFilterCount > 0 && (
-              <button onClick={clearFilters} className="text-xs text-blue-400 hover:underline flex items-center gap-1">
+              <button
+                onClick={clearFilters}
+                className="text-xs text-blue-400 hover:underline flex items-center gap-1"
+              >
                 <X size={12} /> Clear all
               </button>
             )}
@@ -101,11 +113,15 @@ export default function ExplorePage() {
               <span className="text-sm text-neutral-300">Premium only</span>
             </div>
             <button
-              onClick={() => setIsPremiumOnly(v => v ? undefined : true)}
+              onClick={() => setIsPremiumOnly((v) => (v ? undefined : true))}
               className={`w-12 h-6 rounded-full transition-all duration-300 relative ${isPremiumOnly ? "bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]" : "bg-neutral-700 shadow-inner"}`}
             >
-              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center ${isPremiumOnly ? "translate-x-6" : "translate-x-1"}`}>
-                {isPremiumOnly && <Star size={10} className="text-orange-500 fill-orange-500" />}
+              <span
+                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center ${isPremiumOnly ? "translate-x-6" : "translate-x-1"}`}
+              >
+                {isPremiumOnly && (
+                  <Star size={10} className="text-orange-500 fill-orange-500" />
+                )}
               </span>
             </button>
           </div>
@@ -114,10 +130,12 @@ export default function ExplorePage() {
           <div>
             <p className="text-xs text-neutral-500 mb-2">Channel Type</p>
             <div className="flex gap-2 flex-wrap">
-              {CHAT_TYPES.map(t => (
+              {CHAT_TYPES.map((t) => (
                 <button
                   key={t}
-                  onClick={() => setSelectedType(v => v === t ? undefined : t)}
+                  onClick={() =>
+                    setSelectedType((v) => (v === t ? undefined : t))
+                  }
                   className={`px-3 py-1 rounded-full text-xs font-medium capitalize transition-colors border ${
                     selectedType === t
                       ? "bg-blue-600 border-blue-500 text-white"
@@ -181,13 +199,22 @@ export default function ExplorePage() {
       {/* Channels List */}
       <div>
         <h2 className="text-sm font-semibold text-neutral-400 mb-3 uppercase tracking-wider">
-          {searchQuery ? "Search Results" : isPremiumOnly ? "Premium Channels" : selectedType ? `${selectedType}s`.replace(/ss$/, "ses") : "Trending Now"}
+          {searchQuery
+            ? "Search Results"
+            : isPremiumOnly
+              ? "Premium Channels"
+              : selectedType
+                ? `${selectedType}s`.replace(/ss$/, "ses")
+                : "Trending Now"}
         </h2>
 
         {authLoading || chatsLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-20 bg-neutral-800/40 rounded-xl animate-pulse"></div>
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-20 bg-neutral-800/40 rounded-xl animate-pulse"
+              ></div>
             ))}
           </div>
         ) : filteredChats.length > 0 ? (
@@ -201,14 +228,18 @@ export default function ExplorePage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2">
-                      <h3 className="font-semibold text-white truncate">{chat.title}</h3>
+                      <h3 className="font-semibold text-white truncate">
+                        {chat.title}
+                      </h3>
                       {chat.is_premium && (
                         <span className="shrink-0 bg-orange-500/10 text-orange-400 text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1">
                           <Star size={8} className="fill-orange-400" /> Premium
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-neutral-500 capitalize">{chat.category || chat.type}</p>
+                    <p className="text-xs text-neutral-500 capitalize">
+                      {chat.category || chat.type}
+                    </p>
                   </div>
 
                   <div className="shrink-0">

@@ -323,7 +323,10 @@ export default function ChatSubscriptionPage() {
                           {tier.price}
                         </span>
                         <span className="text-sm text-neutral-500 mb-1">
-                          TON / {tier.duration_days === 0 ? "Lifetime" : `${tier.duration_days} days`}
+                          TON /{" "}
+                          {tier.duration_days === 0
+                            ? "Lifetime"
+                            : `${tier.duration_days} days`}
                         </span>
                       </div>
                     </div>
