@@ -102,6 +102,7 @@ import {
   useChatById,
   usePublicReviews,
   useUpdatePlan,
+  useChatCategories,
 } from "@/api/hooks";
 import Link from "next/link";
 
@@ -173,6 +174,7 @@ export default function AdminDashboard() {
     | "private-chat"
     | "promo"
     | "reviews"
+    | "settings"
   >("plans");
 
   // Plan management
@@ -350,6 +352,7 @@ export default function AdminDashboard() {
               { id: "private-chat", label: "Support", icon: MessageSquare },
               { id: "promo", label: "Promo", icon: History },
               { id: "reviews", label: "Reviews", icon: CheckCheck },
+              { id: "settings", label: "Settings", icon: Settings },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -392,6 +395,9 @@ export default function AdminDashboard() {
             )}
             {activeTab === "reviews" && (
               <ReviewsSection chatId={myChat.id!} />
+            )}
+            {activeTab === "settings" && (
+              <ChatSettingsSection chat={myChat} />
             )}
           </div>
         </div>
@@ -813,6 +819,119 @@ function PromoSection({ chatId, plans }: any) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ChatSettingsSection({ chat }: { chat: any }) {
+  const { data: catRes } = useChatCategories();
+  const categories = catRes?.data || [];
+  const { mutateAsync: updateChat, isPending } = useUpdateChat();
+  const [form, setForm] = useState({
+    title: chat.title || "",
+    description: chat.description || "",
+    category_id: chat.categoryID || 0,
+    is_active: chat.isActive ?? true,
+  });
+
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateChat({
+        chatId: chat.id,
+        data: {
+          ...form,
+          category_id: Number(form.category_id) || undefined,
+        },
+      });
+      setToast({ message: "Settings updated successfully", type: "success" });
+    } catch (err) {
+      setToast({ message: "Failed to update settings. Backend endpoint might be missing.", type: "error" });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between px-1">
+        <h4 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">
+          Channel Settings
+        </h4>
+      </div>
+
+      {toast && (
+        <div className={`p-3 rounded-xl text-xs font-bold border animate-in fade-in duration-300 ${
+          toast.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-800 p-6 rounded-[2.5rem] space-y-6 shadow-xl">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Title</label>
+          <input
+            required
+            className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white"
+            value={form.title}
+            onChange={e => setForm({...form, title: e.target.value})}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Description</label>
+          <textarea
+            rows={3}
+            className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white"
+            value={form.description}
+            onChange={e => setForm({...form, description: e.target.value})}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Category</label>
+          <select
+            className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white"
+            value={form.category_id}
+            onChange={e => setForm({...form, category_id: Number(e.target.value)})}
+          >
+            <option value={0}>Uncategorized</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.category}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-neutral-950 rounded-2xl border border-neutral-800">
+           <div className="space-y-0.5">
+             <p className="text-xs font-black text-white">Active Status</p>
+             <p className="text-[9px] text-neutral-500 uppercase font-black">Visible in Explore</p>
+           </div>
+           <button
+             type="button"
+             onClick={() => setForm({...form, is_active: !form.is_active})}
+             className={`w-12 h-6 rounded-full transition-all relative ${form.is_active ? "bg-green-600" : "bg-neutral-800"}`}
+           >
+             <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${form.is_active ? "left-7" : "left-1"}`}></div>
+           </button>
+        </div>
+
+        <button
+          disabled={isPending}
+          type="submit"
+          className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-black transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+        >
+          {isPending ? "Saving..." : "Save Settings"}
+        </button>
+      </form>
+
+      <div className="p-6 bg-red-500/5 border border-red-500/10 rounded-[2.5rem] space-y-3">
+        <h5 className="text-[10px] font-black text-red-500 uppercase tracking-widest px-1">Danger Zone</h5>
+        <p className="text-[10px] text-neutral-500 leading-relaxed px-1">
+          To delete this channel, you must remove our bot from the channel administrators in Telegram.
+        </p>
+      </div>
     </div>
   );
 }

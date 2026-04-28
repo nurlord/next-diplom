@@ -6,7 +6,7 @@ import { useRef, useState, MouseEvent } from "react";
 import { useChats, useChatCategories } from "@/api/hooks";
 import { useAuthContext } from "@/providers/AuthProvider";
 
-const CHAT_TYPES = ["channel", "group", "bot"];
+const CHAT_TYPES = ["channel", "group", "supergroup"];
 
 export default function ExplorePage() {
   const { isAuthenticated, isLoading: authLoading } = useAuthContext();

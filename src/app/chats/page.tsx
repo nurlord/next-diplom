@@ -20,7 +20,7 @@ export default function ChatsPage() {
     {},
     { enabled: isAuthenticated }
   );
-  const subscriptions = subscriptionsRes?.data?.items || [];
+  const subscriptions = (subscriptionsRes?.data?.items || []).filter(s => s.status === 'active');
 
   if (authLoading) {
     return (

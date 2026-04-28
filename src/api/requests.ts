@@ -1,6 +1,11 @@
 import { apiClient } from "./client";
 import * as T from "./types";
 
+const cleanParams = (params?: Record<string, any>) => {
+  if (!params) return undefined;
+  return Object.fromEntries(Object.entries(params).filter(([_, v]) => v !== undefined)) as any;
+};
+
 // Auth
 export const auth = (data: T.AuthRequest) =>
   apiClient
@@ -33,10 +38,11 @@ export interface GetChatsParams {
   offset?: number;
 }
 
-export const getChats = (params?: GetChatsParams) =>
-  apiClient
-    .get("api/chats", { searchParams: params as any })
+export const getChats = (params?: GetChatsParams) => {
+  return apiClient
+    .get("api/chats", { searchParams: cleanParams(params) })
     .json<T.ResponseEnvelope<T.PaginationData<T.ListChatsItem>>>();
+};
 
 export const getChatCategories = () =>
   apiClient
@@ -92,7 +98,7 @@ export const getChatSubscriptions = (
   params?: GetChatSubscriptionsParams,
 ) =>
   apiClient
-    .get(`api/chats/${chat_id}/subscriptions`, { searchParams: params as any })
+    .get(`api/chats/${chat_id}/subscriptions`, { searchParams: cleanParams(params) })
     .json<T.ResponseEnvelope<T.PaginationData<T.ChatSubscription>>>();
 
 export const getChatSubscriptionStats = (chat_id: number) =>
@@ -134,7 +140,7 @@ export const getSubscriptionEvents = (
 ) =>
   apiClient
     .get(`api/chats/${chat_id}/subscriptions/${subscription_id}/events`, {
-      searchParams: params as any,
+      searchParams: cleanParams(params),
     })
     .json<T.ResponseEnvelope<T.PaginationData<T.SubscriptionEvent>>>();
 
@@ -149,7 +155,7 @@ export interface GetMySubscriptionsParams {
 
 export const getMySubscriptions = (params?: GetMySubscriptionsParams) =>
   apiClient
-    .get("api/subscriptions/me", { searchParams: params as any })
+    .get("api/subscriptions/me", { searchParams: cleanParams(params) })
     .json<T.ResponseEnvelope<T.PaginationData<T.Subscription>>>();
 
 export const getInviteLink = (chat_id: number) =>
@@ -178,7 +184,7 @@ export const getPublicReviews = (
   params?: { limit?: number; offset?: number },
 ) =>
   apiClient
-    .get(`api/chats/${chat_id}/reviews`, { searchParams: params as any })
+    .get(`api/chats/${chat_id}/reviews`, { searchParams: cleanParams(params) })
     .json<T.ResponseEnvelope<T.ReviewListResponse>>();
 
 // --- Private Chat ---
@@ -204,7 +210,7 @@ export interface GetDialogsParams {
 export const getDialogs = (chat_id: number, params?: GetDialogsParams) =>
   apiClient
     .get(`api/chats/${chat_id}/private-chat/dialogs`, {
-      searchParams: params as any,
+      searchParams: cleanParams(params),
     })
     .json<
       T.ResponseEnvelope<{ items: T.Dialog[]; limit: number; offset: number }>
@@ -228,7 +234,7 @@ export const getDialogMessages = (
 ) =>
   apiClient
     .get(`api/chats/${chat_id}/private-chat/dialogs/${dialog_id}/messages`, {
-      searchParams: params as any,
+      searchParams: cleanParams(params),
     })
     .json<
       T.ResponseEnvelope<{
@@ -260,7 +266,7 @@ export const listBroadcasts = (
   params?: { status?: string; limit?: number; offset?: number },
 ) =>
   apiClient
-    .get(`api/chats/${chat_id}/broadcasts`, { searchParams: params as any })
+    .get(`api/chats/${chat_id}/broadcasts`, { searchParams: cleanParams(params) })
     .json<
       T.ResponseEnvelope<{
         items: T.Broadcast[];
@@ -281,7 +287,7 @@ export const listBroadcastDeliveries = (
 ) =>
   apiClient
     .get(`api/chats/${chat_id}/broadcasts/${broadcast_id}/deliveries`, {
-      searchParams: params as any,
+      searchParams: cleanParams(params),
     })
     .json<
       T.ResponseEnvelope<{
@@ -323,15 +329,15 @@ export const applyPromoCode = (plan_id: number, data: T.ApplyPromoCodeReq) =>
 // --- Analytics ---
 export const getChatAnalytics = (chat_id: number, params?: T.AnalyticsFilter) =>
   apiClient
-    .get(`api/chats/${chat_id}/analytics`, { searchParams: params as any })
+    .get(`api/chats/${chat_id}/analytics`, { searchParams: cleanParams(params) })
     .json<T.ResponseEnvelope<T.ChatMetrics>>();
 
 export const getCreatorAnalytics = (params?: T.AnalyticsFilter) =>
   apiClient
-    .get("api/analytics/creator", { searchParams: params as any })
+    .get("api/analytics/creator", { searchParams: cleanParams(params) })
     .json<T.ResponseEnvelope<T.CreatorMetrics>>();
 
 export const getPlatformAnalytics = (params?: T.AnalyticsFilter) =>
   apiClient
-    .get("api/analytics/platform", { searchParams: params as any })
+    .get("api/analytics/platform", { searchParams: cleanParams(params) })
     .json<T.ResponseEnvelope<T.PlatformMetrics>>();

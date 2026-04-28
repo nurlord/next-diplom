@@ -90,7 +90,7 @@ export default function HomePage() {
     }
   };
 
-  const subscriptions = subsRes?.data?.items || [];
+  const subscriptions = (subsRes?.data?.items || []).filter(s => s.status === 'active');
 
   if (authLoading || subsLoading) {
     return <div className="p-8 text-center text-neutral-500 animate-pulse">Loading subscriptions...</div>;
@@ -143,9 +143,14 @@ export default function HomePage() {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center font-bold text-lg shadow-inner">
                   {sub.chat_title?.[0] || "?"}
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg leading-tight">{sub.chat_title}</h3>
-                  <div className="flex items-center gap-2 mt-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-lg leading-tight truncate">{sub.chat_title}</h3>
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/10 uppercase tracking-widest">
+                      {sub.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
                       {sub.plan_title}
                     </span>
