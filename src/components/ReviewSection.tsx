@@ -80,9 +80,9 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           Reviews 
-          {summary?.total_reviews ? (
+          {summary?.count ? (
             <span className="text-xs font-normal text-neutral-500 bg-neutral-800 px-2 py-0.5 rounded-full">
-              {summary.total_reviews}
+              {summary.count}
             </span>
           ) : null}
         </h3>
@@ -98,7 +98,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
       </div>
 
       {/* Summary Stats */}
-      {summary?.total_reviews ? (
+      {summary?.count ? (
         <div className="bg-neutral-800/20 border border-neutral-800/50 p-4 rounded-2xl flex items-center gap-6">
           <div className="text-center border-r border-neutral-800 pr-6">
             <div className="text-3xl font-bold text-white">{summary.average_rating?.toFixed(1)}</div>
@@ -114,7 +114,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
           </div>
           <div className="flex-1 space-y-1">
             <p className="text-sm text-neutral-400">Community Feedback</p>
-            <p className="text-xs text-neutral-500">Based on {summary.total_reviews} user reviews</p>
+            <p className="text-xs text-neutral-500">Based on {summary.count} user reviews</p>
           </div>
         </div>
       ) : null}
