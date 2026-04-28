@@ -355,8 +355,10 @@ export interface ChatMetrics extends AnalyticsMetrics {}
 export interface CreatorMetrics extends AnalyticsMetrics {}
 
 export interface PlatformMetrics {
-  total_users?: number;
-  total_chats?: number;
-  total_subscriptions?: number;
-  total_revenue?: number;
+  total_subscribers?: number;
+  active_subscribers?: number;
+  new_subscriptions?: number;
+  renewals?: number;
+  expired_subscriptions?: number;
+  revenue_confirmed?: number;
 }

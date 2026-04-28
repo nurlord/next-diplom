@@ -180,14 +180,14 @@ export default function ProfilePage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
              {[
-               { label: "Total Users", val: platformAnalytics.total_users, color: "text-white" },
-               { label: "Total Chats", val: platformAnalytics.total_chats, color: "text-white" },
-               { label: "Subscriptions", val: platformAnalytics.total_subscriptions, color: "text-white" },
-               { label: "Revenue", val: `${platformAnalytics.total_revenue} TON`, color: "text-purple-400" },
+               { label: "Total Subs", val: platformAnalytics.total_subscribers, color: "text-white" },
+               { label: "Active Subs", val: platformAnalytics.active_subscribers, color: "text-white" },
+               { label: "New Subs", val: platformAnalytics.new_subscriptions, color: "text-white" },
+               { label: "Total Revenue", val: `${platformAnalytics.revenue_confirmed} TON`, color: "text-purple-400" },
              ].map((stat, i) => (
                <div key={i} className="bg-neutral-900/50 border border-neutral-800/50 p-4 rounded-2xl">
                  <p className="text-[9px] font-bold text-neutral-500 uppercase mb-1">{stat.label}</p>
-                 <p className={`text-lg font-black ${stat.color}`}>{stat.val}</p>
+                 <p className={`text-lg font-black ${stat.color}`}>{stat.val ?? 0}</p>
                </div>
              ))}
           </div>
