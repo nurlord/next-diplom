@@ -103,11 +103,11 @@ export default function AdminDashboard() {
     try {
       const payload = {
         ...newPlan,
-        price: parseFloat(newPlan.price) || 0,
-        duration_days: newPlan.plan_type === "lifetime" ? 0 : parseInt(newPlan.duration_days) || 30,
+        price: Math.floor(parseFloat(newPlan.price)) || 0, // Ensure integer for backend
+        duration_days: newPlan.plan_type === "lifetime" ? undefined : parseInt(newPlan.duration_days) || 30,
         trial_days: parseInt(newPlan.trial_days) || 0,
       };
-      await createPlan({ chatId: myChat.id, data: payload });
+      await createPlan({ chatId: myChat.id, data: payload as any });
       setShowPlanModal(false);
       setToast({ message: "Plan created successfully", type: "success" });
     } catch (err) {
@@ -454,19 +454,131 @@ function ReviewsSection({ chatId }: { chatId: number }) {
 
 function AddPlanModal({ isOpen, onClose, form, setForm, onSubmit, isLoading }: any) {
   if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-       <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[2.5rem] w-full max-w-sm">
-          <h3 className="text-2xl font-black mb-6">Create Plan</h3>
-          <form onSubmit={onSubmit} className="space-y-5">
-             <input required placeholder="Title" className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl px-5 py-4 text-sm" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
-             <input required type="number" placeholder="Price (TON)" className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl px-5 py-4 text-sm" value={form.price} onChange={e => setForm({...form, price: e.target.value})} />
-             <select className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl px-5 py-4 text-sm" value={form.plan_type} onChange={e => setForm({...form, plan_type: e.target.value})}><option value="periodic">Periodic</option><option value="lifetime">Lifetime</option></select>
-             {form.plan_type === 'periodic' && <input required type="number" placeholder="Days" className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl px-5 py-4 text-sm" value={form.duration_days} onChange={e => setForm({...form, duration_days: e.target.value})} />}
-             <button type="submit" className="w-full py-4 bg-blue-600 rounded-2xl text-sm font-black">{isLoading ? "Creating..." : "Create"}</button>
-             <button type="button" onClick={onClose} className="w-full py-4 bg-neutral-800 rounded-2xl text-sm font-bold mt-2">Cancel</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
+      <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[3rem] w-full max-w-sm relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px]"></div>
+
+        <div className="relative z-10">
+          <header className="mb-8 text-center">
+            <div className="w-16 h-16 bg-blue-600/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-inner">
+              <TrendingUp className="text-blue-500" size={32} />
+            </div>
+            <h3 className="text-2xl font-black tracking-tight text-white">Create Plan</h3>
+            <p className="text-xs text-neutral-500 font-medium mt-1 uppercase tracking-widest">Configure your offering</p>
+          </header>
+
+          <form onSubmit={onSubmit} className="space-y-6">
+            {/* Plan Type Selection (Segmented Control) */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Billing Type</label>
+              <div className="flex p-1 bg-neutral-950 rounded-2xl border border-neutral-800">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, plan_type: "periodic" })}
+                  className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+                    form.plan_type === "periodic" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"
+                  }`}
+                >
+                  Periodic
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, plan_type: "lifetime" })}
+                  className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+                    form.plan_type === "lifetime" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500 hover:text-neutral-300"
+                  }`}
+                >
+                  Lifetime
+                </button>
+              </div>
+              <p className="text-[9px] text-neutral-600 px-1 italic">
+                {form.plan_type === 'periodic' ? '• Subscribers billed every interval' : '• One-time payment for eternal access'}
+              </p>
+            </div>
+
+            {/* Title Input */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Plan Name</label>
+              <div className="relative">
+                <input
+                  required
+                  placeholder="e.g. Premium Monthly"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all text-white placeholder:text-neutral-700"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Price & Duration Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1 flex items-center gap-1">
+                   Price <span className="text-[8px] text-blue-500 font-black tracking-tighter">(TON)</span>
+                </label>
+                <input
+                  required
+                  type="number"
+                  step="0.1"
+                  placeholder="0.0"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white placeholder:text-neutral-700"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                />
+              </div>
+              
+              {form.plan_type === "periodic" && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Duration <span className="text-[8px] text-neutral-600 font-black tracking-tighter">(DAYS)</span></label>
+                  <input
+                    required
+                    type="number"
+                    placeholder="30"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white placeholder:text-neutral-700"
+                    value={form.duration_days}
+                    onChange={(e) => setForm({ ...form, duration_days: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Trial Days Input */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                 <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest">Free Trial</label>
+                 <span className="text-[8px] font-black bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded uppercase">Optional</span>
+              </div>
+              <input
+                type="number"
+                placeholder="Days of free trial (0 for none)"
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white placeholder:text-neutral-700"
+                value={form.trial_days}
+                onChange={(e) => setForm({ ...form, trial_days: e.target.value })}
+              />
+            </div>
+
+            <div className="flex gap-3 pt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-4 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 font-bold rounded-2xl text-xs transition-all active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isLoading}
+                type="submit"
+                className="flex-[1.5] py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-xs transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+              >
+                {isLoading ? "Creating..." : "Create Plan"}
+              </button>
+            </div>
           </form>
-       </div>
+        </div>
+      </div>
     </div>
   );
 }
