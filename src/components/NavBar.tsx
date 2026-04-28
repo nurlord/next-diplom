@@ -24,8 +24,8 @@ export default function NavBar() {
       icon: MessageSquare,
     },
     {
-      name: "Profile", // Changed "Admin" to "Profile" for better context, change back if needed
-      href: "/admin",
+      name: "Profile",
+      href: "/profile",
       icon: UserCircle,
     },
   ];
