@@ -1,8 +1,9 @@
 "use client";
 
-import { useMySubscriptions, useCancelSubscription, useRedeemGift, useInviteLink } from "@/api/hooks";
-import { MessageCircle, ExternalLink, Trash2, Gift, X, Loader2 } from "lucide-react";
+import { queryKeys, useMySubscriptions, useCancelSubscription, useRedeemGift, useInviteLink } from "@/api/hooks";
+import { MessageCircle, ExternalLink, Trash2, Gift, X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAuthContext } from "@/providers/AuthProvider";
 
@@ -46,23 +47,33 @@ export default function HomePage() {
     { limit: 20 },
     { enabled: isAuthenticated }
   );
+  const queryClient = useQueryClient();
   const { mutateAsync: cancelSub } = useCancelSubscription();
 
   const [showRedeemModal, setShowRedeemModal] = useState(false);
   const [giftId, setGiftId] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const { mutateAsync: redeemGift, isPending: isRedeeming } = useRedeemGift();
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (!giftId) return;
       await redeemGift(parseInt(giftId));
-      alert("Gift redeemed successfully!");
+      await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
+      setToast({ message: "Gift redeemed successfully!", type: "success" });
       setShowRedeemModal(false);
       setGiftId("");
     } catch (err) {
       console.error("Failed to redeem gift", err);
-      alert("Invalid Gift ID or already redeemed.");
+      setToast({ message: "Invalid Gift ID or already redeemed.", type: "error" });
     }
   };
 
@@ -70,9 +81,11 @@ export default function HomePage() {
     if (confirm("Are you sure you want to cancel this subscription? You will lose access immediately.")) {
       try {
         await cancelSub(id);
+        await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
+        setToast({ message: "Subscription canceled successfully", type: "success" });
       } catch (err) {
         console.error("Failed to cancel subscription", err);
-        alert("Failed to cancel. Please try again.");
+        setToast({ message: "Failed to cancel. Please try again.", type: "error" });
       }
     }
   };
@@ -109,6 +122,15 @@ export default function HomePage() {
           <Gift size={14} /> REDEEM
         </button>
       </div>
+
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 duration-300 ${
+          toast.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+          <span className="text-sm font-medium">{toast.message}</span>
+        </div>
+      )}
 
       {subscriptions.length > 0 ? (
         <div className="space-y-4 shadow-xl">

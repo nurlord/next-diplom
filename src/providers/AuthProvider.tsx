@@ -1,6 +1,6 @@
 'use client';
 
-import { init, mockTelegramEnv, retrieveRawInitData } from '@telegram-apps/sdk';
+import { init, mockTelegramEnv, retrieveRawInitData } from '@tma.js/sdk';
 import { useEffect, useState, createContext, useContext } from 'react';
 import { useAuth } from '@/api/hooks';
 

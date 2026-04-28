@@ -13,7 +13,6 @@ export interface Chat {
   isPremium?: boolean;
   ownerID?: number;
   title?: string;
-  Title?: string;
   type?: string;
   updatedAt?: string;
   username?: string;
@@ -138,7 +137,9 @@ export interface UpdateUserRequest {
 
 export interface UpdateChatReq {
   category_id?: number;
+  title?: string;
   description?: string;
+  is_active?: boolean;
 }
 
 // Envelope responses definition
@@ -158,6 +159,7 @@ export interface PaginationData<T> {
   items: T[];
   limit?: number;
   offset?: number;
+  total?: number;
   next_cursor?: string;
 }
 
@@ -178,15 +180,16 @@ export interface Review {
 }
 
 export interface ReviewSummary {
-  average_rating?: number;
-  total_reviews?: number;
+  average_rating: number;
+  count: number;
 }
 
 export interface ReviewListResponse {
-  summary: ReviewSummary;
+  summary?: ReviewSummary;
   items: Review[];
   limit: number;
   offset: number;
+  total?: number;
 }
 
 // --- Private Chat ---
@@ -202,11 +205,12 @@ export interface UpdatePrivateChatSettingsReq {
 export interface Dialog {
   id?: number;
   chat_id?: number;
-  user_id?: number;
-  username?: string;
+  subscriber_id?: number;
+  subscriber_username?: string;
+  creator_id?: number;
   status?: string;
   created_at?: string;
-  updated_at?: string;
+  closed_at?: string;
 }
 
 export interface UpdateDialogStatusReq {
@@ -217,7 +221,8 @@ export interface DialogMessage {
   id?: number;
   dialog_id?: number;
   sender_user_id?: number;
-  text?: string;
+  sender_role?: string;
+  body?: string;
   created_at?: string;
 }
 
@@ -329,24 +334,25 @@ export interface AnalyticsFilter {
   to?: string;
 }
 
-export interface ChatMetrics {
+export interface AnalyticsMetrics {
+  scope: string;
   chat_id?: number;
-  total_subscribers?: number;
-  active_subscribers?: number;
-  new_subscribers?: number;
-  churned_subscribers?: number;
-  revenue?: number;
+  creator_id?: number;
   period_from?: string;
   period_to?: string;
+  total_subscribers: number;
+  active_subscribers: number;
+  new_subscriptions: number;
+  renewals: number;
+  expired_subscriptions: number;
+  invite_issued: number;
+  invite_used: number;
+  removed_subscribers: number;
+  revenue_confirmed: number;
 }
 
-export interface CreatorMetrics {
-  total_chats?: number;
-  total_subscribers?: number;
-  active_subscribers?: number;
-  total_revenue?: number;
-  chats?: ChatMetrics[];
-}
+export interface ChatMetrics extends AnalyticsMetrics {}
+export interface CreatorMetrics extends AnalyticsMetrics {}
 
 export interface PlatformMetrics {
   total_users?: number;

@@ -215,7 +215,7 @@ export default function ChatSubscriptionPage() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-xl font-bold flex items-center gap-2">
-                {chat.Title}
+                {chat.title}
               </h1>
               {/* <p className="text-sm text-neutral-400"> */}
               {/*   @ */}
@@ -323,7 +323,7 @@ export default function ChatSubscriptionPage() {
                           {tier.price}
                         </span>
                         <span className="text-sm text-neutral-500 mb-1">
-                          TON / {tier.duration_days} days
+                          TON / {tier.duration_days === 0 ? "Lifetime" : `${tier.duration_days} days`}
                         </span>
                       </div>
                     </div>

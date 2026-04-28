@@ -76,3 +76,16 @@ body {
     font-size: 16px !important;
   }
 }
+
+/* Premium interaction effects */
+button:active, .clickable:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease-in-out;
+}
+
+@utility premium-card {
+  @apply transition-all duration-300;
+  &:hover {
+    @apply -translate-y-0.5 shadow-xl shadow-black/50 border-neutral-700 bg-neutral-800/80;
+  }
+}

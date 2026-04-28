@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 // This inline script runs synchronously during HTML parsing — before ANY
 // Next.js JavaScript bundles load. It grabs the Telegram launch params from
 // the URL hash/query and stores them in sessionStorage under the key that
-// @telegram-apps/bridge SDK expects ("tapps/launchParams").
+// @tma.js/bridge SDK expects ("tapps/launchParams").
 // Without this, Next.js App Router strips the URL hash during hydration,
 // and by the time our React code calls retrieveLaunchParams(), the data is gone.
 const CAPTURE_TG_PARAMS_SCRIPT = `

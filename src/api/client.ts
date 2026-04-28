@@ -8,7 +8,7 @@ async function tryRefreshToken(): Promise<string | null> {
   if (!refreshToken) return null;
 
   try {
-    const res = await ky.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://jazylym-production.up.railway.app'}/auth/refresh`, {
+    const res = await ky.post(`${BASE_URL}/auth/refresh`, {
       json: { refresh_token: refreshToken },
     }).json<{ data: { access_token?: string; refresh_token?: string } }>();
 
@@ -26,8 +26,10 @@ async function tryRefreshToken(): Promise<string | null> {
   }
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://jazylym-production.up.railway.app';
+
 export const apiClient = ky.create({
-  prefixUrl: process.env.NEXT_PUBLIC_API_URL || 'https://jazylym-production.up.railway.app',
+  prefixUrl: BASE_URL,
   hooks: {
     beforeRequest: [
       (request) => {

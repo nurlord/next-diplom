@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, UserCircle } from "lucide-react";
+import { Home, Compass, UserCircle, MessageSquare } from "lucide-react";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -17,6 +17,11 @@ export default function NavBar() {
       name: "Explore",
       href: "/explore",
       icon: Compass,
+    },
+    {
+      name: "Chats",
+      href: "/chats",
+      icon: MessageSquare,
     },
     {
       name: "Profile", // Changed "Admin" to "Profile" for better context, change back if needed

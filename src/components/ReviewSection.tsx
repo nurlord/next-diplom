@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Star, MessageSquare, Send, User } from "lucide-react";
+import { Star, MessageSquare, Send, User, CheckCircle2, AlertCircle } from "lucide-react";
 import { usePublicReviews, useSubmitReview } from "@/api/hooks";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { useEffect } from "react";
 
 interface ReviewSectionProps {
   chatId: number;
@@ -18,6 +19,14 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
   const [reviewText, setReviewText] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const reviews = reviewsRes?.data?.items || [];
   const summary = reviewsRes?.data?.summary;
@@ -38,6 +47,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
       setRating(5);
       setShowForm(false);
       setError(null);
+      setToast({ message: "Review submitted successfully!", type: "success" });
       refetch();
     } catch (err: any) {
       setError(err.message || "Failed to submit review.");
@@ -58,7 +68,15 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
   }
 
   return (
-    <div className="px-5 space-y-6">
+    <div className="px-5 space-y-6 relative">
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 duration-300 ${
+          toast.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+          <span className="text-sm font-medium">{toast.message}</span>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           Reviews 
@@ -166,8 +184,10 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
             <div key={review.id} className="bg-neutral-800/40 border border-neutral-800/80 p-4 rounded-2xl">
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
-                    <User size={16} className="text-neutral-400" />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] text-white shadow-inner uppercase ${
+                    ['bg-blue-600', 'bg-purple-600', 'bg-orange-600', 'bg-emerald-600', 'bg-pink-600'][ (review.username?.length || 5) % 5 ]
+                  }`}>
+                    {review.username?.[0] || <User size={14} />}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white">{review.username || "Anonymous"}</p>

@@ -100,6 +100,14 @@ export const getChatSubscriptionStats = (chat_id: number) =>
     .get(`api/chats/${chat_id}/subscriptions/stats`)
     .json<T.ResponseEnvelope<T.ChatSubscriptionStats>>();
 
+export const getChatSubscriptionById = (
+  chat_id: number,
+  subscription_id: number,
+) =>
+  apiClient
+    .get(`api/chats/${chat_id}/subscriptions/${subscription_id}`)
+    .json<T.ResponseEnvelope<T.ChatSubscription>>();
+
 export const updateChatSubscriptionStatus = (
   chat_id: number,
   subscription_id: number,
@@ -109,7 +117,7 @@ export const updateChatSubscriptionStatus = (
     .patch(`api/chats/${chat_id}/subscriptions/${subscription_id}`, {
       json: data,
     })
-    .text();
+    .text(); // 204 No Content
 
 export interface GetSubscriptionEventsParams {
   event_type?: string;
