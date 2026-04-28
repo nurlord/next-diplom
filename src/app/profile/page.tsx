@@ -50,7 +50,6 @@ export default function ProfilePage() {
   const [profileForm, setProfileForm] = useState({
     first_name: "",
     last_name: "",
-    username: "",
   });
 
   useEffect(() => {
@@ -58,7 +57,6 @@ export default function ProfilePage() {
       setProfileForm({
         first_name: user.first_name || "",
         last_name: user.last_name || "",
-        username: user.username || "",
       });
     }
   }, [user]);
@@ -246,14 +244,7 @@ export default function ProfilePage() {
                      onChange={e => setProfileForm({ ...profileForm, last_name: e.target.value })}
                    />
                 </div>
-                <div className="space-y-2">
-                   <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest px-1">Username</label>
-                   <input
-                     className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                     value={profileForm.username}
-                     onChange={e => setProfileForm({ ...profileForm, username: e.target.value })}
-                   />
-                </div>
+
                 <button
                   disabled={isUpdatingProfile}
                   type="submit"
