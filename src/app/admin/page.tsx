@@ -12,7 +12,73 @@ import {
   RotateCw,
   Plus,
   ShieldCheck,
+  Settings,
 } from "lucide-react";
+
+function EditPlanModal({ isOpen, onClose, form, setForm, onSubmit, isLoading }: any) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 overflow-y-auto pt-12 pb-24">
+      <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[3rem] w-full max-w-sm relative shadow-2xl">
+        <header className="mb-8 text-center">
+          <div className="w-16 h-16 bg-blue-600/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-inner">
+            <Settings className="text-blue-500 animate-spin-slow" size={32} />
+          </div>
+          <h3 className="text-2xl font-black tracking-tight text-white">Edit Plan</h3>
+          <p className="text-xs text-neutral-500 font-medium mt-1 uppercase tracking-widest">{form.title}</p>
+        </header>
+
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Plan Status</label>
+            <select 
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white"
+              value={form.status}
+              onChange={e => setForm({...form, status: e.target.value})}
+            >
+              <option value="active">Active</option>
+              <option value="disabled">Disabled</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1 flex items-center gap-1">
+               Price <span className="text-[8px] text-blue-500 font-black tracking-tighter">(TON)</span>
+            </label>
+            <input
+              required
+              type="number"
+              step="0.1"
+              placeholder="0.0"
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white"
+              value={form.price}
+              onChange={e => setForm({...form, price: e.target.value})}
+            />
+          </div>
+
+          <div className="flex gap-3 pt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-4 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 font-bold rounded-2xl text-xs transition-all active:scale-95"
+            >
+              Cancel
+            </button>
+            <button
+              disabled={isLoading}
+              type="submit"
+              className="flex-[1.5] py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-xs transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+            >
+              {isLoading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -35,6 +101,7 @@ import {
   useUpdateChat,
   useChatById,
   usePublicReviews,
+  useUpdatePlan,
 } from "@/api/hooks";
 import Link from "next/link";
 
@@ -108,17 +175,21 @@ export default function AdminDashboard() {
     | "reviews"
   >("plans");
 
-  // Plan creation
+  // Plan management
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showEditPlanModal, setShowEditPlanModal] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<any>(null);
+
   const [newPlan, setNewPlan] = useState({
     title: "",
     price: "0",
     plan_type: "periodic",
     duration_days: "30",
-    trial_days: "0",
   });
+
   const { mutateAsync: createPlan, isPending: isCreatingPlan } =
     useCreateChatPlan();
+  const { mutateAsync: updatePlan, isPending: isUpdatingPlan } = useUpdatePlan();
 
   const handleCreatePlan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,18 +197,38 @@ export default function AdminDashboard() {
     try {
       const payload = {
         ...newPlan,
-        price: Math.floor(parseFloat(newPlan.price)) || 0, // Ensure integer for backend
+        price: Math.floor(parseFloat(newPlan.price)) || 0,
         duration_days:
           newPlan.plan_type === "lifetime"
             ? undefined
             : parseInt(newPlan.duration_days) || 30,
-        trial_days: parseInt(newPlan.trial_days) || 0,
+        trial_days: 0,
       };
       await createPlan({ chatId: myChat.id, data: payload as any });
       setShowPlanModal(false);
       setToast({ message: "Plan created successfully", type: "success" });
     } catch (err) {
       setToast({ message: "Failed to create plan", type: "error" });
+    }
+  };
+
+  const handleUpdatePlan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPlan || !myChat?.id) return;
+    try {
+      await updatePlan({
+        planId: editingPlan.id,
+        chatId: myChat.id,
+        data: {
+          price: Math.floor(parseFloat(editingPlan.price)) || 0,
+          trial_days: 0,
+          status: editingPlan.status,
+        },
+      });
+      setShowEditPlanModal(false);
+      setToast({ message: "Plan updated successfully", type: "success" });
+    } catch (err) {
+      setToast({ message: "Failed to update plan", type: "error" });
     }
   };
 
@@ -281,6 +372,10 @@ export default function AdminDashboard() {
                 plans={plans}
                 hasPlans={hasPlans}
                 onAddPlan={() => setShowPlanModal(true)}
+                onEditPlan={(plan: any) => {
+                  setEditingPlan({ ...plan });
+                  setShowEditPlanModal(true);
+                }}
               />
             )}
             {activeTab === "subscribers" && (
@@ -295,7 +390,9 @@ export default function AdminDashboard() {
             {activeTab === "promo" && (
               <PromoSection chatId={myChat.id!} plans={plans} />
             )}
-            {activeTab === "reviews" && <ReviewsSection chatId={myChat.id!} />}
+            {activeTab === "reviews" && (
+              <ReviewsSection chatId={myChat.id!} />
+            )}
           </div>
         </div>
       )}
@@ -310,6 +407,15 @@ export default function AdminDashboard() {
         isLoading={isCreatingPlan}
       />
 
+      <EditPlanModal
+        isOpen={showEditPlanModal}
+        onClose={() => setShowEditPlanModal(false)}
+        form={editingPlan}
+        setForm={setEditingPlan}
+        onSubmit={handleUpdatePlan}
+        isLoading={isUpdatingPlan}
+      />
+
       <RegisterChatModal
         isOpen={showRegisterModal}
         onClose={() => setShowRegisterModal(false)}
@@ -320,47 +426,64 @@ export default function AdminDashboard() {
 
 // --- Component Parts ---
 
-function PlansSection({ plans, hasPlans, onAddPlan }: any) {
+function PlansSection({ plans, hasPlans, onAddPlan, onEditPlan }: any) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between px-1">
         <h4 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">
           Active Plans
         </h4>
-        {!hasPlans && (
-          <button
-            onClick={onAddPlan}
-            className="text-xs text-blue-400 font-bold hover:underline"
-          >
-            + Create Plan
-          </button>
-        )}
+        <button
+          onClick={onAddPlan}
+          className="text-xs text-blue-400 font-bold hover:underline flex items-center gap-1"
+        >
+          <Plus size={14} /> New Plan
+        </button>
       </div>
       <div className="space-y-3">
         {plans.map((plan: any) => (
           <div
             key={plan.id}
-            className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl flex items-center justify-between"
+            className="bg-neutral-900 border border-neutral-800 p-5 rounded-[2.5rem] flex items-center justify-between group hover:border-neutral-700 transition-colors"
           >
-            <div>
-              <h5 className="font-black text-white">{plan.title}</h5>
-              <p className="text-xs text-neutral-500">
-                {plan.plan_type === "lifetime"
-                  ? "Lifetime Access"
-                  : `${plan.duration_days} Days`}
-              </p>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-black">
+                {plan.plan_type === 'lifetime' ? '∞' : 'D'}
+              </div>
+              <div>
+                <h5 className="font-black text-white">{plan.title}</h5>
+                <p className="text-[10px] text-neutral-500 uppercase font-black tracking-widest mt-0.5">
+                  {plan.plan_type === "lifetime"
+                    ? "Lifetime Access"
+                    : `${plan.duration_days} Days Billing`}
+                  {plan.trial_days > 0 && ` • ${plan.trial_days}d Trial`}
+                </p>
+              </div>
             </div>
-            <p className="text-lg font-black text-blue-400">
-              {plan.price}{" "}
-              <span className="text-[10px] font-normal text-neutral-500">
-                TON
-              </span>
-            </p>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-lg font-black text-blue-400 leading-none">
+                  {plan.price}{" "}
+                  <span className="text-[10px] font-normal text-neutral-500">
+                    TON
+                  </span>
+                </p>
+                <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${plan.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                  {plan.status}
+                </span>
+              </div>
+              <button
+                onClick={() => onEditPlan(plan)}
+                className="p-3 bg-neutral-800 hover:bg-neutral-700 rounded-2xl transition-all active:scale-95 border border-neutral-700"
+              >
+                <Settings size={16} className="text-neutral-400" />
+              </button>
+            </div>
           </div>
         ))}
         {!plans.length && (
-          <div className="text-center py-10 bg-neutral-900/50 rounded-3xl border border-dashed border-neutral-800 text-neutral-500 text-sm">
-            No plans yet.
+          <div className="text-center py-10 bg-neutral-900/50 rounded-[2.5rem] border border-dashed border-neutral-800 text-neutral-500 text-sm">
+            No plans created yet.
           </div>
         )}
       </div>
@@ -850,26 +973,7 @@ function AddPlanModal({
               )}
             </div>
 
-            {/* Trial Days Input */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest">
-                  Free Trial
-                </label>
-                <span className="text-[8px] font-black bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded uppercase">
-                  Optional
-                </span>
-              </div>
-              <input
-                type="number"
-                placeholder="Days of free trial (0 for none)"
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white placeholder:text-neutral-700"
-                value={form.trial_days}
-                onChange={(e) =>
-                  setForm({ ...form, trial_days: e.target.value })
-                }
-              />
-            </div>
+
 
             <div className="flex gap-3 pt-6">
               <button
