@@ -5,7 +5,6 @@ import {
   Settings,
   RotateCw,
   MessageSquare,
-  LogOut,
   ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -197,7 +196,7 @@ export default function ProfilePage() {
       {/* Action List */}
       <section className="space-y-3">
         <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden divide-y divide-neutral-800">
-           <Link href="/chats" className="flex items-center justify-between p-5 hover:bg-neutral-800/50 transition-colors">
+            <Link href="/chats" className="flex items-center justify-between p-5 hover:bg-neutral-800/50 transition-colors">
               <div className="flex items-center gap-4">
                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
                     <MessageSquare size={20} />
@@ -205,16 +204,7 @@ export default function ProfilePage() {
                  <span className="font-bold text-sm">Manage My Chats</span>
               </div>
               <ChevronRight size={18} className="text-neutral-600" />
-           </Link>
-           <button className="w-full flex items-center justify-between p-5 hover:bg-red-500/5 transition-colors group">
-              <div className="flex items-center gap-4 text-red-500">
-                 <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                    <LogOut size={20} />
-                 </div>
-                 <span className="font-bold text-sm">Sign Out</span>
-              </div>
-              <ChevronRight size={18} className="text-neutral-600 group-hover:text-red-500 transition-colors" />
-           </button>
+            </Link>
         </div>
       </section>
 
