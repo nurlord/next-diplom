@@ -2,11 +2,13 @@
 
 import { useAuthContext } from "@/providers/AuthProvider";
 import { useChats, useMySubscriptions } from "@/api/hooks";
+import { useState } from "react";
 import Link from "next/link";
-import { MessageSquare, Star, Plus, ShieldCheck, ChevronRight, RotateCw } from "lucide-react";
+import { MessageSquare, Star, Plus, ShieldCheck, ChevronRight, RotateCw, X, Bot, CheckCircle2 } from "lucide-react";
 
 export default function ChatsPage() {
   const { userId, isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const { data: managedChatsRes, isLoading: managedLoading } = useChats(
     userId ? { owner_id: userId } : undefined,
@@ -41,11 +43,12 @@ export default function ChatsPage() {
           <h2 className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em] flex items-center gap-2">
             <ShieldCheck size={14} className="text-blue-500" /> Managed Channels
           </h2>
-          <Link href="/admin">
-            <span className="text-xs text-blue-400 font-black flex items-center gap-1 hover:underline">
-              <Plus size={14} /> New
-            </span>
-          </Link>
+          <button 
+            onClick={() => setShowInstructions(true)}
+            className="text-xs text-blue-400 font-black flex items-center gap-1 hover:underline"
+          >
+            <Plus size={14} /> New
+          </button>
         </div>
 
         {managedLoading ? (
@@ -82,11 +85,12 @@ export default function ChatsPage() {
         ) : (
           <div className="bg-neutral-900/50 border border-dashed border-neutral-800 p-10 rounded-[2.5rem] text-center">
             <p className="text-sm text-neutral-500 mb-6 font-medium">You haven&apos;t registered any channels yet.</p>
-            <Link href="/admin">
-              <button className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl text-xs font-black transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 mx-auto active:scale-95">
-                <Plus size={16} /> Register Channel
-              </button>
-            </Link>
+            <button 
+              onClick={() => setShowInstructions(true)}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl text-xs font-black transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 mx-auto active:scale-95"
+            >
+              <Plus size={16} /> Register Channel
+            </button>
           </div>
         )}
       </section>
@@ -142,6 +146,70 @@ export default function ChatsPage() {
           </div>
         )}
       </section>
+
+      {/* Instructions Modal */}
+      {showInstructions && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 overflow-y-auto pt-12 pb-24">
+          <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[3rem] w-full max-w-sm relative shadow-2xl">
+            <button 
+              onClick={() => setShowInstructions(false)}
+              className="absolute top-6 right-6 text-neutral-500 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+            
+            <header className="mb-8 text-center">
+              <div className="w-16 h-16 bg-blue-600/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+                <Bot className="text-blue-500" size={32} />
+              </div>
+              <h3 className="text-2xl font-black tracking-tight text-white">Add Channel</h3>
+              <p className="text-xs text-neutral-500 font-medium mt-1 uppercase tracking-widest">3 simple steps to start</p>
+            </header>
+
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black text-xs shrink-0 shadow-lg shadow-blue-600/20">1</div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold">Open our Bot</p>
+                  <p className="text-xs text-neutral-500 leading-relaxed">Search for <span className="text-blue-400">@ton_jazylym_bot</span> or click the button below.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center font-black text-xs shrink-0">2</div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold">Add as Admin</p>
+                  <p className="text-xs text-neutral-500 leading-relaxed">Add the bot to your channel/group with <span className="text-white font-bold">Post Messages</span> permissions.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center font-black text-xs shrink-0">3</div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold">Sync & Manage</p>
+                  <p className="text-xs text-neutral-500 leading-relaxed">Return here and refresh. Your channel will appear automatically!</p>
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <a 
+                  href="https://t.me/ton_jazylym_bot" 
+                  target="_blank"
+                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95 transition-all"
+                >
+                   Go to @ton_jazylym_bot
+                </a>
+                <button 
+                  onClick={() => setShowInstructions(false)}
+                  className="w-full py-4 text-neutral-500 font-bold text-xs mt-2 hover:text-neutral-300 transition-colors"
+                >
+                  I've already added it
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

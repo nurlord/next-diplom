@@ -160,12 +160,7 @@ export default function ProfilePage() {
                   <p className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Managed Channels</p>
                   <p className="text-xl font-black text-white">{chats.length}</p>
                </div>
-               <Link href="/chats">
-                 <button className="p-3 bg-blue-600/10 text-blue-400 rounded-2xl flex items-center gap-2 text-xs font-bold border border-blue-500/20">
-                   Manage All <ChevronRight size={14} />
-                 </button>
-               </Link>
-            </div>
+             </div>
           </div>
         </section>
       )}
@@ -192,21 +187,6 @@ export default function ProfilePage() {
           </div>
         </section>
       )}
-
-      {/* Action List */}
-      <section className="space-y-3">
-        <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden divide-y divide-neutral-800">
-            <Link href="/chats" className="flex items-center justify-between p-5 hover:bg-neutral-800/50 transition-colors">
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                    <MessageSquare size={20} />
-                 </div>
-                 <span className="font-bold text-sm">Manage My Chats</span>
-              </div>
-              <ChevronRight size={18} className="text-neutral-600" />
-            </Link>
-        </div>
-      </section>
 
       {/* Edit Profile Modal */}
       {showProfileModal && (
