@@ -850,6 +850,15 @@ function ChatSettingsSection({ chat }: { chat: any }) {
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  useEffect(() => {
+    setForm({
+      title: chat.title || "",
+      description: chat.description || "",
+      category_id: chat.categoryID || 0,
+      is_active: chat.isActive ?? true,
+    });
+  }, [chat.id, chat.title, chat.description, chat.categoryID, chat.isActive]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -862,7 +871,7 @@ function ChatSettingsSection({ chat }: { chat: any }) {
       });
       setToast({ message: "Settings updated successfully", type: "success" });
     } catch (err) {
-      setToast({ message: "Failed to update settings. Backend endpoint might be missing.", type: "error" });
+      setToast({ message: "Failed to update settings. Please try again.", type: "error" });
     }
   };
 
