@@ -202,7 +202,7 @@ export default function ChatSubscriptionPage() {
               alt="Channel"
               className="w-24 h-24 rounded-full border-4 border-neutral-900 bg-white"
             />
-            {chat.isPremium && (
+            {chat.is_premium && (
               <div className="absolute bottom-1 right-1 bg-blue-500 p-1 rounded-full border-2 border-neutral-900">
                 <CheckCircle2 size={12} className="text-white" />
               </div>

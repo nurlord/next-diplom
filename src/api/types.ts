@@ -5,16 +5,16 @@ export interface Category {
 
 export interface Chat {
   category?: string;
-  categoryID?: number;
-  createdAt?: string;
+  category_id?: number;
+  created_at?: string;
   description?: string;
   id?: number;
-  isActive?: boolean;
-  isPremium?: boolean;
-  ownerID?: number;
+  is_active?: boolean;
+  is_premium?: boolean;
+  owner_id?: number;
   title?: string;
   type?: string;
-  updatedAt?: string;
+  updated_at?: string;
   username?: string;
 }
 

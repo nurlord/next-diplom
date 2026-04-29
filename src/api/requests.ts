@@ -50,7 +50,28 @@ export const getChatCategories = () =>
     .json<T.ResponseEnvelope<T.Category[]>>();
 
 export const getChatById = (chat_id: number) =>
-  apiClient.get(`api/chats/${chat_id}`).json<T.ResponseEnvelope<T.Chat>>();
+  apiClient
+    .get(`api/chats/${chat_id}`)
+    .json<T.ResponseEnvelope<any>>()
+    .then((res) => {
+      if (res.data) {
+        res.data = {
+          id: res.data.ID,
+          title: res.data.Title,
+          description: res.data.Description,
+          category: res.data.Category,
+          category_id: res.data.CategoryID,
+          type: res.data.Type,
+          is_active: res.data.IsActive,
+          is_premium: res.data.IsPremium,
+          owner_id: res.data.OwnerID,
+          created_at: res.data.CreatedAt,
+          updated_at: res.data.UpdatedAt,
+          username: res.data.Username,
+        };
+      }
+      return res as T.ResponseEnvelope<T.Chat>;
+    });
 
 export const updateChat = (chat_id: number, data: T.UpdateChatReq) =>
   apiClient

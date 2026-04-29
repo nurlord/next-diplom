@@ -844,8 +844,8 @@ function ChatSettingsSection({ chat }: { chat: any }) {
   const [form, setForm] = useState({
     title: chat.title || "",
     description: chat.description || "",
-    category_id: chat.categoryID || 0,
-    is_active: chat.isActive ?? true,
+    category_id: chat.category_id || 0,
+    is_active: chat.is_active ?? true,
   });
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -854,10 +854,10 @@ function ChatSettingsSection({ chat }: { chat: any }) {
     setForm({
       title: chat.title || "",
       description: chat.description || "",
-      category_id: chat.categoryID || 0,
-      is_active: chat.isActive ?? true,
+      category_id: chat.category_id || 0,
+      is_active: chat.is_active ?? true,
     });
-  }, [chat.id, chat.title, chat.description, chat.categoryID, chat.isActive]);
+  }, [chat.id, chat.title, chat.description, chat.category_id, chat.is_active]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
