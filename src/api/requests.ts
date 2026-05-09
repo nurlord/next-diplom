@@ -184,14 +184,20 @@ export const getInviteLink = (chat_id: number) =>
     .get(`api/subscriptions/${chat_id}/invite`)
     .json<T.ResponseEnvelope<{ invite_link: string }>>();
 
-export const subscribeToPlan = (chat_id: number, plan_id: number) =>
+export const initSubscribePayment = (chat_id: number, plan_id: number) =>
   apiClient
-    .post(`api/subscriptions/${chat_id}/${plan_id}`)
+    .get(`api/subscriptions/${chat_id}/${plan_id}/init`)
+    .json<T.ResponseEnvelope<T.SubscribeInitResponse>>();
+
+export const subscribeToPlan = (chat_id: number, plan_id: number, data: T.SubscribeWithTONReq) =>
+  apiClient
+    .post(`api/subscriptions/${chat_id}/${plan_id}`, { json: data })
     .json<
       T.ResponseEnvelope<{ invite_link: string; subscription_id: number }>
     >();
 
 export const cancelSubscription = (subscription_id: number) =>
+
   apiClient.delete(`api/subscriptions/${subscription_id}`).text();
 
 // --- Reviews ---

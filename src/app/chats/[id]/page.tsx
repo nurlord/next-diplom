@@ -6,9 +6,12 @@ import {
   useChatById,
   useChatPlans,
   useSubscribeToPlan,
+  useInitSubscribePayment,
   useApplyPromoCode,
   usePreviewPromoCode,
 } from "@/api/hooks";
+import { useTonConnectUI, useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
+import { Cell } from "@ton/core";
 import {
   CheckCircle2,
   Lock,
@@ -65,6 +68,10 @@ export default function ChatSubscriptionPage() {
     useSubscribeToPlan();
   const { mutateAsync: applyPromo, isPending: isApplyingPromo } =
     useApplyPromoCode();
+  const { mutateAsync: initPayment } = useInitSubscribePayment();
+
+  const [tonConnectUI] = useTonConnectUI();
+  const tonAddress = useTonAddress();
 
   const [loadingPlanId, setLoadingPlanId] = useState<number | null>(null);
   const [successData, setSuccessData] = useState<{
@@ -87,18 +94,64 @@ export default function ChatSubscriptionPage() {
       setErrorMsg("You must be logged in via Telegram to subscribe.");
       return;
     }
+
+    if (!tonAddress) {
+      setErrorMsg("Please connect your TON wallet first using the Connect Wallet button.");
+      try {
+        await tonConnectUI.openModal();
+      } catch (err) {
+        console.error("Failed to open TON Connect modal", err);
+      }
+      return;
+    }
+
     setLoadingPlanId(planId);
     setErrorMsg(null);
     try {
-      let res;
       if (promoCode) {
         await applyPromo({ planId, data: { code: promoCode } });
       }
-      res = await subscribe({ chatId, planId });
+
+      // Step 1: Initialize payment on backend
+      const initRes = await initPayment({ chatId, planId });
+      const { contract_address, amount_nanoton, payload } = initRes.data;
+
+      // Step 2: Prepare transaction parameters for TON Connect UI
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes
+        messages: [
+          {
+            address: contract_address,
+            amount: amount_nanoton.toString(),
+            payload: payload
+          }
+        ]
+      };
+
+      // Step 3: Trigger transaction in user wallet
+      const txResult = await tonConnectUI.sendTransaction(transaction);
+      if (!txResult || !txResult.boc) {
+        throw new Error("Payment transaction canceled or failed.");
+      }
+
+      // Step 4: Calculate incoming message hash from BOC
+      const cell = Cell.fromBase64(txResult.boc);
+      const txHash = cell.hash().toString("hex");
+
+      // Step 5: Subscribe to plan on backend by submitting tx details
+      const res = await subscribe({
+        chatId,
+        planId,
+        data: {
+          tx_hash: txHash,
+          wallet_address: tonAddress
+        }
+      });
+
       setSuccessData({ invite_link: res.data?.invite_link, amount: price });
-    } catch (e: unknown) {
+    } catch (e: any) {
       console.error(e);
-      setErrorMsg("Subscription failed. Please try again.");
+      setErrorMsg(e?.message || "Subscription failed. Please make sure the transaction was sent.");
     } finally {
       setLoadingPlanId(null);
     }
@@ -238,10 +291,13 @@ export default function ChatSubscriptionPage() {
       {/* --- TIERS SECTION --- */}
       <div className="px-5 space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-lg text-white">Choose Plan</h3>
-          <span className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
-            Pay via TON
-          </span>
+          <div>
+            <h3 className="font-semibold text-lg text-white">Choose Plan</h3>
+            <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded mt-1 inline-block uppercase tracking-wider font-semibold">
+              Pay via TON
+            </span>
+          </div>
+          <TonConnectButton />
         </div>
 
         {errorMsg && (

@@ -200,16 +200,24 @@ export const useInviteLink = (chatId: number, options?: { enabled?: boolean }) =
   });
 };
 
+export const useInitSubscribePayment = () => {
+  return useMutation({
+    mutationFn: ({ chatId, planId }: { chatId: number; planId: number }) => 
+      requests.initSubscribePayment(chatId, planId),
+  });
+};
+
 export const useSubscribeToPlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, planId }: { chatId: number; planId: number }) => 
-      requests.subscribeToPlan(chatId, planId),
+    mutationFn: ({ chatId, planId, data }: { chatId: number; planId: number; data: T.SubscribeWithTONReq }) => 
+      requests.subscribeToPlan(chatId, planId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
     },
   });
 };
+
 
 export const useCancelSubscription = () => {
   const queryClient = useQueryClient();

@@ -365,3 +365,17 @@ export interface PlatformMetrics {
   expired_subscriptions?: number;
   revenue_confirmed?: number;
 }
+
+export interface SubscribeInitResponse {
+  contract_address: string;
+  amount_nanoton: number;
+  owner_wallet: string;
+  admin_wallet: string;
+  payload: string;
+}
+
+export interface SubscribeWithTONReq {
+  tx_hash: string;
+  wallet_address: string;
+}
+

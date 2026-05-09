@@ -3,6 +3,7 @@
 import { init, mockTelegramEnv, retrieveRawInitData } from '@tma.js/sdk';
 import { useEffect, useState, createContext, useContext } from 'react';
 import { useAuth } from '@/api/hooks';
+import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -131,15 +132,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [authenticate]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, userId, authError }}>
-      {isLoading ? (
-        <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-white">
-          <p>Loading app...</p>
-        </div>
-      ) : (
-        children
-      )}
-    </AuthContext.Provider>
+    <TonConnectUIProvider manifestUrl="/tonconnect-manifest.json">
+      <AuthContext.Provider value={{ isAuthenticated, isLoading, userId, authError }}>
+        {isLoading ? (
+          <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-white">
+            <p>Loading app...</p>
+          </div>
+        ) : (
+          children
+        )}
+      </AuthContext.Provider>
+    </TonConnectUIProvider>
   );
 }
 
