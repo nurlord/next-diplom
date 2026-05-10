@@ -135,6 +135,10 @@ export interface UpdateUserRequest {
   username?: string;
 }
 
+export interface LinkWalletRequest {
+  wallet_address: string;
+}
+
 export interface UpdateChatReq {
   category_id?: number;
   title?: string;

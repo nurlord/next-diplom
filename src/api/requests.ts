@@ -28,6 +28,11 @@ export const updateUserProfile = (data: T.UpdateUserRequest) =>
 
 export const deleteUserProfile = () => apiClient.delete("api/user").text(); // 204 No Content
 
+export const linkUserWallet = (data: T.LinkWalletRequest) =>
+  apiClient
+    .post("api/user/wallet", { json: data })
+    .json<{ status: string; message: string }>();
+
 // Chats
 export interface GetChatsParams {
   owner_id?: number;

@@ -67,6 +67,16 @@ export const useDeleteUserProfile = () => {
   });
 };
 
+export const useLinkUserWallet = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: T.LinkWalletRequest) => requests.linkUserWallet(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+    },
+  });
+};
+
 // --- Chat Hooks ---
 export const useChats = (params?: requests.GetChatsParams, options?: { enabled?: boolean }) => {
   return useQuery({
