@@ -11,7 +11,7 @@ import {
   usePreviewPromoCode,
 } from "@/api/hooks";
 import { useTonConnectUI, useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
-import { Cell } from "@ton/core";
+import { Cell, beginCell, Address } from "@ton/core";
 import {
   CheckCircle2,
   Lock,
@@ -50,7 +50,7 @@ const FEED_PREVIEW = [
 export default function ChatSubscriptionPage() {
   const { id } = useParams();
   const chatId = Number(id);
-  const { isAuthenticated } = useAuthContext();
+  const { userId, isAuthenticated } = useAuthContext();
 
   const {
     data: chatRes,
@@ -114,16 +114,28 @@ export default function ChatSubscriptionPage() {
 
       // Step 1: Initialize payment on backend
       const initRes = await initPayment({ chatId, planId });
-      const { contract_address, amount_nanoton, payload } = initRes.data;
+      const { contract_address, amount_nanoton, owner_wallet } = initRes.data;
 
-      // Step 2: Prepare transaction parameters for TON Connect UI
+      // Step 2: Build the precise SubscriptionPayment cell body required by the Tact smart contract
+      const targetOwnerWallet = owner_wallet || "0QDppW-l8POjdWhZSUy8PsJCVqFVl7sF4QelVi_DroaJRPPH";
+      const payloadCell = beginCell()
+        .storeUint(0x5375624F, 32) // op code ("SubO")
+        .storeAddress(Address.parse(targetOwnerWallet))
+        .storeUint(BigInt(Math.abs(chatId)), 64)
+        .storeUint(BigInt(planId), 64)
+        .storeUint(BigInt(userId || 0), 64)
+        .endCell();
+
+      const payloadBase64 = payloadCell.toBoc().toString("base64");
+
+      // Step 3: Prepare transaction parameters for TON Connect UI
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 360, // 6 minutes
         messages: [
           {
             address: contract_address,
             amount: amount_nanoton.toString(),
-            payload: payload
+            payload: payloadBase64
           }
         ]
       };
