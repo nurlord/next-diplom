@@ -84,6 +84,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
+  const [manifestUrl, setManifestUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setManifestUrl(`${window.location.origin}/tonconnect-manifest.json`);
+    }
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -131,8 +138,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [authenticate]);
 
+  if (!manifestUrl) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-white animate-pulse">
+        <p>Initializing...</p>
+      </div>
+    );
+  }
+
   return (
-    <TonConnectUIProvider manifestUrl="/tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl={manifestUrl}>
       <AuthContext.Provider value={{ isAuthenticated, isLoading, userId, authError }}>
         {isLoading ? (
           <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-white">
