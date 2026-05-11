@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Wallet,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -69,8 +70,13 @@ export default function ProfilePage() {
 
   const tonAddress = useTonAddress();
   const [linkedWallet, setLinkedWallet] = useState<string | null>(null);
+  const [walletError, setWalletError] = useState<string | null>(null);
 
   const { mutateAsync: linkWallet, isPending: isLinkingWallet } = useLinkUserWallet();
+
+  useEffect(() => {
+    setWalletError(null);
+  }, [tonAddress]);
 
   useEffect(() => {
     if (user?.id) {
@@ -83,14 +89,28 @@ export default function ProfilePage() {
 
   const handleLinkWallet = async () => {
     if (!tonAddress) return;
+    setWalletError(null);
     try {
       await linkWallet({ wallet_address: tonAddress });
       if (user?.id) {
         localStorage.setItem(`payout_wallet_${user.id}`, tonAddress);
       }
       setLinkedWallet(tonAddress);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to link wallet:", err);
+      let msg = "Failed to link payout wallet.";
+      try {
+        // Parse Ky HTTP client or standard fetch response error payload
+        const respData = await err?.response?.json();
+        if (respData?.message) {
+          msg = respData.message;
+        }
+      } catch (_) {
+        if (err?.message) {
+          msg = err.message;
+        }
+      }
+      setWalletError(msg);
     }
   };
 
@@ -206,13 +226,21 @@ export default function ProfilePage() {
                   <span>Your default payout wallet is linked and active!</span>
                 </div>
               ) : (
-                <button
-                  disabled={isLinkingWallet}
-                  onClick={handleLinkWallet}
-                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-black transition-all shadow-[0_4px_12px_rgba(37,99,235,0.2)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isLinkingWallet ? "Linking Payout Wallet..." : "Set as Payout Wallet"}
-                </button>
+                <div className="space-y-3">
+                  <button
+                    disabled={isLinkingWallet}
+                    onClick={handleLinkWallet}
+                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-black transition-all shadow-[0_4px_12px_rgba(37,99,235,0.2)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isLinkingWallet ? "Linking Payout Wallet..." : "Set as Payout Wallet"}
+                  </button>
+                  {walletError && (
+                    <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl p-3.5 text-xs font-medium animate-in fade-in slide-in-from-top-1 duration-200">
+                      <AlertCircle size={14} className="shrink-0 animate-bounce" />
+                      <span>{walletError}</span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
