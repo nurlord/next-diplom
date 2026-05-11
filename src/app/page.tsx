@@ -21,6 +21,10 @@ import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { useToast } from "@/providers/ToastProvider";
+import { Avatar } from "@/components/ui/Avatar";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 function OpenChatButton({ chatId }: { chatId: number }) {
   const [enabled, setEnabled] = useState(false);
@@ -74,18 +78,8 @@ export default function HomePage() {
 
   const [showRedeemModal, setShowRedeemModal] = useState(false);
   const [giftId, setGiftId] = useState("");
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const toast = useToast();
   const { mutateAsync: redeemGift, isPending: isRedeeming } = useRedeemGift();
-
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,15 +89,12 @@ export default function HomePage() {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.mySubscriptions,
       });
-      setToast({ message: "Gift redeemed successfully!", type: "success" });
+      toast.success("Gift redeemed successfully!");
       setShowRedeemModal(false);
       setGiftId("");
     } catch (err) {
       console.error("Failed to redeem gift", err);
-      setToast({
-        message: "Invalid Gift ID or already redeemed.",
-        type: "error",
-      });
+      toast.error("Invalid Gift ID or already redeemed.");
     }
   };
 
@@ -118,16 +109,10 @@ export default function HomePage() {
         await queryClient.invalidateQueries({
           queryKey: queryKeys.mySubscriptions,
         });
-        setToast({
-          message: "Subscription canceled successfully",
-          type: "success",
-        });
+        toast.success("Subscription canceled successfully");
       } catch (err) {
         console.error("Failed to cancel subscription", err);
-        setToast({
-          message: "Failed to cancel. Please try again.",
-          type: "error",
-        });
+        toast.error("Failed to cancel. Please try again.");
       }
     }
   };
@@ -138,8 +123,8 @@ export default function HomePage() {
 
   if (authLoading || subsLoading) {
     return (
-      <div className="p-8 text-center text-neutral-500 animate-pulse">
-        Loading subscriptions...
+      <div className="p-5 pt-8">
+        <LoadingState count={3} height="h-32" />
       </div>
     );
   }
@@ -173,23 +158,6 @@ export default function HomePage() {
         </button>
       </div>
 
-      {toast && (
-        <div
-          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 duration-300 ${
-            toast.type === "success"
-              ? "bg-green-500/10 border-green-500/20 text-green-400"
-              : "bg-red-500/10 border-red-500/20 text-red-400"
-          }`}
-        >
-          {toast.type === "success" ? (
-            <CheckCircle2 size={16} />
-          ) : (
-            <AlertCircle size={16} />
-          )}
-          <span className="text-sm font-medium">{toast.message}</span>
-        </div>
-      )}
-
       {subscriptions.length > 0 ? (
         <div className="space-y-4 shadow-xl">
           {subscriptions.map((sub) => (
@@ -198,9 +166,7 @@ export default function HomePage() {
               className="bg-neutral-800/60 border border-neutral-800 rounded-2xl p-4 flex flex-col gap-4 shadow-lg"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center font-bold text-lg shadow-inner">
-                  {sub.chat_title?.[0] || "?"}
-                </div>
+                <Avatar text={sub.chat_title} size="md" />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-1">
                     <h3 className="font-bold text-lg leading-tight truncate">
@@ -245,26 +211,19 @@ export default function HomePage() {
           ))}
         </div>
       ) : (
-        <div className="text-center bg-neutral-900 border border-neutral-800 p-8 rounded-2xl shadow-xl space-y-4">
-          <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mx-auto text-neutral-500 border border-neutral-700 shadow-inner">
-            <MessageCircle size={32} />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-white mb-1">
-              No Active Subscriptions
-            </h3>
-            <p className="text-sm text-neutral-400">
-              Discover amazing creators and premium channels on the Explore
-              page.
-            </p>
-          </div>
-          <Link
-            href="/explore"
-            className="inline-block mt-2 px-6 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-neutral-200 transition-colors shadow-lg active:scale-95"
-          >
-            Start Exploring
-          </Link>
-        </div>
+        <EmptyState
+          icon={MessageCircle}
+          title="No Active Subscriptions"
+          subtitle="Discover amazing creators and premium channels on the Explore page."
+          action={
+            <Link
+              href="/explore"
+              className="inline-block mt-2 px-6 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-neutral-200 transition-colors shadow-lg active:scale-95"
+            >
+              Start Exploring
+            </Link>
+          }
+        />
       )}
 
       {/* Redeem Gift Modal */}

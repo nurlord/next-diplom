@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useRef, useState, MouseEvent } from "react";
 import { useChats, useChatCategories } from "@/api/hooks";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { Avatar } from "@/components/ui/Avatar";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 const CHAT_TYPES = ["channel", "group", "supergroup"];
 
@@ -209,22 +212,13 @@ export default function ExplorePage() {
         </h2>
 
         {authLoading || chatsLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-20 bg-neutral-800/40 rounded-xl animate-pulse"
-              ></div>
-            ))}
-          </div>
+          <LoadingState count={4} height="h-[84px]" />
         ) : filteredChats.length > 0 ? (
           <div className="space-y-3">
             {filteredChats.map((chat) => (
               <Link href={`/chats/${chat.id}`} key={chat.id}>
                 <div className="bg-neutral-800/40 border border-neutral-800 p-3 rounded-xl flex items-center gap-4 hover:bg-neutral-800 transition-colors cursor-pointer mb-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white shadow-inner shrink-0">
-                    {chat.title?.[0] || "?"}
-                  </div>
+                  <Avatar text={chat.title} size="md" />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2">
@@ -252,9 +246,11 @@ export default function ExplorePage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-neutral-500 text-center py-6 bg-neutral-900 border border-neutral-800 rounded-xl">
-            No channels found.
-          </p>
+          <EmptyState 
+            icon={Search} 
+            subtitle="No channels found matching your filters." 
+            className="!p-6 !rounded-xl" 
+          />
         )}
       </div>
     </div>

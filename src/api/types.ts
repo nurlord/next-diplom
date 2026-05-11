@@ -47,7 +47,7 @@ export interface Subscription {
   expires_at?: string;
   plan_id?: number;
   plan_title?: string;
-  price?: number;
+  price_nanoton?: number;
   status?: string;
   subscription_id?: number;
 }
@@ -71,7 +71,7 @@ export interface SubscriptionPlan {
   duration_days?: number;
   id?: number;
   plan_type?: string;
-  price?: number;
+  price_nanoton?: number;
   status?: string;
   title?: string;
   trial_days?: number;
@@ -87,6 +87,7 @@ export interface User {
   last_name?: string;
   status?: string;
   username?: string;
+  wallet_address?: string;
 }
 
 export interface AuthRequest {
@@ -102,7 +103,7 @@ export interface AuthResponse {
 export interface CreateSubscriptionPlanReq {
   duration_days?: number;
   plan_type: string; // 'periodic' or 'lifetime'
-  price: number;
+  price_nanoton: string;
   title: string;
   trial_days: number;
 }
@@ -124,7 +125,7 @@ export interface UpdateChatSubscriptionStatusReq {
 }
 
 export interface UpdateSubscriptionPlanReq {
-  price?: number;
+  price_nanoton?: string;
   status?: string; // 'active', 'archived', 'disabled'
   trial_days?: number;
 }

@@ -104,6 +104,8 @@ import {
   useUpdatePlan,
   useChatCategories,
 } from "@/api/hooks";
+import { useToast } from "@/providers/ToastProvider";
+import { toNanoTON, fromNanoTON } from "@/utils/ton";
 import Link from "next/link";
 
 export default function AdminDashboard() {
@@ -117,18 +119,8 @@ export default function AdminDashboard() {
   const router = useRouter();
   const urlChatId = searchParams.get("chatId");
 
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const toast = useToast();
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   const handleSync = async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.chats });
@@ -198,8 +190,9 @@ export default function AdminDashboard() {
     if (!myChat?.id) return;
     try {
       const payload = {
-        ...newPlan,
-        price: Math.floor(parseFloat(newPlan.price)) || 0,
+        title: newPlan.title,
+        plan_type: newPlan.plan_type,
+        price_nanoton: toNanoTON(newPlan.price).toString(),
         duration_days:
           newPlan.plan_type === "lifetime"
             ? undefined
@@ -208,9 +201,9 @@ export default function AdminDashboard() {
       };
       await createPlan({ chatId: myChat.id, data: payload as any });
       setShowPlanModal(false);
-      setToast({ message: "Plan created successfully", type: "success" });
+      toast.success("Plan created successfully");
     } catch (err) {
-      setToast({ message: "Failed to create plan", type: "error" });
+      toast.error("Failed to create plan");
     }
   };
 
@@ -222,15 +215,15 @@ export default function AdminDashboard() {
         planId: editingPlan.id,
         chatId: myChat.id,
         data: {
-          price: Math.floor(parseFloat(editingPlan.price)) || 0,
+          price_nanoton: toNanoTON(editingPlan.price).toString(),
           trial_days: 0,
           status: editingPlan.status,
         },
       });
       setShowEditPlanModal(false);
-      setToast({ message: "Plan updated successfully", type: "success" });
+      toast.success("Plan updated successfully");
     } catch (err) {
-      setToast({ message: "Failed to update plan", type: "error" });
+      toast.error("Failed to update plan");
     }
   };
 
@@ -244,18 +237,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="pb-24 pt-6 px-5 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 bg-black min-h-screen text-white">
-      {toast && (
-        <div
-          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border ${
-            toast.type === "success"
-              ? "bg-green-500/10 border-green-500/20 text-green-400"
-              : "bg-red-500/10 border-red-500/20 text-red-400"
-          }`}
-        >
-          <span className="text-sm font-bold">{toast.message}</span>
-        </div>
-      )}
-
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
         <Link
@@ -376,7 +357,7 @@ export default function AdminDashboard() {
                 hasPlans={hasPlans}
                 onAddPlan={() => setShowPlanModal(true)}
                 onEditPlan={(plan: any) => {
-                  setEditingPlan({ ...plan });
+                  setEditingPlan({ ...plan, price: fromNanoTON(plan.price_nanoton).toString() });
                   setShowEditPlanModal(true);
                 }}
               />
@@ -469,7 +450,7 @@ function PlansSection({ plans, hasPlans, onAddPlan, onEditPlan }: any) {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-lg font-black text-blue-400 leading-none">
-                  {plan.price}{" "}
+                  {fromNanoTON(plan.price_nanoton)}{" "}
                   <span className="text-[10px] font-normal text-neutral-500">
                     TON
                   </span>
@@ -848,7 +829,7 @@ function ChatSettingsSection({ chat }: { chat: any }) {
     is_active: chat.is_active ?? true,
   });
 
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     setForm({
@@ -869,9 +850,9 @@ function ChatSettingsSection({ chat }: { chat: any }) {
           category_id: Number(form.category_id) || undefined,
         },
       });
-      setToast({ message: "Settings updated successfully", type: "success" });
+      toast.success("Settings updated successfully");
     } catch (err) {
-      setToast({ message: "Failed to update settings. Please try again.", type: "error" });
+      toast.error("Failed to update settings. Please try again.");
     }
   };
 
@@ -882,14 +863,6 @@ function ChatSettingsSection({ chat }: { chat: any }) {
           Channel Settings
         </h4>
       </div>
-
-      {toast && (
-        <div className={`p-3 rounded-xl text-xs font-bold border animate-in fade-in duration-300 ${
-          toast.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
-        }`}>
-          {toast.message}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-800 p-6 rounded-[2.5rem] space-y-6 shadow-xl">
         <div className="space-y-2">

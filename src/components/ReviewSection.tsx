@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Star, MessageSquare, Send, User, CheckCircle2, AlertCircle } from "lucide-react";
 import { usePublicReviews, useSubmitReview } from "@/api/hooks";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { useToast } from "@/providers/ToastProvider";
 import { useEffect } from "react";
 
 interface ReviewSectionProps {
@@ -19,14 +20,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
   const [reviewText, setReviewText] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+  const toast = useToast();
 
   const reviews = reviewsRes?.data?.items || [];
   const summary = reviewsRes?.data?.summary;
@@ -47,7 +41,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
       setRating(5);
       setShowForm(false);
       setError(null);
-      setToast({ message: "Review submitted successfully!", type: "success" });
+      toast.success("Review submitted successfully!");
       refetch();
     } catch (err: any) {
       setError(err.message || "Failed to submit review.");
@@ -69,14 +63,6 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
 
   return (
     <div className="px-5 space-y-6 relative">
-      {toast && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 duration-300 ${
-          toast.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
-        }`}>
-          {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-          <span className="text-sm font-medium">{toast.message}</span>
-        </div>
-      )}
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           Reviews 

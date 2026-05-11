@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { fromNanoTON } from "@/utils/ton";
 import { useAuthContext } from "@/providers/AuthProvider";
 import ReviewSection from "@/components/ReviewSection";
 
@@ -160,7 +161,7 @@ export default function ChatSubscriptionPage() {
         }
       });
 
-      setSuccessData({ invite_link: res.data?.invite_link, amount: price });
+      setSuccessData({ invite_link: res.data?.invite_link, amount: fromNanoTON(price) });
     } catch (e: any) {
       console.error(e);
       setErrorMsg(e?.message || "Subscription failed. Please make sure the transaction was sent.");
@@ -384,7 +385,7 @@ export default function ChatSubscriptionPage() {
                             size={20}
                             className="text-blue-400 fill-blue-400/20"
                           />
-                          {tier.price}
+                          {fromNanoTON(tier.price_nanoton)}
                         </span>
                         <span className="text-sm text-neutral-500 mb-1">
                           TON /{" "}
@@ -423,7 +424,7 @@ export default function ChatSubscriptionPage() {
                   </ul>
 
                   <button
-                    onClick={() => handleSubscribe(tier.id!, tier.price)}
+                    onClick={() => handleSubscribe(tier.id!, tier.price_nanoton)}
                     disabled={
                       loadingPlanId !== null || isSubscribing || isApplyingPromo
                     }
