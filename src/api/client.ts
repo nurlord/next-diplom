@@ -30,6 +30,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://jazylym-production.
 
 export const apiClient = ky.create({
   prefixUrl: BASE_URL,
+  timeout: false,
   hooks: {
     beforeRequest: [
       (request) => {
