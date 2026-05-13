@@ -316,7 +316,7 @@ export default function AdminDashboard() {
               Revenue
             </p>
             <p className="text-2xl font-black text-blue-400">
-              {analytics.revenue_confirmed || 0}
+              {fromNanoTON(analytics.revenue_confirmed)}
             </p>
           </div>
         </div>

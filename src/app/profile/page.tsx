@@ -20,6 +20,7 @@ import {
 } from "@/api/hooks";
 import { WalletSection } from "@/components/profile/WalletSection";
 import Link from "next/link";
+import { fromNanoTON } from "@/utils/ton";
 
 export default function ProfilePage() {
   const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
@@ -157,7 +158,7 @@ export default function ProfilePage() {
             <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl shadow-lg relative overflow-hidden">
                <div className="absolute -right-2 -bottom-2 text-blue-500/10 flex items-center justify-center font-black text-4xl">TON</div>
                <p className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Total Revenue</p>
-               <p className="text-2xl font-black text-blue-400">{creatorAnalytics.revenue_confirmed} <span className="text-xs font-normal text-neutral-500">TON</span></p>
+               <p className="text-2xl font-black text-blue-400">{fromNanoTON(creatorAnalytics.revenue_confirmed)} <span className="text-xs font-normal text-neutral-500">TON</span></p>
             </div>
             <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl shadow-lg col-span-2 flex items-center justify-between">
                <div>
@@ -181,7 +182,7 @@ export default function ProfilePage() {
                { label: "Total Subs", val: platformAnalytics.total_subscribers, color: "text-white" },
                { label: "Active Subs", val: platformAnalytics.active_subscribers, color: "text-white" },
                { label: "New Subs", val: platformAnalytics.new_subscriptions, color: "text-white" },
-               { label: "Total Revenue", val: `${platformAnalytics.revenue_confirmed} TON`, color: "text-purple-400" },
+               { label: "Total Revenue", val: `${fromNanoTON(platformAnalytics.revenue_confirmed)} TON`, color: "text-purple-400" },
              ].map((stat, i) => (
                <div key={i} className="bg-neutral-900/50 border border-neutral-800/50 p-4 rounded-2xl">
                  <p className="text-[9px] font-bold text-neutral-500 uppercase mb-1">{stat.label}</p>
