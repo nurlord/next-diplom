@@ -23,10 +23,10 @@ export default function ExplorePage() {
   >();
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [isPremiumOnly, setIsPremiumOnly] = useState<boolean | undefined>();
   const [selectedType, setSelectedType] = useState<string | undefined>();
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "alpha_asc" | "alpha_desc">("newest");
 
-  const activeFilterCount = (isPremiumOnly ? 1 : 0) + (selectedType ? 1 : 0);
+  const activeFilterCount = (selectedType ? 1 : 0) + (sortBy !== "newest" ? 1 : 0);
 
   const { data: categoriesRes } = useChatCategories({
     enabled: isAuthenticated,
@@ -36,7 +36,6 @@ export default function ExplorePage() {
   const { data: chatsRes, isLoading: chatsLoading } = useChats(
     {
       category_id: selectedCategory,
-      is_premium: isPremiumOnly,
       type: selectedType,
     },
     { enabled: isAuthenticated },
@@ -44,9 +43,23 @@ export default function ExplorePage() {
 
   const chats = chatsRes?.data?.items || [];
 
-  const filteredChats = chats.filter((c) =>
-    c.title?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredChats = chats
+    .filter((c) => c.title?.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === "alpha_asc") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+      if (sortBy === "alpha_desc") {
+        return (b.title || "").localeCompare(a.title || "");
+      }
+      const idA = a.id || 0;
+      const idB = b.id || 0;
+      if (sortBy === "oldest") {
+        return idA - idB;
+      }
+      // default: newest
+      return idB - idA;
+    });
 
   const handleMouseDown = (e: MouseEvent) => {
     if (!scrollRef.current) return;
@@ -66,8 +79,8 @@ export default function ExplorePage() {
   const handleMouseUpOrLeave = () => setIsDragging(false);
 
   const clearFilters = () => {
-    setIsPremiumOnly(undefined);
     setSelectedType(undefined);
+    setSortBy("newest");
   };
 
   return (
@@ -109,24 +122,29 @@ export default function ExplorePage() {
             )}
           </div>
 
-          {/* Premium toggle */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Star size={14} className="text-orange-400" />
-              <span className="text-sm text-neutral-300">Premium only</span>
+          {/* Sort By Option */}
+          <div>
+            <p className="text-xs text-neutral-500 mb-2 uppercase tracking-widest font-black text-[10px]">Sort By</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { id: "newest", label: "Newest First" },
+                { id: "oldest", label: "Oldest First" },
+                { id: "alpha_asc", label: "Alphabet (A-Z)" },
+                { id: "alpha_desc", label: "Alphabet (Z-A)" },
+              ].map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => setSortBy(option.id as any)}
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 border text-center ${
+                    sortBy === option.id
+                      ? "bg-blue-600/10 border-blue-500 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.15)]"
+                      : "bg-neutral-900 border-neutral-850 text-neutral-400 hover:border-neutral-700 hover:text-neutral-300"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
-            <button
-              onClick={() => setIsPremiumOnly((v) => (v ? undefined : true))}
-              className={`w-12 h-6 rounded-full transition-all duration-300 relative ${isPremiumOnly ? "bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]" : "bg-neutral-700 shadow-inner"}`}
-            >
-              <span
-                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center ${isPremiumOnly ? "translate-x-6" : "translate-x-1"}`}
-              >
-                {isPremiumOnly && (
-                  <Star size={10} className="text-orange-500 fill-orange-500" />
-                )}
-              </span>
-            </button>
           </div>
 
           {/* Type filter */}
@@ -204,11 +222,9 @@ export default function ExplorePage() {
         <h2 className="text-sm font-semibold text-neutral-400 mb-3 uppercase tracking-wider">
           {searchQuery
             ? "Search Results"
-            : isPremiumOnly
-              ? "Premium Channels"
-              : selectedType
-                ? `${selectedType}s`.replace(/ss$/, "ses")
-                : "Trending Now"}
+            : selectedType
+              ? `${selectedType}s`.replace(/ss$/, "ses")
+              : "Trending Now"}
         </h2>
 
         {authLoading || chatsLoading ? (
