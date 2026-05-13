@@ -82,7 +82,7 @@ export default function ProfilePage() {
 
   if (isAuthLoading || isUserLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-black">
+      <div className="flex h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <RotateCw className="animate-spin text-blue-500" size={32} />
           <p className="text-neutral-500 text-sm animate-pulse font-medium">
@@ -94,7 +94,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="pb-24 pt-6 px-5 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 bg-black min-h-screen text-white">
+    <div className="pb-24 pt-6 px-5 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-white">
       {/* Header with Profile Card */}
       <header className="space-y-6">
         <div className="flex justify-between items-center">

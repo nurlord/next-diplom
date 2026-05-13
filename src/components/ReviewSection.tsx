@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Star, MessageSquare, Send, User, CheckCircle2, AlertCircle } from "lucide-react";
-import { usePublicReviews, useSubmitReview } from "@/api/hooks";
+import { usePublicReviews, useSubmitReview, useMySubscriptions } from "@/api/hooks";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/ToastProvider";
 import { useEffect } from "react";
@@ -15,6 +15,13 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
   const { isAuthenticated } = useAuthContext();
   const { data: reviewsRes, isLoading, refetch } = usePublicReviews(chatId, { limit: 10 });
   const { mutateAsync: submitReview, isPending: isSubmitting } = useSubmitReview();
+  const { data: subscriptionsRes, isLoading: subsLoading } = useMySubscriptions(
+    {},
+    { enabled: isAuthenticated }
+  );
+  const isSubscribed = (subscriptionsRes?.data?.items || []).some(
+    (sub) => sub.chat_id === chatId && sub.status === "active"
+  );
 
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
@@ -48,7 +55,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || (isAuthenticated && subsLoading)) {
     return (
       <div className="px-5 py-8 text-center animate-pulse">
         <div className="h-4 w-32 bg-neutral-800 rounded mx-auto mb-4"></div>
@@ -73,7 +80,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
           ) : null}
         </h3>
         
-        {isAuthenticated && !showForm && (
+        {isAuthenticated && isSubscribed && !showForm && (
           <button 
             onClick={() => setShowForm(true)}
             className="text-xs text-blue-400 font-medium hover:underline"

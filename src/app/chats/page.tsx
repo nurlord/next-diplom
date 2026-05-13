@@ -24,14 +24,14 @@ export default function ChatsPage() {
 
   if (authLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-black">
+      <div className="flex h-screen items-center justify-center">
         <RotateCw className="animate-spin text-blue-500" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="pb-24 pt-6 px-5 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 bg-black min-h-screen text-white">
+    <div className="pb-24 pt-6 px-5 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 text-white">
       <header className="space-y-1">
         <h1 className="text-3xl font-black tracking-tighter">My Chats</h1>
         <p className="text-sm text-neutral-500 font-medium">Manage your empire and active subs</p>
