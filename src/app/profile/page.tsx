@@ -6,6 +6,12 @@ import {
   RotateCw,
   MessageSquare,
   ChevronRight,
+  Users,
+  Sparkles,
+  Tv,
+  Award,
+  Activity,
+  Layers,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -145,50 +151,120 @@ export default function ProfilePage() {
 
       {/* Creator Analytics Section */}
       {creatorAnalytics && (
-        <section className="space-y-4">
-          <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest px-1">
-            Global Analytics
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl shadow-lg relative overflow-hidden">
-               <TrendingUp className="absolute -right-2 -bottom-2 text-blue-500/10" size={60} />
-               <p className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Total Subscribers</p>
-               <p className="text-2xl font-black text-white">{creatorAnalytics.total_subscribers}</p>
-            </div>
-            <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl shadow-lg relative overflow-hidden">
-               <div className="absolute -right-2 -bottom-2 text-blue-500/10 flex items-center justify-center font-black text-4xl">TON</div>
-               <p className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Total Revenue</p>
-               <p className="text-2xl font-black text-blue-400">{fromNanoTON(creatorAnalytics.revenue_confirmed)} <span className="text-xs font-normal text-neutral-500">TON</span></p>
-            </div>
-            <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl shadow-lg col-span-2 flex items-center justify-between">
-               <div>
-                  <p className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Managed Channels</p>
-                  <p className="text-xl font-black text-white">{chats.length}</p>
+        <section className="space-y-4 animate-in fade-in duration-500">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+              <Activity size={16} className="text-blue-500" /> Creator Overview
+            </h3>
+            <span className="text-[10px] text-neutral-500 font-medium">Updated live</span>
+          </div>
+          
+          <div className="space-y-3">
+            {/* Total Earnings Card */}
+            <div className="bg-gradient-to-br from-blue-600/10 via-neutral-900 to-neutral-900 border border-blue-500/20 p-5 rounded-[2rem] shadow-xl relative overflow-hidden group hover:border-blue-500/40 transition-all">
+               <div className="flex justify-between items-start mb-2">
+                 <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-inner">
+                   <Sparkles size={24} />
+                 </div>
+                 <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
+                   Confirmed Payout
+                 </span>
                </div>
-             </div>
+               <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Total Earned Revenue</p>
+               <div className="flex items-baseline gap-2 mb-2">
+                 <p className="text-3xl font-black text-white tracking-tight">{fromNanoTON(creatorAnalytics.revenue_confirmed)}</p>
+                 <span className="text-sm font-black text-blue-400 uppercase tracking-widest">TON</span>
+               </div>
+               <p className="text-xs text-neutral-500 font-medium">Funds successfully processed across all your subscription tiers.</p>
+               <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all"></div>
+            </div>
+
+            {/* Grid for Subscribers & Channels */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-[2rem] shadow-lg relative overflow-hidden hover:border-neutral-700 transition-all flex flex-col justify-between">
+                 <div>
+                   <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center text-neutral-300 mb-3">
+                     <Users size={20} />
+                   </div>
+                   <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">Total Audience</p>
+                   <p className="text-2xl font-black text-white mb-2">{creatorAnalytics.total_subscribers}</p>
+                 </div>
+                 <p className="text-[10px] text-neutral-500 leading-tight font-medium">Active paying members.</p>
+              </div>
+
+              <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-[2rem] shadow-lg relative overflow-hidden hover:border-neutral-700 transition-all flex flex-col justify-between">
+                 <div>
+                   <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center text-neutral-300 mb-3">
+                     <Tv size={20} />
+                   </div>
+                   <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">Empire Size</p>
+                   <p className="text-2xl font-black text-white mb-2">{chats.length}</p>
+                 </div>
+                 <Link href="/chats">
+                   <p className="text-[10px] text-blue-400 font-bold hover:underline inline-flex items-center gap-1">
+                     Manage channels <ChevronRight size={10} />
+                   </p>
+                 </Link>
+              </div>
+            </div>
           </div>
         </section>
       )}
 
       {/* Platform Analytics (Admin only) */}
       {platformAnalytics && (
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 px-1">
-            <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Platform Stats</h3>
-            <span className="text-[8px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded font-black border border-purple-500/20 uppercase">Core</span>
+        <section className="space-y-4 animate-in fade-in duration-500 pt-2">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                <Layers size={16} className="text-purple-400" /> Platform Stats
+              </h3>
+              <span className="text-[8px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded font-black border border-purple-500/20 uppercase tracking-widest">Admin</span>
+            </div>
+            <span className="text-[10px] text-purple-400/80 font-semibold uppercase tracking-wider">System Core</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-             {[
-               { label: "Total Subs", val: platformAnalytics.total_subscribers, color: "text-white" },
-               { label: "Active Subs", val: platformAnalytics.active_subscribers, color: "text-white" },
-               { label: "New Subs", val: platformAnalytics.new_subscriptions, color: "text-white" },
-               { label: "Total Revenue", val: `${fromNanoTON(platformAnalytics.revenue_confirmed)} TON`, color: "text-purple-400" },
-             ].map((stat, i) => (
-               <div key={i} className="bg-neutral-900/50 border border-neutral-800/50 p-4 rounded-2xl">
-                 <p className="text-[9px] font-bold text-neutral-500 uppercase mb-1">{stat.label}</p>
-                 <p className={`text-lg font-black ${stat.color}`}>{stat.val ?? 0}</p>
+
+          <div className="bg-gradient-to-br from-purple-900/10 via-neutral-900 to-neutral-900 border border-purple-500/20 p-5 rounded-[2rem] space-y-4 shadow-xl">
+             <div className="grid grid-cols-2 gap-4 pb-4 border-b border-neutral-800">
+               <div>
+                 <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">Total Platform Subs</p>
+                 <p className="text-xl font-black text-white">{platformAnalytics.total_subscribers ?? 0}</p>
                </div>
-             ))}
+               <div>
+                 <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">Active Subs Rate</p>
+                 <div className="flex items-baseline gap-1.5">
+                   <p className="text-xl font-black text-purple-400">{platformAnalytics.active_subscribers ?? 0}</p>
+                   <span className="text-xs text-neutral-500 font-bold">/ {platformAnalytics.total_subscribers ?? 0}</span>
+                 </div>
+               </div>
+             </div>
+
+             {/* Progress bar for Active Subs */}
+             <div className="space-y-1.5">
+               <div className="flex justify-between text-[10px] font-bold">
+                 <span className="text-neutral-400">Subscriber Retention</span>
+                 <span className="text-purple-400">
+                   {Math.round(((platformAnalytics.active_subscribers ?? 0) / (platformAnalytics.total_subscribers || 1)) * 100)}% Active
+                 </span>
+               </div>
+               <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden p-0.5 border border-neutral-700/50">
+                 <div 
+                   className="bg-gradient-to-r from-purple-500 to-blue-500 h-full rounded-full transition-all duration-1000" 
+                   style={{ width: `${Math.min(100, ((platformAnalytics.active_subscribers ?? 0) / (platformAnalytics.total_subscribers || 1)) * 100)}%` }} 
+                 />
+               </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-4 pt-2">
+               <div className="bg-neutral-800/40 p-3 rounded-2xl border border-neutral-800">
+                 <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-wider mb-1">New Subscriptions</p>
+                 <p className="text-lg font-black text-white">{platformAnalytics.new_subscriptions ?? 0}</p>
+               </div>
+               <div className="bg-neutral-800/40 p-3 rounded-2xl border border-purple-500/10">
+                 <p className="text-[9px] font-bold text-neutral-500 uppercase tracking-wider mb-1">Platform Revenue</p>
+                 <p className="text-lg font-black text-purple-400">{fromNanoTON(platformAnalytics.revenue_confirmed)} <span className="text-xs text-neutral-500 font-bold">TON</span></p>
+               </div>
+             </div>
           </div>
         </section>
       )}
