@@ -148,10 +148,12 @@ interface CardProps {
   /** Interactive — shows hover effects */
   interactive?: boolean;
   className?: string;
-  padding?: "sm" | "md" | "lg";
+  padding?: "none" | "sm" | "md" | "lg";
+  onClick?: () => void;
 }
 
 const cardPadding: Record<string, string> = {
+  none: "p-0",
   sm: "p-3",
   md: "p-5",
   lg: "p-6",
@@ -171,9 +173,11 @@ export function Card({
   interactive = false,
   className = "",
   padding = "md",
+  onClick,
 }: CardProps) {
   return (
     <div
+      onClick={onClick}
       className={`
         bg-neutral-900 border border-neutral-800 rounded-[2rem] shadow-lg
         relative overflow-hidden transition-all
