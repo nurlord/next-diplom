@@ -188,6 +188,8 @@ export default function HomePage() {
     };
   }, [isRefreshing, queryClient]);
 
+  const [optimisticCancelled, setOptimisticCancelled] = useState<number[]>([]);
+
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -207,19 +209,21 @@ export default function HomePage() {
     if (
       confirm("Are you sure you want to cancel this subscription? You will lose access immediately.")
     ) {
+      setOptimisticCancelled(prev => [...prev, id]);
       try {
         await cancelSub(id);
         await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
         toast.success("Subscription canceled successfully");
         window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
       } catch (err) {
+        setOptimisticCancelled(prev => prev.filter(oid => oid !== id));
         toast.handleError(err);
       }
     }
   };
 
   const subscriptions = (subsRes?.data?.items || []).filter(
-    (s) => s.status === "active",
+    (s) => s.status === "active" && !optimisticCancelled.includes(s.subscription_id!),
   );
 
   const urgentCount = subscriptions.filter((s) => {

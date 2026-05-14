@@ -74,14 +74,25 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 fade-in duration-300 pointer-events-auto ${
+            onMouseEnter={() => {}} // Could add pause logic if needed
+            className={`group relative flex flex-col gap-0 overflow-hidden rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 fade-in duration-300 pointer-events-auto min-w-[200px] ${
               toast.type === "success"
-                ? "bg-green-500/10 border-green-500/20 text-green-400"
-                : "bg-red-500/10 border-red-500/20 text-red-400"
+                ? "bg-neutral-900 border-green-500/30 text-green-400"
+                : "bg-neutral-900 border-red-500/30 text-red-400"
             }`}
           >
-            {toast.type === "success" ? <CheckCircle2 size={16} className="shrink-0" /> : <AlertCircle size={16} className="shrink-0" />}
-            <span className="text-sm font-medium">{toast.message}</span>
+            <div className="flex items-center gap-3 px-4 py-3">
+              {toast.type === "success" ? <CheckCircle2 size={18} className="shrink-0" /> : <AlertCircle size={18} className="shrink-0" />}
+              <span className="text-sm font-bold tracking-tight">{toast.message}</span>
+            </div>
+            {/* Progress Bar */}
+            <div className="h-1 w-full bg-neutral-800">
+              <div 
+                className={`h-full transition-all duration-[3000ms] ease-linear w-full origin-left scale-x-0 ${
+                  toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                }`}
+              />
+            </div>
           </div>
         ))}
       </div>
