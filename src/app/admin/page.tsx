@@ -492,15 +492,15 @@ function BroadcastSection({ chatId }: { chatId: number }) {
 }
 
 function PromoSection({ chatId }: { chatId: number }) {
-  const [form, setForm] = useState({ code: "", discount_nanoton: "100000000", max_uses: 10 });
+  const [form, setForm] = useState({ code: "", discount: "0.1", max_uses: 10 });
   const { mutateAsync: createPromo, isPending } = useCreatePromoCode();
   const toast = useToast();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createPromo({ chatId, data: { ...form, discount_nanoton: toNanoTON(form.discount_nanoton).toString() } as any });
-      setForm({ code: "", discount_nanoton: "0.1", max_uses: 10 });
+      await createPromo({ chatId, data: { ...form, discount_nanoton: toNanoTON(form.discount).toString() } as any });
+      setForm({ code: "", discount: "0.1", max_uses: 10 });
       toast.success("Promo code created");
     } catch (err) {
       toast.handleError(err);
@@ -517,7 +517,7 @@ function PromoSection({ chatId }: { chatId: number }) {
           </FormField>
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Discount (TON)">
-              <Input required type="number" step="0.01" value={form.discount_nanoton} onChange={(e) => setForm({ ...form, discount_nanoton: e.target.value })} />
+              <Input required type="number" step="0.01" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
             </FormField>
             <FormField label="Max Uses">
               <Input required type="number" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: parseInt(e.target.value) })} />
