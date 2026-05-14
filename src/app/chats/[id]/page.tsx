@@ -20,11 +20,12 @@ import {
   Lock,
   Zap,
   Gem,
-  MessageCircle,
   ShieldCheck,
   ArrowLeft,
   Star,
   Quote,
+  Share2,
+  MessageCircle,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -274,6 +275,30 @@ export default function ChatSubscriptionPage() {
         >
           <ArrowLeft size={20} />
         </Link>
+      </div>
+
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={() => {
+            const url = window.location.href;
+            if (navigator.share) {
+              navigator.share({
+                title: chat.title,
+                text: chat.description,
+                url: url,
+              }).catch(() => {
+                navigator.clipboard.writeText(url);
+                toast.success("Link copied to clipboard!");
+              });
+            } else {
+              navigator.clipboard.writeText(url);
+              toast.success("Link copied to clipboard!");
+            }
+          }}
+          className="w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/10 hover:bg-black/60 transition"
+        >
+          <Share2 size={20} />
+        </button>
       </div>
 
       {/* --- HERO SECTION --- */}

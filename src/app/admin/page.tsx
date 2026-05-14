@@ -304,9 +304,15 @@ export default function AdminDashboard() {
             <p className="text-[10px] font-bold text-neutral-500 uppercase mb-1">
               Subscribers
             </p>
-            <p className="text-2xl font-black text-white">
-              {analytics.total_subscribers || 0}
-            </p>
+            <div className="flex items-baseline gap-2">
+              <p className="text-2xl font-black text-white">
+                {analytics.total_subscribers || 0}
+              </p>
+              <div className={`flex items-center text-[10px] font-black ${analytics.new_subscriptions >= analytics.expired_subscriptions ? 'text-green-500' : 'text-red-500'}`}>
+                {analytics.new_subscriptions >= analytics.expired_subscriptions ? '↑' : '↓'}
+                {Math.abs(analytics.new_subscriptions - analytics.expired_subscriptions)}
+              </div>
+            </div>
           </div>
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl shadow-lg relative overflow-hidden">
             <div className="absolute -right-2 -bottom-2 text-blue-500/10 font-black text-3xl">
@@ -455,9 +461,19 @@ function PlansSection({ plans, hasPlans, onAddPlan, onEditPlan }: any) {
                     TON
                   </span>
                 </p>
-                <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${plan.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditPlan({ ...plan, status: plan.status === 'active' ? 'archived' : 'active' });
+                  }}
+                  className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border transition-colors mt-1 ${
+                    plan.status === 'active' 
+                      ? 'bg-green-500/10 text-green-400 border-green-500/10 hover:bg-green-500/20' 
+                      : 'bg-red-500/10 text-red-400 border-red-500/10 hover:bg-red-500/20'
+                  }`}
+                >
                   {plan.status}
-                </span>
+                </button>
               </div>
               <button
                 onClick={() => onEditPlan(plan)}
@@ -589,35 +605,57 @@ function BroadcastSection({ chatId }: { chatId: number }) {
                 e.preventDefault();
                 await createB({ chatId, data: form });
                 setShowModal(false);
+                setForm({ title: "", body: "" });
               }}
               className="space-y-4"
             >
-              <input
-                placeholder="Title"
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-sm"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
-              <textarea
-                required
-                placeholder="Message..."
-                className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-sm min-h-[100px]"
-                value={form.body}
-                onChange={(e) => setForm({ ...form, body: e.target.value })}
-              />
-              <button
-                type="submit"
-                className="w-full py-3 bg-blue-600 rounded-xl text-xs font-bold"
-              >
-                Create
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="w-full py-3 bg-neutral-800 rounded-xl text-xs font-bold mt-2"
-              >
-                Cancel
-              </button>
+              <div className="space-y-4">
+                <input
+                  placeholder="Title"
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none transition-all"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                />
+                <textarea
+                  required
+                  placeholder="Message..."
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-sm min-h-[120px] focus:border-blue-500 outline-none transition-all"
+                  value={form.body}
+                  onChange={(e) => setForm({ ...form, body: e.target.value })}
+                />
+              </div>
+
+              {/* Preview Pane */}
+              {(form.title || form.body) && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black text-neutral-500 uppercase tracking-widest px-1">Live Preview</p>
+                  <div className="bg-neutral-950 border border-neutral-800 p-4 rounded-2xl shadow-inner">
+                    <h5 className="font-bold text-sm text-white mb-1">{form.title || "Untitled"}</h5>
+                    <p className="text-xs text-neutral-400 whitespace-pre-wrap">{form.body || "Message body will appear here..."}</p>
+                    <div className="mt-3 pt-3 border-t border-neutral-900 flex justify-between items-center opacity-50">
+                       <span className="text-[9px] font-bold text-neutral-600">Jazylym Broadcast Service</span>
+                       <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-black text-white">J</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 py-3 bg-neutral-800 rounded-xl text-xs font-bold hover:bg-neutral-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!form.body}
+                  className="flex-1 py-3 bg-blue-600 rounded-xl text-xs font-bold hover:bg-blue-500 transition-colors disabled:opacity-50"
+                >
+                  Create Draft
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -12,6 +12,8 @@ import {
   Award,
   Activity,
   Layers,
+  History,
+  ArrowDownRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,6 +25,7 @@ import {
   useCreatorAnalytics,
   usePlatformAnalytics,
   useChats,
+  useMySubscriptions,
 } from "@/api/hooks";
 import { WalletSection } from "@/components/profile/WalletSection";
 import Link from "next/link";
@@ -53,6 +56,10 @@ export default function ProfilePage() {
     { enabled: !!userId }
   );
   const chats = chatsRes?.data?.items || [];
+
+  const { data: mySubsRes } = useMySubscriptions({ limit: 10 }, { enabled: !!userId });
+  const paymentHistory = (mySubsRes?.data?.items || [])
+    .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
   const [profileForm, setProfileForm] = useState({
     first_name: "",
@@ -268,6 +275,51 @@ export default function ProfilePage() {
           </div>
         </section>
       )}
+
+      {/* Transaction History Section */}
+      <section className="space-y-4 animate-in fade-in duration-500 pb-8">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+            <History size={16} className="text-emerald-500" /> Payment History
+          </h3>
+          <span className="text-[10px] text-neutral-500 font-medium">Last 10 transactions</span>
+        </div>
+
+        <div className="space-y-3">
+          {paymentHistory.length > 0 ? (
+            paymentHistory.map((sub, i) => (
+              <div 
+                key={sub.subscription_id || i}
+                className="bg-neutral-900 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between group hover:border-emerald-500/20 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/10 group-hover:bg-emerald-500/20 transition-all">
+                    <ArrowDownRight size={20} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-white text-sm truncate">{sub.chat_title}</p>
+                    <p className="text-[10px] text-neutral-500 uppercase font-bold tracking-tight">
+                      {sub.plan_title} • {sub.created_at ? new Date(sub.created_at).toLocaleDateString() : "Unknown Date"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-black text-white">
+                    {fromNanoTON(sub.price_nanoton || 0)} <span className="text-[10px] text-neutral-500">TON</span>
+                  </p>
+                  <span className="text-[9px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/10">
+                    Confirmed
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="bg-neutral-900/50 border border-neutral-800 border-dashed rounded-2xl p-6 text-center">
+               <p className="text-xs text-neutral-500 italic">No payments found in your history.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Edit Profile Modal */}
       {showProfileModal && (

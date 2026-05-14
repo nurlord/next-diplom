@@ -195,6 +195,7 @@ export default function HomePage() {
       await redeemGift(parseInt(giftId));
       await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
       toast.success("Gift redeemed successfully!");
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
       setShowRedeemModal(false);
       setGiftId("");
     } catch (err) {
@@ -210,6 +211,7 @@ export default function HomePage() {
         await cancelSub(id);
         await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
         toast.success("Subscription canceled successfully");
+        window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
       } catch (err) {
         toast.handleError(err);
       }
