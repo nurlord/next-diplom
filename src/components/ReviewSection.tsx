@@ -51,7 +51,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
       toast.success("Review submitted successfully!");
       refetch();
     } catch (err: any) {
-      setError(err.message || "Failed to submit review.");
+      toast.handleError(err);
     }
   };
 

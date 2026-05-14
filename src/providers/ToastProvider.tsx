@@ -2,6 +2,9 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
 import { CheckCircle2, AlertCircle } from "lucide-react";
+import { ApiError } from "@/api/client";
+import { HTTPError } from "ky";
+import * as T from "@/api/types";
 
 type ToastType = "success" | "error";
 
@@ -14,6 +17,7 @@ interface ToastMessage {
 interface ToastContextType {
   success: (message: string) => void;
   error: (message: string) => void;
+  handleError: (err: any) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -33,8 +37,37 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const success = useCallback((message: string) => addToast(message, "success"), [addToast]);
   const error = useCallback((message: string) => addToast(message, "error"), [addToast]);
 
+  const handleError = useCallback(async (err: any) => {
+    console.error('Toast Error Handler:', err);
+    let message = "An unexpected error occurred";
+    
+    if (err instanceof ApiError) {
+      message = err.message;
+    } else if (err instanceof HTTPError) {
+      try {
+        // Clone response because it can only be read once
+        const data = (await err.response.clone().json()) as T.ErrorResponse;
+        if (data?.message) {
+          message = data.message;
+        } else if (data?.code) {
+          message = `Error: ${data.code}`;
+        } else {
+          message = `Server returned ${err.response.status}: ${err.response.statusText}`;
+        }
+      } catch {
+        message = `Network error (${err.response.status})`;
+      }
+    } else if (err instanceof Error) {
+      message = err.message;
+    } else if (typeof err === "string") {
+      message = err;
+    }
+
+    addToast(message, "error");
+  }, [addToast]);
+
   return (
-    <ToastContext.Provider value={{ success, error }}>
+    <ToastContext.Provider value={{ success, error, handleError }}>
       {children}
       {/* Render Toasts globally */}
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 items-center pointer-events-none w-max max-w-[90vw]">

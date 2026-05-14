@@ -2,6 +2,7 @@ import { Wallet, CheckCircle2, AlertCircle } from "lucide-react";
 import { useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
 import { useState, useEffect } from "react";
 import { useLinkUserWallet } from "@/api/hooks";
+import { useToast } from "@/providers/ToastProvider";
 
 export function WalletSection({ userId, savedWallet }: { userId?: number; savedWallet?: string }) {
   const tonAddress = useTonAddress();
@@ -9,6 +10,7 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
   const [walletError, setWalletError] = useState<string | null>(null);
 
   const { mutateAsync: linkWallet, isPending: isLinkingWallet } = useLinkUserWallet();
+  const toast = useToast();
 
   useEffect(() => {
     setWalletError(null);
@@ -26,20 +28,11 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
     try {
       await linkWallet({ wallet_address: tonAddress });
       setLinkedWallet(tonAddress);
+      toast.success("Payout wallet linked successfully!");
     } catch (err: any) {
       console.error("Failed to link wallet:", err);
-      let msg = "Failed to link payout wallet.";
-      try {
-        const respData = await err?.response?.json();
-        if (respData?.message) {
-          msg = respData.message;
-        }
-      } catch (_) {
-        if (err?.message) {
-          msg = err.message;
-        }
-      }
-      setWalletError(msg);
+      toast.handleError(err);
+      setWalletError(err.message || "Failed to link payout wallet.");
     }
   };
 

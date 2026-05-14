@@ -203,7 +203,7 @@ export default function AdminDashboard() {
       setShowPlanModal(false);
       toast.success("Plan created successfully");
     } catch (err) {
-      toast.error("Failed to create plan");
+      toast.handleError(err);
     }
   };
 
@@ -223,7 +223,7 @@ export default function AdminDashboard() {
       setShowEditPlanModal(false);
       toast.success("Plan updated successfully");
     } catch (err) {
-      toast.error("Failed to update plan");
+      toast.handleError(err);
     }
   };
 

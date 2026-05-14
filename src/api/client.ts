@@ -1,4 +1,19 @@
-import ky from 'ky';
+import ky, { HTTPError } from 'ky';
+import * as T from './types';
+
+export class ApiError extends Error {
+  code?: string;
+  fields?: Record<string, any>;
+  status?: number;
+
+  constructor(message: string, status?: number, code?: string, fields?: Record<string, any>) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.code = code;
+    this.fields = fields;
+  }
+}
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;

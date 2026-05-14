@@ -30,6 +30,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { fromNanoTON } from "@/utils/ton";
 import { useAuthContext } from "@/providers/AuthProvider";
+import { useToast } from "@/providers/ToastProvider";
 import ReviewSection from "@/components/ReviewSection";
 
 
@@ -38,6 +39,7 @@ export default function ChatSubscriptionPage() {
   const { id } = useParams();
   const chatId = Number(id);
   const { userId, isAuthenticated } = useAuthContext();
+  const toast = useToast();
 
   const {
     data: chatRes,
@@ -55,7 +57,7 @@ export default function ChatSubscriptionPage() {
   const isSubscribed = subsRes?.data?.items?.some(s => s.chat_id === chatId && s.status === 'active') || false;
 
   const { data: broadcastsRes } = useBroadcasts(chatId, { limit: 5 }, { enabled: !!chatId });
-  const broadcasts = broadcastsRes?.data || [];
+  const broadcasts = broadcastsRes?.data?.items || [];
 
   const { data: reviewsRes } = usePublicReviews(chatId, { limit: 3 }, { enabled: !!chatId });
   const reviews = reviewsRes?.data?.items || [];
@@ -160,6 +162,7 @@ export default function ChatSubscriptionPage() {
       setSuccessData({ invite_link: res.data?.invite_link, amount: fromNanoTON(price) });
     } catch (e: any) {
       console.error(e);
+      toast.handleError(e);
       setErrorMsg(e?.message || "Subscription failed. Please make sure the transaction was sent.");
     } finally {
       setLoadingPlanId(null);
@@ -172,8 +175,9 @@ export default function ChatSubscriptionPage() {
     try {
       const res = await previewPromo({ planId, data: { code: promoCode } });
       setPromoPreview(res.data);
-    } catch {
-      setPromoError("Invalid promo code.");
+    } catch (err: any) {
+      toast.handleError(err);
+      setPromoError(err.message || "Invalid promo code.");
       setPromoPreview(null);
     }
   };
