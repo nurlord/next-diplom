@@ -9,6 +9,9 @@ import {
   useInitSubscribePayment,
   useApplyPromoCode,
   usePreviewPromoCode,
+  usePublicReviews,
+  useBroadcasts,
+  useMySubscriptions,
 } from "@/api/hooks";
 import { useTonConnectUI, useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
 import { Cell, beginCell, Address } from "@ton/core";
@@ -20,6 +23,8 @@ import {
   MessageCircle,
   ShieldCheck,
   ArrowLeft,
+  Star,
+  Quote,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,26 +32,7 @@ import { fromNanoTON } from "@/utils/ton";
 import { useAuthContext } from "@/providers/AuthProvider";
 import ReviewSection from "@/components/ReviewSection";
 
-const FEED_PREVIEW = [
-  {
-    id: 1,
-    title: "Exclusive content preview",
-    date: "2 hours ago",
-    locked: true,
-  },
-  {
-    id: 2,
-    title: "Premium resources & links",
-    date: "Yesterday",
-    locked: true,
-  },
-  {
-    id: 3,
-    title: "Public announcement",
-    date: "3 days ago",
-    locked: false,
-  },
-];
+
 
 export default function ChatSubscriptionPage() {
   const { id } = useParams();
@@ -64,6 +50,16 @@ export default function ChatSubscriptionPage() {
     enabled: !!chatId,
   });
   const plans = plansRes?.data || [];
+
+  const { data: subsRes } = useMySubscriptions({}, { enabled: isAuthenticated });
+  const isSubscribed = subsRes?.data?.items?.some(s => s.chat_id === chatId && s.status === 'active') || false;
+
+  const { data: broadcastsRes } = useBroadcasts(chatId, { limit: 5 }, { enabled: !!chatId });
+  const broadcasts = broadcastsRes?.data || [];
+
+  const { data: reviewsRes } = usePublicReviews(chatId, { limit: 3 }, { enabled: !!chatId });
+  const reviews = reviewsRes?.data?.items || [];
+  const reviewsSummary = reviewsRes?.data?.summary;
 
   const { mutateAsync: subscribe, isPending: isSubscribing } =
     useSubscribeToPlan();
@@ -459,46 +455,67 @@ export default function ChatSubscriptionPage() {
 
       <hr className="border-neutral-800 my-8 mx-5" />
 
-      {/* --- LOCKED CONTENT PREVIEW --- */}
-      <div className="px-5">
-        <h3 className="font-semibold text-lg text-white mb-4">Recent Posts</h3>
-        <div className="space-y-4">
-          {FEED_PREVIEW.map((post) => (
-            <div
-              key={post.id}
-              className="bg-neutral-800/50 border border-neutral-800 rounded-xl overflow-hidden"
-            >
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-neutral-500">{post.date}</span>
-                  {post.locked ? (
-                    <Lock size={14} className="text-neutral-500" />
-                  ) : (
-                    <span className="text-xs text-green-500">Free</span>
-                  )}
-                </div>
-                <h4 className="font-medium">{post.title}</h4>
-              </div>
-
-              {post.locked && (
-                <div className="relative h-24 bg-neutral-900/50 p-4 flex items-center justify-center">
-                  <div className="absolute inset-0 backdrop-blur-md flex items-center justify-center bg-black/20">
-                    <div className="bg-neutral-900/80 px-4 py-2 rounded-lg flex items-center gap-2 border border-neutral-700">
-                      <Lock size={14} />
-                      <span className="text-xs font-medium">
-                        Subscribers only
-                      </span>
-                    </div>
+      {/* --- DYNAMIC RECENT FEED --- */}
+      <div className="px-5 mb-8">
+        <h3 className="font-semibold text-lg text-white mb-4">Recent Feed</h3>
+        {broadcasts.length > 0 ? (
+          <div className="space-y-4">
+            {broadcasts.map((post) => (
+              <div
+                key={post.id}
+                className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden group hover:border-blue-500/30 transition-all shadow-lg"
+              >
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider">
+                      {post.sent_at ? new Date(post.sent_at).toLocaleDateString() : "Recent Update"}
+                    </span>
+                    {isSubscribed ? (
+                      <CheckCircle2 size={14} className="text-green-500" />
+                    ) : (
+                      <Lock size={14} className="text-neutral-600" />
+                    )}
                   </div>
-                  <p className="text-neutral-700 select-none blur-sm">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    do eiusmod tempor.
-                  </p>
+                  <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">
+                    {post.title || "Untitled Post"}
+                  </h4>
                 </div>
-              )}
+
+                {!isSubscribed && (
+                  <div className="relative h-20 bg-neutral-950/40 p-4 flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-0 backdrop-blur-md flex items-center justify-center bg-black/40 z-10">
+                      <div className="bg-neutral-900 border border-neutral-800 px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xl">
+                        <Lock size={12} className="text-blue-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300">
+                          Subscribers Only
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-neutral-800 select-none blur-[6px] text-xs leading-relaxed">
+                      {post.body || "This content is exclusively available for active subscribers of this channel. Subscribe now to unlock full access."}
+                    </p>
+                  </div>
+                )}
+                
+                {isSubscribed && post.body && (
+                  <div className="px-4 pb-4">
+                    <p className="text-sm text-neutral-400 line-clamp-3 leading-relaxed">
+                      {post.body}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-neutral-900/50 border border-neutral-800 border-dashed rounded-2xl p-8 text-center">
+            <div className="w-12 h-12 bg-neutral-800/50 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Zap className="text-neutral-600" size={20} />
             </div>
-          ))}
-        </div>
+            <h4 className="text-sm font-bold text-white mb-1">No Posts Yet</h4>
+            <p className="text-xs text-neutral-500">The creator hasn't posted anything here yet.</p>
+          </div>
+        )}
       </div>
 
       <hr className="border-neutral-800 my-8 mx-5" />
