@@ -3,6 +3,7 @@ import { useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
 import { useState, useEffect } from "react";
 import { useLinkUserWallet } from "@/api/hooks";
 import { useToast } from "@/providers/ToastProvider";
+import { Card, Button, SectionHeader } from "@/components/ui";
 
 export function WalletSection({ userId, savedWallet }: { userId?: number; savedWallet?: string }) {
   const tonAddress = useTonAddress();
@@ -38,10 +39,8 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
 
   return (
     <section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100">
-      <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest px-1">
-        Payout Wallet
-      </h3>
-      <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-3xl shadow-lg space-y-4 relative overflow-hidden">
+      <SectionHeader title="Payout Wallet" icon={Wallet} iconColor="text-blue-400" />
+      <Card className="space-y-4 !rounded-3xl">
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20">
@@ -73,13 +72,13 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
               </div>
             ) : (
               <div className="space-y-3">
-                <button
-                  disabled={isLinkingWallet}
+                <Button
+                  fullWidth
+                  loading={isLinkingWallet}
                   onClick={handleLinkWallet}
-                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-black transition-all shadow-[0_4px_12px_rgba(37,99,235,0.2)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isLinkingWallet ? "Linking Payout Wallet..." : "Set as Payout Wallet"}
-                </button>
+                </Button>
                 {walletError && (
                   <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl p-3.5 text-xs font-medium animate-in fade-in slide-in-from-top-1 duration-200">
                     <AlertCircle size={14} className="shrink-0 animate-bounce" />
@@ -91,7 +90,7 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
           </div>
         )}
         <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-blue-600/5 rounded-full blur-2xl"></div>
-      </div>
+      </Card>
     </section>
   );
 }

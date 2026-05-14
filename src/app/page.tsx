@@ -12,7 +12,6 @@ import {
   ExternalLink,
   Trash2,
   Gift,
-  X,
   Loader2,
   Compass,
   Sparkles,
@@ -27,6 +26,16 @@ import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { getExpiryBadge, daysUntil } from "@/utils/date";
+import {
+  Button,
+  Card,
+  Badge,
+  Modal,
+  PageWrapper,
+  PageHeader,
+  Input,
+  FormField,
+} from "@/components/ui";
 
 function OpenChatButton({ chatId }: { chatId: number }) {
   const [enabled, setEnabled] = useState(false);
@@ -282,22 +291,26 @@ export default function HomePage() {
                 </p>
               )}
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={Gift}
               onClick={() => setShowRedeemModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors"
+              className="!bg-blue-500/10 !text-blue-400 !border !border-blue-500/20 !hover:bg-blue-500/20"
             >
-              <Gift size={14} /> REDEEM
-            </button>
+              REDEEM
+            </Button>
           </div>
 
           <div className="space-y-4">
             {subscriptions.map((sub) => {
               const badge = getExpiryBadge(sub.expires_at);
               return (
-                <div
+                <Card
                   key={sub.subscription_id}
-                  className={`bg-neutral-900 border rounded-2xl p-4 flex flex-col gap-4 shadow-lg transition-all ${
-                    badge.urgent ? "border-orange-500/30 shadow-orange-900/10" : "border-neutral-800"
+                  padding="sm"
+                  className={`!rounded-2xl !p-4 flex flex-col gap-4 ${
+                    badge.urgent ? "!border-orange-500/30 shadow-orange-900/10" : ""
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -327,12 +340,13 @@ export default function HomePage() {
                   </div>
 
                   <div className="pt-3 border-t border-neutral-800 flex gap-2">
-                    <button
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      icon={Trash2}
                       onClick={() => sub.subscription_id && handleCancel(sub.subscription_id)}
-                      className="p-2.5 text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                      className="!p-2.5"
+                    />
                     <Link
                       href={`/chats/${sub.chat_id}`}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-white bg-neutral-800 hover:bg-neutral-700 rounded-xl transition-colors"
@@ -341,7 +355,7 @@ export default function HomePage() {
                     </Link>
                     <OpenChatButton chatId={sub.chat_id!} />
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
@@ -349,43 +363,33 @@ export default function HomePage() {
       )}
 
       {/* Redeem Gift Modal */}
-      {showRedeemModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative">
-            <button
-              onClick={() => setShowRedeemModal(false)}
-              className="absolute top-4 right-4 text-neutral-500"
-            >
-              <X size={20} />
-            </button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Gift className="text-blue-400" size={20} /> Redeem Gift
-            </h3>
-            <form onSubmit={handleRedeem} className="space-y-4">
-              <div>
-                <label className="block text-xs text-neutral-400 mb-1">
-                  Enter Gift ID
-                </label>
-                <input
-                  required
-                  type="number"
-                  value={giftId}
-                  onChange={(e) => setGiftId(e.target.value)}
-                  className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                  placeholder="Gift Identification Number"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isRedeeming}
-                className="w-full mt-2 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
-              >
-                {isRedeeming ? "Redeeming..." : "Redeem Now"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showRedeemModal}
+        onClose={() => setShowRedeemModal(false)}
+        title="Redeem Gift"
+        icon={Gift}
+        scrollable={false}
+      >
+        <form onSubmit={handleRedeem} className="space-y-4">
+          <FormField label="Enter Gift ID">
+            <Input
+              required
+              type="number"
+              value={giftId}
+              onChange={(e) => setGiftId(e.target.value)}
+              placeholder="Gift Identification Number"
+            />
+          </FormField>
+          <Button
+            type="submit"
+            fullWidth
+            size="lg"
+            loading={isRedeeming}
+          >
+            {isRedeeming ? "Redeeming..." : "Redeem Now"}
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 }

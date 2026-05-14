@@ -1,15 +1,12 @@
 "use client";
 
 import {
-  TrendingUp,
   Settings,
   RotateCw,
-  MessageSquare,
   ChevronRight,
   Users,
   Sparkles,
   Tv,
-  Award,
   Activity,
   Layers,
   History,
@@ -30,6 +27,18 @@ import {
 import { WalletSection } from "@/components/profile/WalletSection";
 import Link from "next/link";
 import { fromNanoTON } from "@/utils/ton";
+import {
+  PageWrapper,
+  PageHeader,
+  Card,
+  Badge,
+  Button,
+  SectionHeader,
+  StatCard,
+  Modal,
+  FormField,
+  Input,
+} from "@/components/ui";
 
 export default function ProfilePage() {
   const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
@@ -107,21 +116,23 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="pb-24 pt-6 px-5 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-white">
+    <PageWrapper className="space-y-8">
       {/* Header with Profile Card */}
       <header className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-black tracking-tight text-white">My Profile</h1>
-          <button
-            onClick={handleSync}
-            className="p-2 bg-neutral-900 rounded-full border border-neutral-800 active:rotate-180 transition-transform duration-500"
-          >
-            <RotateCw size={18} className="text-neutral-400" />
-          </button>
-        </div>
+        <PageHeader
+          title="My Profile"
+          action={
+            <button
+              onClick={handleSync}
+              className="p-2 bg-neutral-900 rounded-full border border-neutral-800 active:rotate-180 transition-transform duration-500"
+            >
+              <RotateCw size={18} className="text-neutral-400" />
+            </button>
+          }
+        />
 
         {user && (
-          <div className="relative group overflow-hidden bg-neutral-900 border border-neutral-800 p-5 rounded-[2.5rem] shadow-2xl">
+          <Card className="!rounded-[2.5rem] !shadow-2xl">
             <div className="flex items-center gap-5 relative z-10">
               <div className="relative">
                 <div className="w-16 h-16 rounded-3xl bg-blue-600 flex items-center justify-center text-2xl font-black shadow-[0_0_20px_rgba(37,99,235,0.4)]">
@@ -135,21 +146,20 @@ export default function ProfilePage() {
                 </h2>
                 <p className="text-sm text-neutral-500 truncate">@{user.username}</p>
                 <div className="flex gap-2 mt-2">
-                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
-                     Creator
-                   </span>
+                  <Badge variant="blue">Creator</Badge>
                 </div>
               </div>
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={Settings}
                 onClick={() => setShowProfileModal(true)}
-                className="p-3 bg-neutral-800 hover:bg-neutral-700 rounded-2xl transition-all active:scale-95 border border-neutral-700"
-              >
-                <Settings size={20} className="text-neutral-300" />
-              </button>
+                className="!rounded-2xl !p-3"
+              />
             </div>
-            {/* Background pattern */}
+            {/* Background glow */}
             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/5 rounded-full blur-3xl"></div>
-          </div>
+          </Card>
         )}
       </header>
 
@@ -159,23 +169,21 @@ export default function ProfilePage() {
       {/* Creator Analytics Section */}
       {creatorAnalytics && (
         <section className="space-y-4 animate-in fade-in duration-500">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-              <Activity size={16} className="text-blue-500" /> Creator Overview
-            </h3>
-            <span className="text-[10px] text-neutral-500 font-medium">Updated live</span>
-          </div>
+          <SectionHeader
+            title="Creator Overview"
+            icon={Activity}
+            iconColor="text-blue-500"
+            action={<span className="text-[10px] text-neutral-500 font-medium">Updated live</span>}
+          />
           
           <div className="space-y-3">
             {/* Total Earnings Card */}
-            <div className="bg-gradient-to-br from-blue-600/10 via-neutral-900 to-neutral-900 border border-blue-500/20 p-5 rounded-[2rem] shadow-xl relative overflow-hidden group hover:border-blue-500/40 transition-all">
+            <Card className="!bg-gradient-to-br !from-blue-600/10 !via-neutral-900 !to-neutral-900 !border-blue-500/20 group hover:!border-blue-500/40">
                <div className="flex justify-between items-start mb-2">
                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-inner">
                    <Sparkles size={24} />
                  </div>
-                 <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
-                   Confirmed Payout
-                 </span>
+                 <Badge variant="blue">Confirmed Payout</Badge>
                </div>
                <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1">Total Earned Revenue</p>
                <div className="flex items-baseline gap-2 mb-2">
@@ -184,22 +192,16 @@ export default function ProfilePage() {
                </div>
                <p className="text-xs text-neutral-500 font-medium">Funds successfully processed across all your subscription tiers.</p>
                <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all"></div>
-            </div>
+            </Card>
 
             {/* Grid for Subscribers & Channels */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-[2rem] shadow-lg relative overflow-hidden hover:border-neutral-700 transition-all flex flex-col justify-between">
-                 <div>
-                   <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center text-neutral-300 mb-3">
-                     <Users size={20} />
-                   </div>
-                   <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">Total Audience</p>
-                   <p className="text-2xl font-black text-white mb-2">{creatorAnalytics.total_subscribers}</p>
-                 </div>
-                 <p className="text-[10px] text-neutral-500 leading-tight font-medium">Active paying members.</p>
-              </div>
-
-              <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-[2rem] shadow-lg relative overflow-hidden hover:border-neutral-700 transition-all flex flex-col justify-between">
+              <StatCard
+                label="Total Audience"
+                value={creatorAnalytics.total_subscribers}
+                icon={Users}
+              />
+              <Card className="flex flex-col justify-between">
                  <div>
                    <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center text-neutral-300 mb-3">
                      <Tv size={20} />
@@ -212,7 +214,7 @@ export default function ProfilePage() {
                      Manage channels <ChevronRight size={10} />
                    </p>
                  </Link>
-              </div>
+              </Card>
             </div>
           </div>
         </section>
@@ -221,17 +223,18 @@ export default function ProfilePage() {
       {/* Platform Analytics (Admin only) */}
       {platformAnalytics && (
         <section className="space-y-4 animate-in fade-in duration-500 pt-2">
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                <Layers size={16} className="text-purple-400" /> Platform Stats
-              </h3>
-              <span className="text-[8px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded font-black border border-purple-500/20 uppercase tracking-widest">Admin</span>
-            </div>
-            <span className="text-[10px] text-purple-400/80 font-semibold uppercase tracking-wider">System Core</span>
-          </div>
+          <SectionHeader
+            title="Platform Stats"
+            icon={Layers}
+            iconColor="text-purple-400"
+            action={
+              <div className="flex items-center gap-2">
+                <Badge variant="purple">Admin</Badge>
+              </div>
+            }
+          />
 
-          <div className="bg-gradient-to-br from-purple-900/10 via-neutral-900 to-neutral-900 border border-purple-500/20 p-5 rounded-[2rem] space-y-4 shadow-xl">
+          <Card className="!bg-gradient-to-br !from-purple-900/10 !via-neutral-900 !to-neutral-900 !border-purple-500/20 space-y-4">
              <div className="grid grid-cols-2 gap-4 pb-4 border-b border-neutral-800">
                <div>
                  <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">Total Platform Subs</p>
@@ -272,25 +275,27 @@ export default function ProfilePage() {
                  <p className="text-lg font-black text-purple-400">{fromNanoTON(platformAnalytics.revenue_confirmed)} <span className="text-xs text-neutral-500 font-bold">TON</span></p>
                </div>
              </div>
-          </div>
+          </Card>
         </section>
       )}
 
       {/* Transaction History Section */}
       <section className="space-y-4 animate-in fade-in duration-500 pb-8">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-            <History size={16} className="text-emerald-500" /> Payment History
-          </h3>
-          <span className="text-[10px] text-neutral-500 font-medium">Last 10 transactions</span>
-        </div>
+        <SectionHeader
+          title="Payment History"
+          icon={History}
+          iconColor="text-emerald-500"
+          action={<span className="text-[10px] text-neutral-500 font-medium">Last 10 transactions</span>}
+        />
 
         <div className="space-y-3">
           {paymentHistory.length > 0 ? (
             paymentHistory.map((sub, i) => (
-              <div 
+              <Card
                 key={sub.subscription_id || i}
-                className="bg-neutral-900 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between group hover:border-emerald-500/20 transition-all"
+                padding="sm"
+                glow="green"
+                className="!rounded-2xl !p-4 flex items-center justify-between group"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/10 group-hover:bg-emerald-500/20 transition-all">
@@ -307,11 +312,9 @@ export default function ProfilePage() {
                   <p className="text-sm font-black text-white">
                     {fromNanoTON(sub.price_nanoton || 0)} <span className="text-[10px] text-neutral-500">TON</span>
                   </p>
-                  <span className="text-[9px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/10">
-                    Confirmed
-                  </span>
+                  <Badge variant="green" className="!text-[9px]">Confirmed</Badge>
                 </div>
-              </div>
+              </Card>
             ))
           ) : (
             <div className="bg-neutral-900/50 border border-neutral-800 border-dashed rounded-2xl p-6 text-center">
@@ -322,43 +325,36 @@ export default function ProfilePage() {
       </section>
 
       {/* Edit Profile Modal */}
-      {showProfileModal && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto pt-12 pb-24">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl relative">
-             <button onClick={() => setShowProfileModal(false)} className="absolute top-6 right-6 text-neutral-500 hover:text-white transition-colors">
-                <Settings className="animate-spin-slow" size={24} />
-             </button>
-             <h3 className="text-2xl font-black mb-8">Edit Profile</h3>
-             <form onSubmit={handleUpdateProfile} className="space-y-6">
-                <div className="space-y-2">
-                   <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest px-1">First Name</label>
-                   <input
-                     required
-                     className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                     value={profileForm.first_name}
-                     onChange={e => setProfileForm({ ...profileForm, first_name: e.target.value })}
-                   />
-                </div>
-                <div className="space-y-2">
-                   <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest px-1">Last Name</label>
-                   <input
-                     className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                     value={profileForm.last_name}
-                     onChange={e => setProfileForm({ ...profileForm, last_name: e.target.value })}
-                   />
-                </div>
-
-                <button
-                  disabled={isUpdatingProfile}
-                  type="submit"
-                  className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-sm font-black transition-all shadow-[0_10px_20px_rgba(37,99,235,0.3)] active:scale-95 disabled:opacity-50"
-                >
-                  {isUpdatingProfile ? "Saving..." : "Save Changes"}
-                </button>
-             </form>
-          </div>
-        </div>
-      )}
-    </div>
+      <Modal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        title="Edit Profile"
+        icon={Settings}
+      >
+        <form onSubmit={handleUpdateProfile} className="space-y-6">
+          <FormField label="First Name">
+            <Input
+              required
+              value={profileForm.first_name}
+              onChange={e => setProfileForm({ ...profileForm, first_name: e.target.value })}
+            />
+          </FormField>
+          <FormField label="Last Name">
+            <Input
+              value={profileForm.last_name}
+              onChange={e => setProfileForm({ ...profileForm, last_name: e.target.value })}
+            />
+          </FormField>
+          <Button
+            type="submit"
+            fullWidth
+            size="lg"
+            loading={isUpdatingProfile}
+          >
+            {isUpdatingProfile ? "Saving..." : "Save Changes"}
+          </Button>
+        </form>
+      </Modal>
+    </PageWrapper>
   );
 }
