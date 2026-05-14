@@ -100,36 +100,36 @@ function OnboardingScreen() {
   ];
 
   return (
-    <div className="flex flex-col min-h-[70vh] pt-8 px-5 animate-in fade-in slide-in-from-bottom-6 duration-700">
+    <div className="flex flex-col pt-4 px-5 animate-in fade-in slide-in-from-bottom-6 duration-700">
       {/* Hero */}
-      <div className="text-center mb-10">
-        <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center mx-auto mb-5 shadow-[0_0_40px_rgba(99,102,241,0.3)]">
-          <Sparkles className="text-white" size={36} />
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-[0_0_40px_rgba(99,102,241,0.3)]">
+          <Sparkles className="text-white" size={28} />
         </div>
-        <h1 className="text-3xl font-black text-white tracking-tighter mb-2">
+        <h1 className="text-2xl font-black text-white tracking-tighter mb-1">
           Welcome to Jazylym
         </h1>
-        <p className="text-neutral-400 text-sm leading-relaxed max-w-xs mx-auto">
+        <p className="text-neutral-400 text-xs leading-relaxed max-w-xs mx-auto">
           The first TON-powered creator subscription platform built inside Telegram.
         </p>
       </div>
 
       {/* Steps */}
-      <div className="space-y-3 mb-10">
+      <div className="space-y-2 mb-6">
         {steps.map((step, i) => {
           const Icon = step.icon;
           return (
             <div
               key={i}
-              className={`flex items-start gap-4 p-4 rounded-[1.5rem] border bg-neutral-900 border-neutral-800`}
+              className={`flex items-start gap-3 p-3.5 rounded-[1.25rem] border bg-neutral-900 border-neutral-800`}
               style={{ animationDelay: `${i * 100}ms` }}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 ${step.bg}`}>
-                <Icon size={20} className={step.color} />
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center border shrink-0 ${step.bg}`}>
+                <Icon size={18} className={step.color} />
               </div>
               <div>
-                <p className="font-bold text-sm text-white">{step.title}</p>
-                <p className="text-xs text-neutral-500 mt-0.5 leading-relaxed">{step.desc}</p>
+                <p className="font-bold text-[13px] text-white">{step.title}</p>
+                <p className="text-[11px] text-neutral-500 mt-0.5 leading-tight">{step.desc}</p>
               </div>
             </div>
           );
@@ -139,13 +139,13 @@ function OnboardingScreen() {
       {/* CTA */}
       <Link
         href="/explore"
-        className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black rounded-2xl text-sm flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(99,102,241,0.35)] active:scale-95 transition-all"
+        className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(99,102,241,0.35)] active:scale-95 transition-all"
       >
-        <Compass size={18} />
+        <Compass size={16} />
         Start Exploring Channels
       </Link>
 
-      <p className="text-center text-xs text-neutral-600 mt-4">
+      <p className="text-center text-[10px] text-neutral-600 mt-3">
         Your subscriptions will appear here once you join a channel.
       </p>
     </div>
