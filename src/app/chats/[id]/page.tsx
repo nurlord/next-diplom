@@ -184,8 +184,31 @@ export default function ChatSubscriptionPage() {
 
   if (chatLoading || plansLoading) {
     return (
-      <div className="p-8 text-center text-neutral-500 animate-pulse">
-        Loading channel info...
+      <div className="pb-24 animate-pulse">
+        {/* Hero skeleton */}
+        <div className="h-32 w-full bg-neutral-800/70" />
+
+        <div className="px-5">
+          {/* Avatar */}
+          <div className="relative -mt-12 mb-3">
+            <div className="w-24 h-24 rounded-[2rem] bg-neutral-800 border-4 border-neutral-900" />
+          </div>
+
+          {/* Title & meta */}
+          <div className="mb-6 space-y-2">
+            <div className="h-7 w-48 bg-neutral-800 rounded-xl" />
+            <div className="h-4 w-24 bg-neutral-800/60 rounded-lg" />
+            <div className="h-4 w-full bg-neutral-800/40 rounded-lg mt-2" />
+            <div className="h-4 w-3/4 bg-neutral-800/40 rounded-lg" />
+          </div>
+
+          {/* Plan cards */}
+          <div className="space-y-3 mt-6">
+            {[1, 2].map((i) => (
+              <div key={i} className="h-28 bg-neutral-800/50 rounded-[1.5rem] border border-neutral-800" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
