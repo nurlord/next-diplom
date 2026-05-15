@@ -108,12 +108,12 @@ export default function ChatSubscriptionPage() {
     setLoadingPlanId(planId);
     setErrorMsg(null);
     try {
-      if (promoCode) {
-        await applyPromo({ planId, data: { code: promoCode } });
-      }
-
       // Step 1: Initialize payment on backend
-      const initRes = await initPayment({ chatId, planId });
+      const initRes = await initPayment({ 
+        chatId, 
+        planId, 
+        promoCode: promoCode || undefined 
+      });
       const { contract_address, amount_nanoton, owner_wallet } = initRes.data;
 
       // Step 2: Build the precise SubscriptionPayment cell body required by the Tact smart contract
@@ -156,7 +156,8 @@ export default function ChatSubscriptionPage() {
         planId,
         data: {
           tx_hash: txHash,
-          wallet_address: tonAddress
+          wallet_address: tonAddress,
+          promo_code: promoCode || undefined
         }
       });
 
@@ -367,47 +368,49 @@ export default function ChatSubscriptionPage() {
           </div>
         )}
 
-        <div className="bg-neutral-800/40 border border-neutral-800 p-4 rounded-xl space-y-3">
-          <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest">
-            Have a promo code?
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={promoCode}
-              onChange={(e) => {
-                setPromoCode(e.target.value.toUpperCase());
-                setPromoPreview(null);
-                setPromoError(null);
-              }}
-              placeholder="ENTER CODE"
-              className="flex-1 bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors uppercase font-mono"
-            />
-            {promoCode && !promoPreview && (
-              <button
-                type="button"
-                onClick={() => plans[0]?.id && handlePreviewPromo(plans[0].id)}
-                disabled={isPreviewing}
-                className="px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-xs font-bold rounded-lg border border-neutral-600 transition-colors disabled:opacity-50"
-              >
-                {isPreviewing ? "…" : "Check"}
-              </button>
-            )}
-          </div>
-          {promoPreview && (
-            <div className="text-sm bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-green-400">
-              <span className="line-through text-neutral-500 mr-2">
-                {promoPreview.original_amount} TON
-              </span>
-              →{" "}
-              <span className="font-bold">{promoPreview.final_amount} TON</span>{" "}
-              (
-              {promoPreview.discount_amount} TON off
-              )
+        {plans.length > 0 && (
+          <div className="bg-neutral-800/40 border border-neutral-800 p-4 rounded-xl space-y-3">
+            <label className="block text-xs font-bold text-neutral-500 uppercase tracking-widest">
+              Have a promo code?
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => {
+                  setPromoCode(e.target.value.toUpperCase());
+                  setPromoPreview(null);
+                  setPromoError(null);
+                }}
+                placeholder="ENTER CODE"
+                className="flex-1 bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors uppercase font-mono"
+              />
+              {promoCode && !promoPreview && (
+                <button
+                  type="button"
+                  onClick={() => plans[0]?.id && handlePreviewPromo(plans[0].id)}
+                  disabled={isPreviewing}
+                  className="px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-xs font-bold rounded-lg border border-neutral-600 transition-colors disabled:opacity-50"
+                >
+                  {isPreviewing ? "…" : "Check"}
+                </button>
+              )}
             </div>
-          )}
-          {promoError && <p className="text-xs text-red-400">{promoError}</p>}
-        </div>
+            {promoPreview && (
+              <div className="text-sm bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-green-400">
+                <span className="line-through text-neutral-500 mr-2">
+                  {fromNanoTON(promoPreview.original_amount)} TON
+                </span>
+                →{" "}
+                <span className="font-bold">{fromNanoTON(promoPreview.final_amount)} TON</span>{" "}
+                (
+                {fromNanoTON(promoPreview.discount_amount)} TON off
+                )
+              </div>
+            )}
+            {promoError && <p className="text-xs text-red-400">{promoError}</p>}
+          </div>
+        )}
 
         {plans.length > 0 ? (
           <div className="grid gap-4">

@@ -382,5 +382,6 @@ export interface SubscribeInitResponse {
 export interface SubscribeWithTONReq {
   tx_hash: string;
   wallet_address: string;
+  promo_code?: string;
 }
 

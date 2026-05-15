@@ -189,9 +189,9 @@ export const getInviteLink = (chat_id: number) =>
     .get(`api/subscriptions/${chat_id}/invite`)
     .json<T.ResponseEnvelope<{ invite_link: string }>>();
 
-export const initSubscribePayment = (chat_id: number, plan_id: number) =>
+export const initSubscribePayment = (chat_id: number, plan_id: number, promo_code?: string) =>
   apiClient
-    .get(`api/subscriptions/${chat_id}/${plan_id}/init`)
+    .get(`api/subscriptions/${chat_id}/${plan_id}/init`, { searchParams: cleanParams({ promo_code }) })
     .json<T.ResponseEnvelope<T.SubscribeInitResponse>>();
 
 export const subscribeToPlan = (chat_id: number, plan_id: number, data: T.SubscribeWithTONReq) =>
