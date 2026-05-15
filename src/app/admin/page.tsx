@@ -492,15 +492,29 @@ function BroadcastSection({ chatId }: { chatId: number }) {
 }
 
 function PromoSection({ chatId }: { chatId: number }) {
-  const [form, setForm] = useState({ code: "", discount: "0.1", max_uses: 10 });
+  const [form, setForm] = useState({ 
+    code: "", 
+    discount_type: "fixed" as "fixed" | "percent",
+    discount_value: "0.1", 
+    max_redemptions: 10 
+  });
   const { mutateAsync: createPromo, isPending } = useCreatePromoCode();
   const toast = useToast();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createPromo({ chatId, data: { ...form, discount_nanoton: toNanoTON(form.discount).toString() } as any });
-      setForm({ code: "", discount: "0.1", max_uses: 10 });
+      await createPromo({
+        chatId,
+        data: {
+          code: form.code,
+          discount_type: form.discount_type,
+          discount_value: form.discount_type === "fixed" ? toNanoTON(form.discount_value) : parseInt(form.discount_value),
+          max_redemptions: form.max_redemptions,
+          is_active: true,
+        },
+      });
+      setForm({ code: "", discount_type: "fixed", discount_value: "0.1", max_redemptions: 10 });
       toast.success("Promo code created");
     } catch (err) {
       toast.handleError(err);
@@ -515,15 +529,50 @@ function PromoSection({ chatId }: { chatId: number }) {
           <FormField label="Code Name">
             <Input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="SUMMER2024" />
           </FormField>
+          
+          <FormField label="Discount Type">
+            <div className="flex p-1 bg-neutral-950 rounded-2xl border border-neutral-800">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, discount_type: "fixed" })}
+                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+                  form.discount_type === "fixed" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500"
+                }`}
+              >
+                Fixed (TON)
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, discount_type: "percent" })}
+                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
+                  form.discount_type === "percent" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500"
+                }`}
+              >
+                Percent (%)
+              </button>
+            </div>
+          </FormField>
+
           <div className="grid grid-cols-2 gap-4">
-            <FormField label="Discount (TON)">
-              <Input required type="number" step="0.01" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
+            <FormField label={form.discount_type === "fixed" ? "Discount (TON)" : "Discount (%)"}>
+              <Input 
+                required 
+                type="number" 
+                step={form.discount_type === "fixed" ? "0.01" : "1"} 
+                value={form.discount_value} 
+                onChange={(e) => setForm({ ...form, discount_value: e.target.value })} 
+              />
             </FormField>
-            <FormField label="Max Uses">
-              <Input required type="number" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: parseInt(e.target.value) })} />
+            <FormField label="Max Redemptions">
+              <Input 
+                required 
+                type="number" 
+                value={form.max_redemptions} 
+                onChange={(e) => setForm({ ...form, max_redemptions: parseInt(e.target.value) })} 
+              />
             </FormField>
           </div>
-          <Button type="submit" fullWidth loading={isPending}>Generate Code</Button>
+          <Button type="submit" fullWidth loading={isPending} icon={Plus}>Generate Promo Code</Button>
         </form>
       </Card>
     </div>
