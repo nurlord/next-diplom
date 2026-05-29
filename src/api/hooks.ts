@@ -212,8 +212,8 @@ export const useInviteLink = (chatId: number, options?: { enabled?: boolean }) =
 
 export const useInitSubscribePayment = () => {
   return useMutation({
-    mutationFn: ({ chatId, planId }: { chatId: number; planId: number }) => 
-      requests.initSubscribePayment(chatId, planId),
+    mutationFn: ({ chatId, planId, promoCode }: { chatId: number; planId: number; promoCode?: string }) => 
+      requests.initSubscribePayment(chatId, planId, promoCode),
   });
 };
 
