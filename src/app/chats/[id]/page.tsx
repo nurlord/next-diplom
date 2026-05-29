@@ -74,6 +74,7 @@ export default function ChatSubscriptionPage() {
   const tonAddress = useTonAddress();
 
   const [loadingPlanId, setLoadingPlanId] = useState<number | null>(null);
+  const [paymentStep, setPaymentStep] = useState<"init" | "wallet" | "verifying" | null>(null);
   const [successData, setSuccessData] = useState<{
     invite_link?: string;
     amount?: number;
@@ -109,6 +110,7 @@ export default function ChatSubscriptionPage() {
     setErrorMsg(null);
     try {
       // Step 1: Initialize payment on backend
+      setPaymentStep("init");
       const initRes = await initPayment({ 
         chatId, 
         planId, 
@@ -141,6 +143,7 @@ export default function ChatSubscriptionPage() {
       };
 
       // Step 3: Trigger transaction in user wallet
+      setPaymentStep("wallet");
       const txResult = await tonConnectUI.sendTransaction(transaction);
       if (!txResult || !txResult.boc) {
         throw new Error("Payment transaction canceled or failed.");
@@ -152,6 +155,7 @@ export default function ChatSubscriptionPage() {
       const txHash = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
       // Step 5: Subscribe to plan on backend by submitting tx details
+      setPaymentStep("verifying");
       const res = await subscribe({
         chatId,
         planId,
@@ -169,6 +173,7 @@ export default function ChatSubscriptionPage() {
       setErrorMsg(e?.message || "Subscription failed. Please make sure the transaction was sent.");
     } finally {
       setLoadingPlanId(null);
+      setPaymentStep(null);
     }
   };
 
@@ -487,8 +492,13 @@ export default function ChatSubscriptionPage() {
                           : "bg-neutral-700 hover:bg-neutral-600 text-white"
                       }`}
                   >
-                    {loadingPlanId === tier.id ? (
-                      <span className="animate-pulse">Processing...</span>
+                    {loadingPlanId === tier.id || isSubscribing ? (
+                      <span className="animate-pulse">
+                        {paymentStep === "init" && "Initializing..."}
+                        {paymentStep === "wallet" && "Confirm in Wallet..."}
+                        {paymentStep === "verifying" && "Verifying on Blockchain (up to 2m)..."}
+                        {!paymentStep && "Processing..."}
+                      </span>
                     ) : (
                       <>
                         Subscribe Now
