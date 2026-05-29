@@ -148,7 +148,8 @@ export default function ChatSubscriptionPage() {
 
       // Step 4: Calculate incoming message hash from BOC
       const cell = Cell.fromBase64(txResult.boc);
-      const txHash = cell.hash().toString("hex");
+      const hashBytes = cell.hash();
+      const txHash = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
       // Step 5: Subscribe to plan on backend by submitting tx details
       const res = await subscribe({
@@ -157,7 +158,7 @@ export default function ChatSubscriptionPage() {
         data: {
           tx_hash: txHash,
           wallet_address: tonAddress,
-          promo_code: promoCode || undefined
+          promo_code: promoCode
         }
       });
 
