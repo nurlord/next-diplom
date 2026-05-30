@@ -3,7 +3,7 @@ import { useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
 import { useState, useEffect } from "react";
 import { useLinkUserWallet } from "@/api/hooks";
 import { useToast } from "@/providers/ToastProvider";
-import { Card, Button, SectionHeader } from "@/components/ui";
+import { Button } from "@/components/ui";
 
 export function WalletSection({ userId, savedWallet }: { userId?: number; savedWallet?: string }) {
   const tonAddress = useTonAddress();
@@ -29,27 +29,29 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
     try {
       await linkWallet({ wallet_address: tonAddress });
       setLinkedWallet(tonAddress);
-      toast.success("Payout wallet linked successfully!");
+      toast.success("Payout wallet linked!");
     } catch (err: any) {
       console.error("Failed to link wallet:", err);
       toast.handleError(err);
-      setWalletError(err.message || "Failed to link payout wallet.");
+      setWalletError(err.message || "Failed to link wallet.");
     }
   };
 
   return (
-    <section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100">
-      <SectionHeader title="Payout Wallet" icon={Wallet} iconColor="text-blue-400" />
-      <Card className="space-y-4 !rounded-3xl">
-        <div className="flex items-center justify-between relative z-10">
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-1">
+        Payout Wallet
+      </h2>
+      <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20">
-              <Wallet size={20} />
+            <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Wallet size={16} className="text-gray-600" />
             </div>
             <div>
-              <h4 className="font-bold text-sm">TON Wallet Connection</h4>
-              <p className="text-xs text-neutral-500 mt-0.5">
-                {tonAddress ? "Wallet connected successfully" : "Connect your wallet for payouts"}
+              <h4 className="font-medium text-sm text-gray-900">TON Wallet</h4>
+              <p className="text-xs text-gray-500">
+                {tonAddress ? "Connected" : "Not connected"}
               </p>
             </div>
           </div>
@@ -59,29 +61,29 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
         </div>
 
         {tonAddress && (
-          <div className="pt-2 border-t border-neutral-800/60 space-y-3 relative z-10 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="bg-black/40 rounded-2xl p-3.5 border border-neutral-800/40 space-y-1">
-              <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Connected Address</p>
-              <p className="text-xs font-mono text-neutral-300 break-all">{tonAddress}</p>
+          <div className="border-t border-gray-100 pt-3 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+              <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Connected Address</p>
+              <p className="text-xs font-mono text-gray-700 break-all">{tonAddress}</p>
             </div>
 
             {linkedWallet === tonAddress ? (
-              <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 rounded-2xl p-4 text-xs font-medium">
-                <CheckCircle2 size={16} className="shrink-0" />
-                <span>Your default payout wallet is linked and active!</span>
+              <div className="flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 rounded-lg p-3 text-xs font-medium">
+                <CheckCircle2 size={14} className="shrink-0" />
+                <span>Linked as default payout wallet</span>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <Button
                   fullWidth
                   loading={isLinkingWallet}
                   onClick={handleLinkWallet}
                 >
-                  {isLinkingWallet ? "Linking Payout Wallet..." : "Set as Payout Wallet"}
+                  {isLinkingWallet ? "Linking..." : "Set as Payout Wallet"}
                 </Button>
                 {walletError && (
-                  <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl p-3.5 text-xs font-medium animate-in fade-in slide-in-from-top-1 duration-200">
-                    <AlertCircle size={14} className="shrink-0 animate-bounce" />
+                  <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 rounded-lg p-3 text-xs font-medium">
+                    <AlertCircle size={14} className="shrink-0" />
                     <span>{walletError}</span>
                   </div>
                 )}
@@ -89,8 +91,7 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
             )}
           </div>
         )}
-        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-blue-600/5 rounded-full blur-2xl"></div>
-      </Card>
+      </div>
     </section>
   );
 }
