@@ -47,9 +47,9 @@ const buttonVariants: Record<ButtonVariant, string> = {
 };
 
 const buttonSizes: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-xs rounded-xl gap-1.5",
-  md: "px-4 py-2.5 text-sm rounded-xl gap-2",
-  lg: "px-6 py-3.5 text-sm rounded-2xl gap-2",
+  sm: "px-3 py-1.5 text-xs rounded-lg gap-1.5",
+  md: "px-4 py-2.5 text-sm rounded-lg gap-2",
+  lg: "px-5 py-3 text-sm rounded-lg gap-2",
 };
 
 export function Button({
@@ -178,12 +178,16 @@ export function Card({
   return (
     <div
       onClick={onClick}
+      style={{
+        background: "var(--bg-card)",
+        borderColor: "var(--border-subtle)",
+        boxShadow: "var(--shadow-card)",
+      }}
       className={`
-        bg-white border border-gray-100 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+        border rounded-xl
         relative overflow-hidden transition-all
         ${cardPadding[padding]}
-        ${interactive ? "cursor-pointer active:scale-[0.98] hover:bg-gray-50" : ""}
-        ${glowStyles[glow]}
+        ${interactive ? "cursor-pointer active:scale-[0.98]" : ""}
         ${className}
       `.trim()}
     >
@@ -308,23 +312,37 @@ export function Modal({
   return (
     <div
       className={`
-        fixed inset-0 z-50 flex items-start justify-center p-4
-        bg-black/40 backdrop-blur-md animate-in fade-in duration-300
-        ${scrollable ? "overflow-y-auto pt-12 pb-24" : "items-center"}
+        fixed inset-0 z-50 flex p-4
+        backdrop-blur-sm animate-in fade-in duration-200
+        ${scrollable ? "items-start overflow-y-auto pt-12 pb-24" : "items-center justify-center"}
       `}
+      style={{ background: "rgba(0,0,0,0.35)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white border border-gray-100 rounded-[24px] p-6 w-full max-w-sm shadow-xl relative">
+      <div
+        className="rounded-xl p-5 w-full max-w-sm relative mx-auto"
+        style={{
+          background: "var(--bg-card)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "var(--shadow-modal)",
+        }}
+      >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-gray-400 hover:text-gray-900 transition-colors"
+          className="absolute top-4 right-4 transition-colors"
+          style={{ color: "var(--text-muted)" }}
+          onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-primary)")}
+          onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)")}
         >
-          <X size={20} />
+          <X size={18} />
         </button>
-        <h3 className="text-lg font-black mb-5 flex items-center gap-2">
-          {Icon && <Icon size={20} className="text-blue-400" />}
+        <h3
+          className="text-base font-semibold mb-4 flex items-center gap-2"
+          style={{ color: "var(--text-primary)" }}
+        >
+          {Icon && <Icon size={17} style={{ color: "var(--text-secondary)" }} />}
           {title}
         </h3>
         {children}
@@ -345,8 +363,11 @@ interface FormFieldProps {
 
 export function FormField({ label, children, className = "" }: FormFieldProps) {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1 block">
+    <div className={`space-y-1.5 ${className}`}>
+      <label
+        className="text-xs font-medium block px-0.5"
+        style={{ color: "var(--text-secondary)" }}
+      >
         {label}
       </label>
       {children}
@@ -357,16 +378,16 @@ export function FormField({ label, children, className = "" }: FormFieldProps) {
 /** Standardized text input */
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
-export function Input({ className = "", ...props }: InputProps) {
+export function Input({ className = "", style, ...props }: InputProps) {
   return (
     <input
-      className={`
-        w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl
-        px-4 py-3 text-sm
-        focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
-        transition-all placeholder:text-gray-400
-        ${className}
-      `.trim()}
+      className={`w-full rounded-lg px-3 py-2.5 text-sm border focus:outline-none transition-colors ${className}`.trim()}
+      style={{
+        background: "var(--bg-subtle)",
+        borderColor: "var(--border)",
+        color: "var(--text-primary)",
+        ...style,
+      }}
       {...props}
     />
   );
@@ -376,16 +397,16 @@ export function Input({ className = "", ...props }: InputProps) {
 interface TextAreaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
-export function TextArea({ className = "", ...props }: TextAreaProps) {
+export function TextArea({ className = "", style, ...props }: TextAreaProps) {
   return (
     <textarea
-      className={`
-        w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl
-        px-4 py-3 text-sm min-h-[100px]
-        focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
-        transition-all placeholder:text-gray-400
-        ${className}
-      `.trim()}
+      className={`w-full rounded-lg px-3 py-2.5 text-sm border min-h-[100px] focus:outline-none transition-colors resize-none ${className}`.trim()}
+      style={{
+        background: "var(--bg-subtle)",
+        borderColor: "var(--border)",
+        color: "var(--text-primary)",
+        ...style,
+      }}
       {...props}
     />
   );
@@ -396,16 +417,16 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   children: ReactNode;
 }
 
-export function Select({ className = "", children, ...props }: SelectProps) {
+export function Select({ className = "", children, style, ...props }: SelectProps) {
   return (
     <select
-      className={`
-        w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl
-        px-4 py-3 text-sm
-        focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
-        transition-all
-        ${className}
-      `.trim()}
+      className={`w-full rounded-lg px-3 py-2.5 text-sm border focus:outline-none transition-colors ${className}`.trim()}
+      style={{
+        background: "var(--bg-subtle)",
+        borderColor: "var(--border)",
+        color: "var(--text-primary)",
+        ...style,
+      }}
       {...props}
     >
       {children}
@@ -424,24 +445,28 @@ interface SkeletonProps {
 /** A single animated skeleton bar */
 export function Skeleton({ className = "h-6 w-full" }: SkeletonProps) {
   return (
-    <div className={`bg-neutral-800/60 rounded-xl animate-pulse ${className}`} />
+    <div
+      className={`rounded-lg animate-pulse ${className}`}
+      style={{ background: "var(--bg-muted)" }}
+    />
   );
 }
 
 /** Pre-composed skeleton for a card */
 export function CardSkeleton({ count = 2 }: { count?: number }) {
   return (
-    <div className="space-y-3 animate-pulse">
+    <div className="space-y-2 animate-pulse">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="bg-neutral-900 border border-neutral-800 rounded-[2rem] p-5 space-y-3"
+          className="rounded-xl p-4 border space-y-3"
+          style={{ background: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
         >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-neutral-800" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg" style={{ background: "var(--bg-muted)" }} />
             <div className="flex-1 space-y-2">
-              <div className="h-4 w-3/4 bg-neutral-800 rounded-lg" />
-              <div className="h-3 w-1/2 bg-neutral-800/60 rounded-lg" />
+              <div className="h-3 w-3/4 rounded-lg" style={{ background: "var(--bg-muted)" }} />
+              <div className="h-2.5 w-1/2 rounded-lg" style={{ background: "var(--bg-muted)" }} />
             </div>
           </div>
         </div>
@@ -489,9 +514,9 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
   return (
     <div className="flex justify-between items-start">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-gray-900">{title}</h1>
+        <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{title}</h1>
         {subtitle && (
-          <p className="text-sm text-gray-500 font-medium mt-0.5">{subtitle}</p>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>{subtitle}</p>
         )}
       </div>
       {action && <div>{action}</div>}
