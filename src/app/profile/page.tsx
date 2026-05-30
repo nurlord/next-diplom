@@ -4,7 +4,6 @@ import {
   RotateCw,
   ChevronRight,
   Users,
-  TrendingUp,
   Hash,
   History,
   ArrowDownLeft,
@@ -34,6 +33,8 @@ import {
   Input,
   Button,
   Badge,
+  CardSkeleton,
+  Skeleton,
 } from "@/components/ui";
 import { X } from "lucide-react";
 
@@ -47,12 +48,12 @@ export default function ProfilePage() {
   });
   const user = userRes?.data;
 
-  const { data: creatorAnalyticsRes } = useCreatorAnalytics(undefined, {
+  const { data: creatorAnalyticsRes, isLoading: isCreatorLoading } = useCreatorAnalytics(undefined, {
     enabled: isAuthenticated,
   });
   const creatorAnalytics = creatorAnalyticsRes?.data;
 
-  const { data: platformAnalyticsRes } = usePlatformAnalytics(undefined, {
+  const { data: platformAnalyticsRes, isLoading: isPlatformLoading } = usePlatformAnalytics(undefined, {
     enabled: isAuthenticated,
   });
   const platformAnalytics = platformAnalyticsRes?.data;
@@ -63,7 +64,7 @@ export default function ProfilePage() {
   );
   const chats = chatsRes?.data?.items || [];
 
-  const { data: mySubsRes } = useMySubscriptions({ limit: 10 }, { enabled: !!userId });
+  const { data: mySubsRes, isLoading: isSubsLoading } = useMySubscriptions({ limit: 10 }, { enabled: !!userId });
   const paymentHistory = (mySubsRes?.data?.items || [])
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -108,7 +109,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="pb-24 pt-6 px-5 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-gray-900">
+    <div className="pb-24 pt-6 px-5 space-y-8 animate-in fade-in duration-300 text-gray-900">
 
       {/* Header */}
       <div className="flex justify-between items-center">
@@ -124,80 +125,103 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Profile Card */}
+      {/* Profile Card (Nickname Card - Smaller, cleaner, no layout shift) */}
       {user && (
-        <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 flex items-center gap-4">
-          <Avatar text={user.first_name || user.username} size="lg" />
+        <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-3 flex items-center gap-3 animate-in fade-in duration-300">
+          <Avatar text={user.first_name || user.username} size="md" />
           <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-gray-900 truncate">
+            <h2 className="font-semibold text-sm text-gray-900 truncate">
               {user.first_name} {user.last_name}
             </h2>
-            <p className="text-sm text-gray-500 truncate">@{user.username}</p>
-            <div className="flex gap-2 mt-1.5">
+            <p className="text-xs text-gray-500 truncate">@{user.username}</p>
+            <div className="flex gap-2 mt-1">
               <Badge variant="blue">Creator</Badge>
             </div>
           </div>
           <button
             onClick={() => setShowProfileModal(true)}
-            className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <Settings size={18} />
+            <Settings size={16} />
           </button>
         </div>
       )}
 
       {/* Wallet */}
-      <WalletSection userId={user?.id} savedWallet={user?.wallet_address} />
+      <div className="animate-in fade-in duration-300">
+        <WalletSection userId={user?.id} savedWallet={user?.wallet_address} />
+      </div>
 
-      {/* Creator Analytics */}
-      {creatorAnalytics && (
-        <section className="space-y-3">
+      {/* Creator Analytics (With clean Skeleton states to avoid layout jumps) */}
+      {(isCreatorLoading || creatorAnalytics) && (
+        <section className="space-y-3 animate-in fade-in duration-300">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-1">
             Creator Overview
           </h2>
 
-          {/* Revenue Card */}
-          <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-1">Total Revenue</p>
-            <div className="flex items-baseline gap-1.5">
-              <p className="text-2xl font-bold text-gray-900">
-                {fromNanoTON(creatorAnalytics.revenue_confirmed)}
-              </p>
-              <span className="text-sm font-medium text-gray-500">TON</span>
+          {isCreatorLoading ? (
+            <div className="space-y-3">
+              <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 space-y-2">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-6 w-32" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 space-y-2">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-6 w-20" />
+                </div>
+                <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 space-y-2">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-6 w-20" />
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">Across all subscription tiers</p>
-          </div>
+          ) : creatorAnalytics ? (
+            <>
+              {/* Revenue Card */}
+              <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">Total Revenue</p>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-2xl font-bold text-gray-900">
+                    {fromNanoTON(creatorAnalytics.revenue_confirmed)}
+                  </p>
+                  <span className="text-sm font-medium text-gray-500">TON</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Across all subscription tiers</p>
+              </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Users size={14} className="text-gray-400" />
-                <p className="text-xs text-gray-500">Subscribers</p>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users size={14} className="text-gray-400" />
+                    <p className="text-xs text-gray-500">Subscribers</p>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {creatorAnalytics.total_subscribers}
+                  </p>
+                </div>
+                <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Hash size={14} className="text-gray-400" />
+                    <p className="text-xs text-gray-500">Channels</p>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">{chats.length}</p>
+                  <Link href="/chats">
+                    <p className="text-xs text-gray-500 hover:text-gray-900 inline-flex items-center gap-0.5 mt-1 transition-colors">
+                      Manage <ChevronRight size={10} />
+                    </p>
+                  </Link>
+                </div>
               </div>
-              <p className="text-2xl font-bold text-gray-900">
-                {creatorAnalytics.total_subscribers}
-              </p>
-            </div>
-            <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Hash size={14} className="text-gray-400" />
-                <p className="text-xs text-gray-500">Channels</p>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">{chats.length}</p>
-              <Link href="/chats">
-                <p className="text-xs text-gray-500 hover:text-gray-900 inline-flex items-center gap-0.5 mt-1 transition-colors">
-                  Manage <ChevronRight size={10} />
-                </p>
-              </Link>
-            </div>
-          </div>
+            </>
+          ) : null}
         </section>
       )}
 
-      {/* Platform Analytics (Admin only) */}
+      {/* Platform Analytics (Admin only - Fades in cleanly only for authorized users) */}
       {platformAnalytics && (
-        <section className="space-y-3">
+        <section className="space-y-3 animate-in fade-in duration-300">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
               Platform Stats
@@ -254,7 +278,7 @@ export default function ProfilePage() {
       )}
 
       {/* Payment History */}
-      <section className="space-y-3 pb-8">
+      <section className="space-y-3 pb-8 animate-in fade-in duration-300">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
             Payment History
@@ -263,7 +287,9 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-3">
-          {paymentHistory.length > 0 ? (
+          {isSubsLoading ? (
+            <CardSkeleton count={3} />
+          ) : paymentHistory.length > 0 ? (
             paymentHistory.map((sub, i) => (
               <div
                 key={sub.subscription_id || i}
@@ -288,7 +314,7 @@ export default function ProfilePage() {
               </div>
             ))
           ) : (
-            <div className="bg-gray-50 border border-gray-200 p-8 rounded-xl text-center">
+            <div className="bg-gray-50 border border-gray-100 p-8 rounded-xl text-center">
               <p className="text-sm text-gray-500">No payment history yet.</p>
             </div>
           )}

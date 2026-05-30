@@ -8,11 +8,12 @@ interface LoadingStateProps {
 
 export function LoadingState({ count = 3, height = 'h-20', className = '' }: LoadingStateProps) {
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className={`${height} bg-neutral-800/40 rounded-2xl animate-pulse`}
+          className={`${height} rounded-xl animate-pulse`}
+          style={{ background: 'var(--bg-muted)' }}
         />
       ))}
     </div>
