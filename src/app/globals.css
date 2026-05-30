@@ -1,88 +1,103 @@
 @import "tailwindcss";
 
-/* ─── Light theme defaults ─────────────────────────────────────────────── */
+/* ─── Design tokens ───────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
-  --background: #f4f4f5; /* Light gray background */
-  --foreground: #171717; /* Dark gray text */
+
+  /* Backgrounds */
+  --bg-page:    #f4f4f5;   /* page / app shell */
+  --bg-card:    #ffffff;   /* card, modal, input surface */
+  --bg-subtle:  #f9fafb;   /* hover, empty-state fill */
+  --bg-muted:   #f3f4f6;   /* pill, badge, skeleton */
+
+  /* Borders */
+  --border:         #e5e7eb;   /* default border */
+  --border-subtle:  #f3f4f6;   /* lighter inner borders */
+  --border-dashed:  #d1d5db;   /* dashed empty-state border */
+
+  /* Text */
+  --text-primary:   #111827;   /* headings, strong body */
+  --text-secondary: #6b7280;   /* subtitles, labels */
+  --text-muted:     #9ca3af;   /* placeholders, timestamps */
+  --text-inverse:   #ffffff;   /* text on dark surfaces */
+
+  /* Interactive */
+  --accent:         #111827;   /* primary button bg */
+  --accent-hover:   #000000;   /* primary button hover */
+
+  /* Shadows */
+  --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-modal: 0 10px 40px -4px rgb(0 0 0 / 0.14);
+
+  /* Legacy aliases — keep bg-background / text-foreground working */
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
 }
 
+/* Lock to light even when OS is dark */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Temporarily lock to light mode for the redesign */
     color-scheme: light;
-    --background: #f4f4f5;
-    --foreground: #171717;
+    --bg-page:    #f4f4f5;
+    --bg-card:    #ffffff;
+    --bg-subtle:  #f9fafb;
+    --bg-muted:   #f3f4f6;
+    --border:         #e5e7eb;
+    --border-subtle:  #f3f4f6;
+    --border-dashed:  #d1d5db;
+    --text-primary:   #111827;
+    --text-secondary: #6b7280;
+    --text-muted:     #9ca3af;
+    --text-inverse:   #ffffff;
+    --accent:         #111827;
+    --accent-hover:   #000000;
   }
 }
 
-@theme {
-  /* Add Custom Animations if the plugin doesn't cover specific ones */
-  --animate-fade-in: fade-in 0.5s ease-out;
+/* ─── Tailwind theme bridge ───────────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--bg-page);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-fade-in:  fade-in  0.5s ease-out;
   --animate-slide-up: slide-up 0.5s ease-out;
 
   @keyframes fade-in {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
   @keyframes slide-up {
-    0% {
-      transform: translateY(10px);
-      opacity: 0;
-    }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    from { transform: translateY(10px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
   }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* ─── Base ────────────────────────────────────────────────────────────────── */
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
-  background: #f4f4f5;
-  color: #171717;
 }
 
+/* ─── Safe-area utilities ─────────────────────────────────────────────────── */
 @utility pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
-
 @utility pt-safe {
   padding-top: env(safe-area-inset-top);
 }
 
-/* ─── Prevent Auto-Zoom on Input Focus (Mobile) ─────────────────────── */
-/* Mobile browsers (iOS) auto-zoom if font-size < 16px on inputs.       */
+/* ─── Prevent auto-zoom on inputs (iOS) ──────────────────────────────────── */
 @media screen and (max-width: 768px) {
-  input, 
-  textarea, 
-  select {
+  input, textarea, select {
     font-size: 16px !important;
   }
 }
 
-/* Premium interaction effects */
+/* ─── Interaction micro-animations ───────────────────────────────────────── */
 button:active, .clickable:active {
   transform: scale(0.97);
   transition: transform 0.1s ease-in-out;
-}
-
-@utility premium-card {
-  @apply transition-all duration-300;
-  &:hover {
-    @apply -translate-y-0.5 shadow-xl shadow-black/50 border-neutral-700 bg-neutral-800/80;
-  }
 }
