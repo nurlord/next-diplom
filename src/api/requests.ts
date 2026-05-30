@@ -208,7 +208,7 @@ export const subscribeToPlan = (chat_id: number, plan_id: number, data: T.Subscr
     >();
 
 export const requestCancelSubscription = (subscription_id: number) =>
-  apiClient.post(`api/subscriptions/${subscription_id}/cancel-request`).json<{ status: string }>();
+  apiClient.post(`api/subscription-cancel-requests/${subscription_id}`).json<{ status: string }>();
 
 // --- Reviews ---
 export const submitReview = (chat_id: number, data: T.SubmitReviewReq) =>
