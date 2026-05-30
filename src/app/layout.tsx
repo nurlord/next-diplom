@@ -46,34 +46,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
+    <html lang="en" className="light" style={{ colorScheme: 'light' }}>
       <head>
         <Script
           id="tg-launch-params"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: CAPTURE_TG_PARAMS_SCRIPT }}
         />
-        {/* Force dark theme on all browsers/WebViews regardless of OS theme */}
-        <meta name="color-scheme" content="dark" />
-        <meta name="theme-color" content="#0a0a0a" />
+        {/* Match light theme on all browsers/WebViews regardless of OS theme */}
+        <meta name="color-scheme" content="light" />
+        <meta name="theme-color" content="#f4f4f5" />
       </head>
       <body
         // 1. Lock the screen height to the viewport (100dvh for mobile browsers)
         // 2. Prevent default browser scrolling on the body (overflow-hidden)
-        className={`${inter.className} bg-neutral-950 text-white h-dvh w-screen flex justify-center overflow-hidden`}
+        className={`${inter.className} bg-background text-foreground h-dvh w-screen flex justify-center overflow-hidden`}
       >
         <QueryProvider>
           <DynamicAuthProvider>
             <ToastProvider>
               {/* Mobile Container Simulation */}
-              <div className="w-full max-w-lg bg-neutral-900 h-full flex flex-col shadow-2xl shadow-black border-x border-neutral-800 relative">
+              <div className="w-full max-w-lg bg-background h-full flex flex-col shadow-2xl shadow-black/10 border-x border-gray-200 relative">
                 {/* --- SCROLLABLE CONTENT AREA --- */}
                 <main className="flex-1 overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-24">
                   {children}
                 </main>
 
                 {/* --- FIXED BOTTOM NAV --- */}
-                <div className="shrink-0 z-50 border-t border-neutral-800 bg-neutral-900/80 backdrop-blur-xl">
+                <div className="shrink-0 z-50 border-t border-gray-200 bg-white/90 backdrop-blur-xl">
                   <NavBar />
                 </div>
               </div>
