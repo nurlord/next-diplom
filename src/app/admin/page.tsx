@@ -14,9 +14,10 @@ import {
   Tag,
   Star,
   Layers,
-  Sparkles,
+  Upload,
+  X,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -40,6 +41,7 @@ import {
 } from "@/api/hooks";
 import { useToast } from "@/providers/ToastProvider";
 import { fromNanoTON, toNanoTON } from "@/utils/ton";
+import { Avatar } from "@/components/ui/Avatar";
 import {
   PageWrapper,
   PageHeader,
@@ -171,26 +173,28 @@ export default function AdminDashboard() {
 
       {/* Selected Chat Header */}
       {myChat ? (
-        <Card className="!rounded-[2.5rem] !shadow-2xl">
-          <div className="flex items-center gap-5 relative z-10">
-            <div className="w-16 h-16 rounded-3xl bg-blue-600 flex items-center justify-center text-2xl font-black shadow-[0_0_20px_rgba(37,99,235,0.3)]">
-              {myChat.title?.[0] || "?"}
-            </div>
+        <Card>
+          <div className="flex items-center gap-4">
+            <Avatar text={myChat.title} src={myChat.avatar} size="lg" />
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-black truncate">{myChat.title}</h2>
+              <h2 className="text-base font-semibold truncate" style={{ color: "var(--text-primary)" }}>
+                {myChat.title}
+              </h2>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="blue">{myChat.type || "Channel"}</Badge>
                 <Badge variant="green">Live</Badge>
               </div>
             </div>
           </div>
-          <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/5 rounded-full blur-3xl"></div>
         </Card>
       ) : (
-        <Card className="!bg-neutral-900/50 !border-dashed text-center !p-10 !rounded-[2.5rem]">
-          <p className="text-neutral-500 mb-6 font-medium">No channel selected for management.</p>
-          <Button icon={Plus} onClick={() => setShowRegisterModal(true)}>Register New Channel</Button>
-        </Card>
+        <div
+          className="p-8 rounded-xl border border-dashed text-center"
+          style={{ background: "var(--bg-subtle)", borderColor: "var(--border-dashed)" }}
+        >
+          <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>No channel selected.</p>
+          <Button icon={Plus} onClick={() => setShowRegisterModal(true)}>Register Channel</Button>
+        </div>
       )}
 
       {/* Analytics Summary */}
@@ -610,19 +614,64 @@ function SettingsSection({ chat }: { chat: any }) {
   const { data: catsRes } = useChatCategories();
   const categories = catsRes?.data || [];
   const { mutateAsync: updateChat, isPending } = useUpdateChat();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [form, setForm] = useState({
     title: chat.title,
     description: chat.description || "",
     category_id: chat.category_id || 0,
     is_active: chat.is_active,
   });
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(chat.avatar || null);
+  const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const toast = useToast();
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 512 * 1024) {
+      setAvatarError("Image must be smaller than 512 KB.");
+      return;
+    }
+    setAvatarError(null);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setAvatarPreview(result);
+      setAvatarBase64(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = async () => {
+    try {
+      await updateChat({ chatId: chat.id, data: { avatar: "" } });
+      setAvatarPreview(null);
+      setAvatarBase64(null);
+      queryClient.invalidateQueries({ queryKey: queryKeys.chats });
+      toast.success("Avatar removed");
+    } catch (err) {
+      toast.handleError(err);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await updateChat({ chatId: chat.id, data: form });
-      toast.success("Settings updated");
+      await updateChat({
+        chatId: chat.id,
+        data: {
+          ...form,
+          ...(avatarBase64 !== null ? { avatar: avatarBase64 } : {}),
+        },
+      });
+      setAvatarBase64(null); // clear pending upload after save
+      queryClient.invalidateQueries({ queryKey: queryKeys.chats });
+      toast.success("Settings saved");
     } catch (err) {
       toast.handleError(err);
     }
@@ -630,9 +679,77 @@ function SettingsSection({ chat }: { chat: any }) {
 
   return (
     <div className="space-y-4">
-      <SectionHeader title="Channel Configuration" />
+      <SectionHeader title="Channel Settings" />
+
+      {/* Avatar Upload */}
       <Card>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <p className="text-xs font-medium mb-3" style={{ color: "var(--text-secondary)" }}>Channel Avatar</p>
+        <div className="flex items-center gap-4">
+          {/* Preview */}
+          <div
+            className="w-16 h-16 rounded-xl overflow-hidden border flex items-center justify-center shrink-0"
+            style={{ borderColor: "var(--border)", background: "var(--bg-muted)" }}
+          >
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-xl font-semibold" style={{ color: "var(--text-muted)" }}>
+                {chat.title?.[0]?.toUpperCase() || "?"}
+              </span>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors"
+              style={{
+                background: "var(--bg-card)",
+                borderColor: "var(--border)",
+                color: "var(--text-primary)",
+              }}
+            >
+              <Upload size={13} /> Upload image
+            </button>
+            {avatarPreview && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors"
+                style={{
+                  background: "var(--bg-card)",
+                  borderColor: "#fecaca",
+                  color: "#dc2626",
+                }}
+              >
+                <X size={13} /> Remove
+              </button>
+            )}
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+        </div>
+        {avatarError && (
+          <p className="text-xs mt-2" style={{ color: "#dc2626" }}>{avatarError}</p>
+        )}
+        {avatarBase64 && (
+          <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>
+            New avatar selected — save settings to apply.
+          </p>
+        )}
+      </Card>
+
+      {/* Channel Info */}
+      <Card>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Channel Title">
             <Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           </FormField>
@@ -647,29 +764,43 @@ function SettingsSection({ chat }: { chat: any }) {
               ))}
             </Select>
           </FormField>
-          <div className="flex items-center justify-between p-4 bg-neutral-950 rounded-2xl border border-neutral-800">
+
+          {/* Visibility toggle */}
+          <div
+            className="flex items-center justify-between p-3 rounded-lg border"
+            style={{ background: "var(--bg-subtle)", borderColor: "var(--border)" }}
+          >
             <div>
-              <p className="text-xs font-black text-white">Public Visibility</p>
-              <p className="text-[9px] text-neutral-500 uppercase font-black">Visible in Explore</p>
+              <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Public visibility</p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Show in Explore tab</p>
             </div>
             <button
               type="button"
               onClick={() => setForm({ ...form, is_active: !form.is_active })}
-              className={`w-12 h-6 rounded-full transition-all relative ${form.is_active ? "bg-green-600" : "bg-neutral-800"}`}
+              className="w-11 h-6 rounded-full transition-all relative"
+              style={{ background: form.is_active ? "#16a34a" : "var(--bg-muted)" }}
             >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${form.is_active ? "left-7" : "left-1"}`}></div>
+              <div
+                className="absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm"
+                style={{ left: form.is_active ? "calc(100% - 20px)" : "4px" }}
+              />
             </button>
           </div>
-          <Button type="submit" fullWidth loading={isPending}>Save Configuration</Button>
+
+          <Button type="submit" fullWidth loading={isPending}>Save Settings</Button>
         </form>
       </Card>
-      
-      <Card className="!bg-red-500/5 !border-red-500/10">
-        <h5 className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Danger Zone</h5>
-        <p className="text-[10px] text-neutral-500 leading-relaxed">
-          To delete this channel, remove our bot from administrators in Telegram.
+
+      {/* Danger zone */}
+      <div
+        className="p-4 rounded-xl border"
+        style={{ background: "#fff5f5", borderColor: "#fecaca" }}
+      >
+        <p className="text-xs font-semibold mb-1" style={{ color: "#dc2626" }}>Danger zone</p>
+        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+          To delete this channel, remove the bot from administrators in Telegram.
         </p>
-      </Card>
+      </div>
     </div>
   );
 }

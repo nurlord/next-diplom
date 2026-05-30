@@ -16,6 +16,7 @@ export interface Chat {
   type?: string;
   updated_at?: string;
   username?: string;
+  avatar?: string;
 }
 
 export interface ChatSubscription {
@@ -114,6 +115,7 @@ export interface ListChatsItem {
   is_premium?: boolean;
   title?: string;
   type?: string;
+  avatar?: string;
 }
 
 export interface RefreshTokenRequest {
@@ -145,6 +147,7 @@ export interface UpdateChatReq {
   title?: string;
   description?: string;
   is_active?: boolean;
+  avatar?: string;
 }
 
 // Envelope responses definition
