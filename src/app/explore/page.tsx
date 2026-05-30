@@ -87,13 +87,13 @@ export default function ExplorePage() {
     <div className="pb-14 pt-6 px-5 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Discover</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Discover</h1>
         <button
           onClick={() => setShowFilters((v) => !v)}
           className={`relative p-2 rounded-full border transition-colors ${
             showFilters || activeFilterCount > 0
-              ? "bg-blue-600 border-blue-500 text-white"
-              : "bg-neutral-800 border-neutral-700 text-neutral-400"
+              ? "bg-gray-900 border-gray-900 text-white"
+              : "bg-white border-gray-200 text-gray-500 hover:text-gray-900"
           }`}
         >
           <Filter size={18} />
@@ -107,9 +107,9 @@ export default function ExplorePage() {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="bg-white border border-gray-100 shadow-sm rounded-2xl p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex justify-between items-center">
-            <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
               Filters
             </p>
             {activeFilterCount > 0 && (
@@ -124,7 +124,7 @@ export default function ExplorePage() {
 
           {/* Sort By Option */}
           <div>
-            <p className="text-xs text-neutral-500 mb-2 uppercase tracking-widest font-black text-[10px]">Sort By</p>
+            <p className="text-xs text-gray-500 mb-2 uppercase tracking-widest font-black text-[10px]">Sort By</p>
             <div className="grid grid-cols-2 gap-2">
               {[
                 { id: "newest", label: "Newest First" },
@@ -137,8 +137,8 @@ export default function ExplorePage() {
                   onClick={() => setSortBy(option.id as any)}
                   className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 border text-center ${
                     sortBy === option.id
-                      ? "bg-blue-600/10 border-blue-500 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.15)]"
-                      : "bg-neutral-900 border-neutral-850 text-neutral-400 hover:border-neutral-700 hover:text-neutral-300"
+                      ? "bg-gray-900 border-gray-900 text-white shadow-md shadow-gray-900/10"
+                      : "bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-900"
                   }`}
                 >
                   {option.label}
@@ -149,7 +149,7 @@ export default function ExplorePage() {
 
           {/* Type filter */}
           <div>
-            <p className="text-xs text-neutral-500 mb-2">Channel Type</p>
+            <p className="text-xs text-gray-500 mb-2">Channel Type</p>
             <div className="flex gap-2 flex-wrap">
               {CHAT_TYPES.map((t) => (
                 <button
@@ -159,8 +159,8 @@ export default function ExplorePage() {
                   }
                   className={`px-3 py-1 rounded-full text-xs font-medium capitalize transition-colors border ${
                     selectedType === t
-                      ? "bg-blue-600 border-blue-500 text-white"
-                      : "bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-600"
+                      ? "bg-gray-900 border-gray-900 text-white"
+                      : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
                   }`}
                 >
                   {t}
@@ -174,14 +174,14 @@ export default function ExplorePage() {
       {/* Search Bar */}
       <div className="relative group">
         <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-          <Search size={18} className="text-neutral-500" />
+          <Search size={18} className="text-gray-400" />
         </div>
         <input
           type="text"
           placeholder="Find creators or channels..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-neutral-900 border border-neutral-800 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-neutral-600"
+          className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-10 pr-4 text-sm text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all placeholder:text-gray-400"
         />
       </div>
 
@@ -198,8 +198,8 @@ export default function ExplorePage() {
       >
         <button
           onClick={() => setSelectedCategory(undefined)}
-          className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors
-            ${selectedCategory === undefined ? "bg-white text-black" : "bg-neutral-800 text-neutral-300 border border-neutral-700"}
+          className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors border
+            ${selectedCategory === undefined ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}
           `}
         >
           All
@@ -208,8 +208,8 @@ export default function ExplorePage() {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors
-              ${selectedCategory === cat.id ? "bg-white text-black" : "bg-neutral-800 text-neutral-300 border border-neutral-700"}
+            className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors border
+              ${selectedCategory === cat.id ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}
             `}
           >
             {cat.category}
@@ -219,7 +219,7 @@ export default function ExplorePage() {
 
       {/* Channels List */}
       <div>
-        <h2 className="text-sm font-semibold text-neutral-400 mb-3 uppercase tracking-wider">
+        <h2 className="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wider">
           {searchQuery
             ? "Search Results"
             : selectedType
@@ -233,27 +233,27 @@ export default function ExplorePage() {
           <div className="space-y-3">
             {filteredChats.map((chat) => (
               <Link href={`/chats/${chat.id}`} key={chat.id}>
-                <div className="bg-neutral-800/40 border border-neutral-800 p-3 rounded-xl flex items-center gap-4 hover:bg-neutral-800 transition-colors cursor-pointer mb-3">
+                <div className="bg-white border border-gray-100 shadow-sm p-3 rounded-xl flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-pointer mb-3">
                   <Avatar text={chat.title} size="md" />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2">
-                      <h3 className="font-semibold text-white truncate">
+                      <h3 className="font-semibold text-gray-900 truncate">
                         {chat.title}
                       </h3>
                       {chat.is_premium && (
-                        <span className="shrink-0 bg-orange-500/10 text-orange-400 text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1">
-                          <Star size={8} className="fill-orange-400" /> Premium
+                        <span className="shrink-0 bg-orange-50 text-orange-600 border border-orange-100 text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <Star size={8} className="fill-orange-500" /> Premium
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-neutral-500 capitalize">
+                    <p className="text-xs text-gray-500 capitalize">
                       {chat.category || chat.type}
                     </p>
                   </div>
 
                   <div className="shrink-0">
-                    <div className="bg-blue-600/20 text-blue-400 text-xs font-bold px-2 py-1 rounded-lg border border-blue-600/20">
+                    <div className="bg-gray-100 text-gray-900 text-xs font-bold px-2 py-1 rounded-lg border border-gray-200">
                       View Plans
                     </div>
                   </div>
