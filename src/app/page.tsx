@@ -171,7 +171,7 @@ export default function HomePage() {
     };
   }, [isRefreshing, queryClient]);
 
-  const [optimisticCancelled, setOptimisticCancelled] = useState<number[]>([]);
+  const [optimisticCancelRequested, setOptimisticCancelRequested] = useState<number[]>([]);
 
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,23 +190,23 @@ export default function HomePage() {
 
   const handleCancel = async (id: number) => {
     if (
-      confirm("Cancel this subscription? You will lose access immediately.")
+      confirm("Request cancellation for this subscription? The creator will review your request.")
     ) {
-      setOptimisticCancelled(prev => [...prev, id]);
+      setOptimisticCancelRequested(prev => [...prev, id]);
       try {
         await cancelSub(id);
         await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
-        toast.success("Subscription cancelled");
+        toast.success("Cancellation requested");
         window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
       } catch (err) {
-        setOptimisticCancelled(prev => prev.filter(oid => oid !== id));
+        setOptimisticCancelRequested(prev => prev.filter(oid => oid !== id));
         toast.handleError(err);
       }
     }
   };
 
   const subscriptions = (subsRes?.data?.items || []).filter(
-    (s) => s.status === "active" && !optimisticCancelled.includes(s.subscription_id!),
+    (s) => s.status === "active",
   );
 
   const urgentCount = subscriptions.filter((s) => {
@@ -310,12 +310,19 @@ export default function HomePage() {
                   </div>
 
                   <div className="flex gap-2 border-t border-gray-100 pt-3">
-                    <button
-                      onClick={() => sub.subscription_id && handleCancel(sub.subscription_id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {sub.cancel_requested_at || optimisticCancelRequested.includes(sub.subscription_id!) ? (
+                      <div className="px-3 py-2 text-xs font-medium text-gray-500 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border border-gray-100">
+                        Cancellation requested
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => sub.subscription_id && handleCancel(sub.subscription_id)}
+                        className="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center shrink-0 border border-red-100"
+                        title="Request cancellation"
+                      >
+                        Request cancellation
+                      </button>
+                    )}
                     <Link
                       href={`/chats/${sub.chat_id}`}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"

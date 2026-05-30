@@ -38,6 +38,7 @@ import {
   useUpdateChat,
   usePublicReviews,
   useCreatePromoCode,
+  useArchiveChat,
 } from "@/api/hooks";
 import { useToast } from "@/providers/ToastProvider";
 import { fromNanoTON, toNanoTON } from "@/utils/ton";
@@ -69,6 +70,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<
     | "plans"
     | "subscribers"
+    | "cancel-requests"
     | "broadcasts"
     | "promo"
     | "reviews"
@@ -206,6 +208,7 @@ export default function AdminDashboard() {
           {[
             { id: "plans", label: "Plans", icon: Layers },
             { id: "subscribers", label: "Subs", icon: Users },
+            { id: "cancel-requests", label: "Cancel Reqs", icon: Settings }, // reusing an icon
             { id: "broadcasts", label: "Feed", icon: Zap },
             { id: "promo", label: "Promo", icon: Tag },
             { id: "reviews", label: "Reviews", icon: Star },
@@ -244,6 +247,7 @@ export default function AdminDashboard() {
             />
           )}
           {activeTab === "subscribers" && <SubscribersSection chatId={myChat.id} />}
+          {activeTab === "cancel-requests" && <CancelRequestsSection chatId={myChat.id} />}
           {activeTab === "broadcasts" && <BroadcastSection chatId={myChat.id} />}
           {activeTab === "promo" && <PromoSection chatId={myChat.id} />}
           {activeTab === "reviews" && <ReviewsSection chatId={myChat.id} />}
@@ -429,6 +433,51 @@ function SubscribersSection({ chatId }: { chatId: number }) {
           </div>
         ))}
         {!subscribers.length && <div className="p-10 text-center text-sm text-neutral-500">No subscribers found.</div>}
+      </Card>
+    </div>
+  );
+}
+
+function CancelRequestsSection({ chatId }: { chatId: number }) {
+  const { data: subsRes } = useChatSubscriptions(chatId, { status: "active", cancel_requested: true, limit: 50 });
+  const requests = subsRes?.data?.items || [];
+  const { mutateAsync: updateStatus, isPending } = useUpdateChatSubscriptionStatus();
+  const toast = useToast();
+
+  const handleApprove = async (subId: number) => {
+    try {
+      await updateStatus({ chatId, subscriptionId: subId, data: { status: "canceled" } });
+      toast.success("Subscription canceled successfully.");
+    } catch (e) {
+      toast.handleError(e);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader title="Cancellation Requests" />
+      <Card padding="none" className="overflow-hidden divide-y divide-neutral-800 !rounded-3xl">
+        {requests.map((sub: any) => (
+          <div key={sub.subscription_id} className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center font-bold text-xs uppercase">
+                {sub.username?.[0] || "?"}
+              </div>
+              <div>
+                <p className="text-sm font-bold">{sub.username || `User #${sub.user_id}`}</p>
+                <p className="text-xs text-neutral-500">Requested cancellation</p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              loading={isPending}
+              onClick={() => handleApprove(sub.subscription_id)}
+            >
+              Approve Cancel
+            </Button>
+          </div>
+        ))}
+        {!requests.length && <div className="p-10 text-center text-sm text-neutral-500">No pending requests.</div>}
       </Card>
     </div>
   );
@@ -765,27 +814,7 @@ function SettingsSection({ chat }: { chat: any }) {
             </Select>
           </FormField>
 
-          {/* Visibility toggle */}
-          <div
-            className="flex items-center justify-between p-3 rounded-lg border"
-            style={{ background: "var(--bg-subtle)", borderColor: "var(--border)" }}
-          >
-            <div>
-              <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Public visibility</p>
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>Show in Explore tab</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setForm({ ...form, is_active: !form.is_active })}
-              className="w-11 h-6 rounded-full transition-all relative"
-              style={{ background: form.is_active ? "#16a34a" : "var(--bg-muted)" }}
-            >
-              <div
-                className="absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm"
-                style={{ left: form.is_active ? "calc(100% - 20px)" : "4px" }}
-              />
-            </button>
-          </div>
+          {/* Removed Visibility toggle */}
 
           <Button type="submit" fullWidth loading={isPending}>Save Settings</Button>
         </form>
@@ -793,14 +822,43 @@ function SettingsSection({ chat }: { chat: any }) {
 
       {/* Danger zone */}
       <div
-        className="p-4 rounded-xl border"
+        className="p-4 rounded-xl border flex flex-col items-start gap-4"
         style={{ background: "#fff5f5", borderColor: "#fecaca" }}
       >
-        <p className="text-xs font-semibold mb-1" style={{ color: "#dc2626" }}>Danger zone</p>
-        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-          To delete this channel, remove the bot from administrators in Telegram.
-        </p>
+        <div>
+          <p className="text-xs font-semibold mb-1" style={{ color: "#dc2626" }}>Archive Chat</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+            Archiving will disable new subscriptions, gifts, and promos. Active subscriptions become disabled.
+          </p>
+        </div>
+        <ArchiveChatButton chatId={chat.id} />
       </div>
     </div>
+  );
+}
+
+function ArchiveChatButton({ chatId }: { chatId: number }) {
+  const { mutateAsync: archive, isPending } = useArchiveChat();
+  const toast = useToast();
+
+  const handleArchive = async () => {
+    if (confirm("Are you sure you want to archive this chat? This cannot be undone from the app.")) {
+      try {
+        await archive(chatId);
+        toast.success("Chat archived successfully.");
+      } catch (e) {
+        toast.handleError(e);
+      }
+    }
+  };
+
+  return (
+    <button
+      onClick={handleArchive}
+      disabled={isPending}
+      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+    >
+      {isPending ? "Archiving..." : "Archive Chat"}
+    </button>
   );
 }

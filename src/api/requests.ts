@@ -83,6 +83,11 @@ export const updateChat = (chat_id: number, data: T.UpdateChatReq) =>
     .patch(`api/chats/${chat_id}`, { json: data })
     .json<T.ResponseEnvelope<T.Chat>>();
 
+export const archiveChat = (chat_id: number) =>
+  apiClient
+    .post(`api/chats/${chat_id}/archive`)
+    .json<{ status: string }>();
+
 // Plans
 export const getChatPlans = (chat_id: number) =>
   apiClient
@@ -113,6 +118,7 @@ export const updatePlan = (
 // Creator Subscriptions
 export interface GetChatSubscriptionsParams {
   status?: string;
+  cancel_requested?: boolean;
   created_from?: string;
   created_to?: string;
   limit?: number;
@@ -201,9 +207,8 @@ export const subscribeToPlan = (chat_id: number, plan_id: number, data: T.Subscr
       T.ResponseEnvelope<{ invite_link: string; subscription_id: number }>
     >();
 
-export const cancelSubscription = (subscription_id: number) =>
-
-  apiClient.delete(`api/subscriptions/${subscription_id}`).text();
+export const requestCancelSubscription = (subscription_id: number) =>
+  apiClient.post(`api/subscriptions/${subscription_id}/cancel-request`).json<{ status: string }>();
 
 // --- Reviews ---
 export const submitReview = (chat_id: number, data: T.SubmitReviewReq) =>

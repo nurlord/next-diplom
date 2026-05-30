@@ -28,6 +28,7 @@ export interface ChatSubscription {
   subscription_id?: number;
   user_id?: number;
   username?: string;
+  cancel_requested_at?: string;
 }
 
 export interface ChatSubscriptionStats {
@@ -36,6 +37,7 @@ export interface ChatSubscriptionStats {
   active_periodic_count?: number;
   active_revenue_hint?: number;
   canceled?: number;
+  cancel_requested?: number;
   chat_id?: number;
   disabled?: number;
   total?: number;
@@ -51,6 +53,7 @@ export interface Subscription {
   price_nanoton?: number;
   status?: string;
   subscription_id?: number;
+  cancel_requested_at?: string;
 }
 
 export interface SubscriptionEvent {
@@ -82,7 +85,6 @@ export interface SubscriptionPlan {
 export interface User {
   bio?: string;
   created_at?: string;
-  earned?: number;
   first_name?: string;
   id?: number; // telegram_user_id
   last_name?: string;
@@ -146,7 +148,6 @@ export interface UpdateChatReq {
   category_id?: number;
   title?: string;
   description?: string;
-  is_active?: boolean;
   avatar?: string;
 }
 

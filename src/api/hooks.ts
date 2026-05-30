@@ -114,6 +114,17 @@ export const useUpdateChat = () => {
   });
 };
 
+export const useArchiveChat = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (chatId: number) => requests.archiveChat(chatId),
+    onSuccess: (_, chatId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.chat(chatId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.chats });
+    },
+  });
+};
+
 // --- Plan Hooks ---
 export const useChatPlans = (chatId: number, options?: { enabled?: boolean }) => {
   return useQuery({
@@ -232,7 +243,7 @@ export const useSubscribeToPlan = () => {
 export const useCancelSubscription = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (subscriptionId: number) => requests.cancelSubscription(subscriptionId),
+    mutationFn: (subscriptionId: number) => requests.requestCancelSubscription(subscriptionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
     },
