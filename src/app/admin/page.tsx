@@ -164,13 +164,13 @@ export default function AdminDashboard() {
     <PageWrapper>
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
-        <Link href="/chats" className="flex items-center gap-2 text-neutral-500 hover:text-white transition-colors group">
-          <div className="p-2 bg-neutral-900 rounded-xl border border-neutral-800 group-hover:border-neutral-700">
+        <Link href="/chats" className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors group">
+          <div className="p-2 bg-[var(--bg-subtle)] rounded-lg border border-[var(--border)] group-hover:border-[var(--border-subtle)]">
             <ChevronDown className="rotate-90" size={18} />
           </div>
-          <span className="text-sm font-black uppercase tracking-widest">Dashboard</span>
+          <span className="text-sm font-semibold tracking-wide">Dashboard</span>
         </Link>
-        <Button variant="secondary" size="sm" icon={RotateCw} onClick={handleSync} className="!rounded-2xl" />
+        <Button variant="secondary" size="sm" icon={RotateCw} onClick={handleSync} />
       </div>
 
       {/* Selected Chat Header */}
@@ -217,10 +217,10 @@ export default function AdminDashboard() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap border ${
                 activeTab === tab.id
-                  ? "bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/20"
-                  : "bg-neutral-900 text-neutral-500 border-neutral-800 hover:text-white"
+                  ? "bg-[var(--text-primary)] text-[var(--bg-card)] border-[var(--text-primary)] shadow-sm"
+                  : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
               }`}
             >
               <tab.icon size={14} />
@@ -259,12 +259,12 @@ export default function AdminDashboard() {
       <Modal isOpen={showPlanModal} onClose={() => setShowPlanModal(false)} title="Create Plan" icon={TrendingUp}>
         <form onSubmit={handleCreatePlan} className="space-y-6">
           <FormField label="Billing Type">
-            <div className="flex p-1 bg-neutral-950 rounded-2xl border border-neutral-800">
+            <div className="flex p-1 bg-[var(--bg-subtle)] rounded-xl border border-[var(--border)]">
               <button
                 type="button"
                 onClick={() => setNewPlan({ ...newPlan, plan_type: "periodic" })}
-                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
-                  newPlan.plan_type === "periodic" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500"
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                  newPlan.plan_type === "periodic" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 Periodic
@@ -272,8 +272,8 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => setNewPlan({ ...newPlan, plan_type: "lifetime" })}
-                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
-                  newPlan.plan_type === "lifetime" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500"
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                  newPlan.plan_type === "lifetime" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 Lifetime
@@ -377,26 +377,26 @@ function PlansSection({ chatId, onAddPlan, onEditPlan }: any) {
           <Card key={plan.id} interactive className="group" padding="sm" onClick={() => onEditPlan(plan)}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-black">
+                <div className="w-10 h-10 rounded-lg bg-[var(--bg-subtle)] text-[var(--text-primary)] flex items-center justify-center font-bold">
                   {plan.plan_type === "lifetime" ? "∞" : "D"}
                 </div>
                 <div>
-                  <h5 className="font-black text-white">{plan.title}</h5>
-                  <p className="text-[10px] text-neutral-500 uppercase font-black tracking-widest mt-0.5">
+                  <h5 className="font-semibold text-[var(--text-primary)]">{plan.title}</h5>
+                  <p className="text-xs text-[var(--text-secondary)] font-medium mt-0.5">
                     {plan.plan_type === "lifetime" ? "Lifetime Access" : `${plan.duration_days} Days Billing`}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-lg font-black text-blue-400 leading-none">
-                  {fromNanoTON(plan.price_nanoton)} <span className="text-[10px] font-normal text-neutral-500">TON</span>
+                <p className="text-lg font-semibold text-[var(--text-primary)] leading-none">
+                  {fromNanoTON(plan.price_nanoton)} <span className="text-[10px] font-normal text-[var(--text-muted)]">TON</span>
                 </p>
                 <Badge variant={plan.status === "active" ? "green" : "red"} className="mt-1">{plan.status}</Badge>
               </div>
             </div>
           </Card>
         ))}
-        {!plans.length && <Card className="!bg-neutral-900/50 !border-dashed text-center !p-10">No plans created yet.</Card>}
+        {!plans.length && <Card className="!bg-[var(--bg-subtle)] !border-dashed text-center !p-10 text-[var(--text-secondary)]">No plans created yet.</Card>}
       </div>
     </div>
   );
@@ -410,20 +410,20 @@ function SubscribersSection({ chatId }: { chatId: number }) {
   return (
     <div className="space-y-4">
       <SectionHeader title="Subscribers" />
-      <Card padding="none" className="overflow-hidden divide-y divide-neutral-800 !rounded-3xl">
+      <Card padding="none" className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]">
         {subscribers.map((sub: any) => (
-          <div key={sub.subscription_id} className="p-4 flex items-center justify-between">
+          <div key={sub.subscription_id} className="p-4 flex items-center justify-between border-[var(--border)]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center font-bold text-xs uppercase">
+              <div className="w-10 h-10 rounded-full bg-[var(--bg-subtle)] text-[var(--text-primary)] flex items-center justify-center font-semibold text-sm uppercase">
                 {sub.username?.[0] || "?"}
               </div>
               <div>
-                <p className="text-sm font-bold">{sub.username || `User #${sub.user_id}`}</p>
-                <Badge variant={sub.status === "active" ? "green" : "neutral"} className="!text-[8px]">{sub.status}</Badge>
+                <p className="text-sm font-medium text-[var(--text-primary)]">{sub.username || `User #${sub.user_id}`}</p>
+                <Badge variant={sub.status === "active" ? "green" : "neutral"} className="!text-[10px]">{sub.status}</Badge>
               </div>
             </div>
             <Select
-              className="!w-auto !py-1 !px-2 !text-[10px] !rounded-lg"
+              className="!w-auto !py-1 !px-2 !text-xs !rounded-lg"
               value={sub.status}
               onChange={(e) => updateStatus({ chatId, subscriptionId: sub.subscription_id, data: { status: e.target.value } })}
             >
@@ -432,7 +432,7 @@ function SubscribersSection({ chatId }: { chatId: number }) {
             </Select>
           </div>
         ))}
-        {!subscribers.length && <div className="p-10 text-center text-sm text-neutral-500">No subscribers found.</div>}
+        {!subscribers.length && <div className="p-10 text-center text-sm text-[var(--text-secondary)]">No subscribers found.</div>}
       </Card>
     </div>
   );
@@ -456,16 +456,16 @@ function CancelRequestsSection({ chatId }: { chatId: number }) {
   return (
     <div className="space-y-4">
       <SectionHeader title="Cancellation Requests" />
-      <Card padding="none" className="overflow-hidden divide-y divide-neutral-800 !rounded-3xl">
+      <Card padding="none" className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]">
         {requests.map((sub: any) => (
-          <div key={sub.subscription_id} className="p-4 flex items-center justify-between">
+          <div key={sub.subscription_id} className="p-4 flex items-center justify-between border-[var(--border)]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center font-bold text-xs uppercase">
+              <div className="w-10 h-10 rounded-full bg-[var(--bg-subtle)] text-[var(--text-primary)] flex items-center justify-center font-semibold text-sm uppercase">
                 {sub.username?.[0] || "?"}
               </div>
               <div>
-                <p className="text-sm font-bold">{sub.username || `User #${sub.user_id}`}</p>
-                <p className="text-xs text-neutral-500">Requested cancellation</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">{sub.username || `User #${sub.user_id}`}</p>
+                <p className="text-xs text-[var(--text-secondary)]">Requested cancellation</p>
               </div>
             </div>
             <Button
@@ -477,7 +477,7 @@ function CancelRequestsSection({ chatId }: { chatId: number }) {
             </Button>
           </div>
         ))}
-        {!requests.length && <div className="p-10 text-center text-sm text-neutral-500">No pending requests.</div>}
+        {!requests.length && <div className="p-10 text-center text-sm text-[var(--text-secondary)]">No pending requests.</div>}
       </Card>
     </div>
   );
