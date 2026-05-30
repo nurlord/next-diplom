@@ -37,13 +37,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20",
+    "bg-gray-900 hover:bg-black text-white shadow-md shadow-gray-900/10",
   secondary:
-    "bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700",
+    "bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm",
   danger:
-    "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20",
+    "bg-red-50 hover:bg-red-100 text-red-600 border border-red-100",
   ghost:
-    "bg-transparent hover:bg-white/5 text-neutral-400 hover:text-white",
+    "bg-transparent hover:bg-gray-100 text-gray-500 hover:text-gray-900",
 };
 
 const buttonSizes: Record<ButtonSize, string> = {
@@ -107,13 +107,13 @@ interface BadgeProps {
 }
 
 const badgeVariants: Record<BadgeVariant, string> = {
-  blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  green: "bg-green-500/10 text-green-400 border-green-500/10",
-  red: "bg-red-500/10 text-red-400 border-red-500/20",
-  orange: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  yellow: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  purple: "bg-purple-500/20 text-purple-400 border-purple-500/20",
-  neutral: "bg-neutral-800 text-neutral-400 border-neutral-700",
+  blue: "bg-blue-50 text-blue-600 border-transparent",
+  green: "bg-green-50 text-green-600 border-transparent",
+  red: "bg-red-50 text-red-600 border-transparent",
+  orange: "bg-orange-50 text-orange-600 border-transparent",
+  yellow: "bg-yellow-50 text-yellow-600 border-transparent",
+  purple: "bg-purple-50 text-purple-600 border-transparent",
+  neutral: "bg-gray-100 text-gray-600 border-transparent",
 };
 
 export function Badge({
@@ -179,10 +179,10 @@ export function Card({
     <div
       onClick={onClick}
       className={`
-        bg-neutral-900 border border-neutral-800 rounded-[2rem] shadow-lg
+        bg-white border border-gray-100 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)]
         relative overflow-hidden transition-all
         ${cardPadding[padding]}
-        ${interactive ? "cursor-pointer active:scale-[0.98] hover:bg-neutral-800/80" : ""}
+        ${interactive ? "cursor-pointer active:scale-[0.98] hover:bg-gray-50" : ""}
         ${glowStyles[glow]}
         ${className}
       `.trim()}
@@ -215,12 +215,12 @@ export function SectionHeader({
   return (
     <div className="flex items-center justify-between px-1">
       <div>
-        <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+        <h3 className="text-[15px] font-bold text-gray-900 flex items-center gap-2">
           {Icon && <Icon size={16} className={iconColor} />}
           {title}
         </h3>
         {subtitle && (
-          <p className="text-[10px] text-neutral-500 font-medium mt-0.5">{subtitle}</p>
+          <p className="text-xs text-gray-500 font-medium mt-0.5">{subtitle}</p>
         )}
       </div>
       {action && <div>{action}</div>}
@@ -254,22 +254,22 @@ export function StatCard({
     <Card className={className}>
       {Icon && (
         <Icon
-          className="absolute -right-2 -bottom-2 text-blue-500/10"
+          className="absolute -right-2 -bottom-2 text-gray-100"
           size={60}
         />
       )}
-      <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
+      <p className="text-[11px] font-semibold text-gray-500 mb-1">
         {label}
       </p>
       <div className="flex items-baseline gap-2">
-        <p className="text-2xl font-black text-white">{value}</p>
+        <p className="text-2xl font-black text-gray-900">{value}</p>
         {suffix && (
-          <span className="text-xs text-neutral-500 font-bold">{suffix}</span>
+          <span className="text-xs text-gray-500 font-bold">{suffix}</span>
         )}
         {change !== undefined && (
           <span
             className={`flex items-center text-[10px] font-black ${
-              change >= 0 ? "text-green-500" : "text-red-500"
+              change >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
             {change >= 0 ? "↑" : "↓"}
@@ -309,17 +309,17 @@ export function Modal({
     <div
       className={`
         fixed inset-0 z-50 flex items-start justify-center p-4
-        bg-black/80 backdrop-blur-md animate-in fade-in duration-300
+        bg-black/40 backdrop-blur-md animate-in fade-in duration-300
         ${scrollable ? "overflow-y-auto pt-12 pb-24" : "items-center"}
       `}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-neutral-900 border border-neutral-800 rounded-[2rem] p-6 w-full max-w-sm shadow-2xl relative">
+      <div className="bg-white border border-gray-100 rounded-[24px] p-6 w-full max-w-sm shadow-xl relative">
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-neutral-500 hover:text-white transition-colors"
+          className="absolute top-5 right-5 text-gray-400 hover:text-gray-900 transition-colors"
         >
           <X size={20} />
         </button>
@@ -346,7 +346,7 @@ interface FormFieldProps {
 export function FormField({ label, children, className = "" }: FormFieldProps) {
   return (
     <div className={`space-y-2 ${className}`}>
-      <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest px-1 block">
+      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1 block">
         {label}
       </label>
       {children}
@@ -361,10 +361,10 @@ export function Input({ className = "", ...props }: InputProps) {
   return (
     <input
       className={`
-        w-full bg-neutral-800 border border-neutral-700 rounded-2xl
+        w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl
         px-4 py-3 text-sm
-        focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-        transition-all placeholder:text-neutral-600
+        focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
+        transition-all placeholder:text-gray-400
         ${className}
       `.trim()}
       {...props}
@@ -380,10 +380,10 @@ export function TextArea({ className = "", ...props }: TextAreaProps) {
   return (
     <textarea
       className={`
-        w-full bg-neutral-800 border border-neutral-700 rounded-2xl
+        w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl
         px-4 py-3 text-sm min-h-[100px]
-        focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-        transition-all placeholder:text-neutral-600
+        focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
+        transition-all placeholder:text-gray-400
         ${className}
       `.trim()}
       {...props}
@@ -400,9 +400,9 @@ export function Select({ className = "", children, ...props }: SelectProps) {
   return (
     <select
       className={`
-        w-full bg-neutral-800 border border-neutral-700 rounded-2xl
+        w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-2xl
         px-4 py-3 text-sm
-        focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+        focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900
         transition-all
         ${className}
       `.trim()}
@@ -466,7 +466,7 @@ export function PageWrapper({ children, className = "" }: PageWrapperProps) {
       className={`
         pb-24 pt-6 px-5 space-y-6 min-h-screen
         animate-in fade-in slide-in-from-bottom-4 duration-500
-        text-white
+        text-gray-900
         ${className}
       `.trim()}
     >
@@ -489,9 +489,9 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
   return (
     <div className="flex justify-between items-start">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-white">{title}</h1>
+        <h1 className="text-2xl font-black tracking-tight text-gray-900">{title}</h1>
         {subtitle && (
-          <p className="text-sm text-neutral-500 font-medium mt-0.5">{subtitle}</p>
+          <p className="text-sm text-gray-500 font-medium mt-0.5">{subtitle}</p>
         )}
       </div>
       {action && <div>{action}</div>}

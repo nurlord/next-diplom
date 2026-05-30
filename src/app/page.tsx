@@ -62,7 +62,7 @@ function OpenChatButton({ chatId }: { chatId: number }) {
         }
       }}
       disabled={isLoading}
-      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-95 disabled:opacity-60"
+      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-black rounded-xl shadow-md shadow-gray-900/10 transition-all active:scale-95 disabled:opacity-60"
     >
       {isLoading ? (
         <Loader2 size={16} className="animate-spin" />
@@ -106,10 +106,10 @@ function OnboardingScreen() {
         <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-[0_0_40px_rgba(99,102,241,0.3)]">
           <Sparkles className="text-white" size={28} />
         </div>
-        <h1 className="text-2xl font-black text-white tracking-tighter mb-1">
+        <h1 className="text-2xl font-black text-gray-900 tracking-tighter mb-1">
           Welcome to Jazylym
         </h1>
-        <p className="text-neutral-400 text-xs leading-relaxed max-w-xs mx-auto">
+        <p className="text-gray-500 text-xs leading-relaxed max-w-xs mx-auto">
           The first TON-powered creator subscription platform built inside Telegram.
         </p>
       </div>
@@ -121,15 +121,15 @@ function OnboardingScreen() {
           return (
             <div
               key={i}
-              className={`flex items-start gap-3 p-3.5 rounded-[1.25rem] border bg-neutral-900 border-neutral-800`}
+              className={`flex items-start gap-3 p-3.5 rounded-[1.25rem] border bg-white border-gray-100 shadow-sm`}
               style={{ animationDelay: `${i * 100}ms` }}
             >
               <div className={`w-9 h-9 rounded-lg flex items-center justify-center border shrink-0 ${step.bg}`}>
                 <Icon size={18} className={step.color} />
               </div>
               <div>
-                <p className="font-bold text-[13px] text-white">{step.title}</p>
-                <p className="text-[11px] text-neutral-500 mt-0.5 leading-tight">{step.desc}</p>
+                <p className="font-bold text-[13px] text-gray-900">{step.title}</p>
+                <p className="text-[11px] text-gray-500 mt-0.5 leading-tight">{step.desc}</p>
               </div>
             </div>
           );
@@ -145,7 +145,7 @@ function OnboardingScreen() {
         Start Exploring Channels
       </Link>
 
-      <p className="text-center text-[10px] text-neutral-600 mt-3">
+      <p className="text-center text-[10px] text-gray-500 mt-3">
         Your subscriptions will appear here once you join a channel.
       </p>
     </div>
@@ -251,13 +251,13 @@ export default function HomePage() {
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center h-[50vh]">
-        <h2 className="text-xl font-bold text-white mb-2">Welcome!</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome!</h2>
         {authError ? (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mt-4 max-w-sm">
-            <p className="text-red-400 text-sm">{authError}</p>
+          <div className="bg-red-50 border border-red-100 rounded-xl p-4 mt-4 max-w-sm">
+            <p className="text-red-600 text-sm">{authError}</p>
           </div>
         ) : (
-          <p className="text-neutral-400">
+          <p className="text-gray-500">
             Please open this Mini App from Telegram to log in.
           </p>
         )}
@@ -283,9 +283,9 @@ export default function HomePage() {
         <>
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-white">My Subscriptions</h1>
+              <h1 className="text-2xl font-bold text-gray-900">My Subscriptions</h1>
               {urgentCount > 0 && (
-                <p className="text-xs text-orange-400 font-medium mt-0.5 flex items-center gap-1">
+                <p className="text-xs text-orange-600 font-medium mt-0.5 flex items-center gap-1">
                   <Clock size={11} />
                   {urgentCount} subscription{urgentCount > 1 ? "s" : ""} expiring soon
                 </p>
@@ -296,7 +296,7 @@ export default function HomePage() {
               size="sm"
               icon={Gift}
               onClick={() => setShowRedeemModal(true)}
-              className="!bg-blue-500/10 !text-blue-400 !border !border-blue-500/20 !hover:bg-blue-500/20"
+              className="!bg-gray-100 !text-gray-900 !border !border-gray-200 !hover:bg-gray-200"
             >
               REDEEM
             </Button>
@@ -310,7 +310,7 @@ export default function HomePage() {
                   key={sub.subscription_id}
                   padding="sm"
                   className={`!rounded-2xl !p-4 flex flex-col gap-4 ${
-                    badge.urgent ? "!border-orange-500/30 shadow-orange-900/10" : ""
+                    badge.urgent ? "!border-orange-200 bg-orange-50/50" : ""
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -327,11 +327,11 @@ export default function HomePage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-transparent">
                           {sub.plan_title}
                         </span>
                         {sub.expires_at && (
-                          <span className="text-xs text-neutral-500">
+                          <span className="text-xs text-gray-500">
                             Until {new Date(sub.expires_at).toLocaleDateString()}
                           </span>
                         )}
@@ -339,7 +339,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-neutral-800 flex gap-2">
+                  <div className="pt-3 border-t border-gray-100 flex gap-2">
                     <Button
                       variant="danger"
                       size="sm"
@@ -349,7 +349,7 @@ export default function HomePage() {
                     />
                     <Link
                       href={`/chats/${sub.chat_id}`}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-white bg-neutral-800 hover:bg-neutral-700 rounded-xl transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
                     >
                       <ExternalLink size={16} /> Details
                     </Link>

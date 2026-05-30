@@ -47,7 +47,7 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="w-full bg-neutral-900/80 backdrop-blur-xl border-t border-white/5 pb-safe pt-2 px-6">
+    <nav className="w-full bg-white/90 backdrop-blur-xl border-t border-gray-200 pb-safe pt-2 px-6">
       <div className="flex justify-between items-center max-w-sm mx-auto">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
@@ -59,15 +59,10 @@ export default function NavBar() {
               href={item.href}
               className="relative flex flex-col items-center justify-center w-16 h-14 gap-1 group transition-all active:scale-90"
             >
-              {/* Active Indicator Glow */}
-              {isActive && (
-                <div className="absolute -top-2 w-8 h-1 bg-blue-500 rounded-full blur-[6px] opacity-60 animate-in fade-in duration-500" />
-              )}
-
               {/* Active Pill Background */}
               <div
                 className={`absolute inset-0 rounded-2xl transition-colors duration-300 ${
-                  isActive ? "bg-blue-500/10" : "group-hover:bg-white/5"
+                  isActive ? "bg-gray-100" : "group-hover:bg-gray-50"
                 }`}
               />
 
@@ -78,8 +73,8 @@ export default function NavBar() {
                   strokeWidth={isActive ? 2.5 : 2}
                   className={`transition-colors duration-300 ${
                     isActive
-                      ? "text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                      : "text-neutral-500 group-hover:text-neutral-300"
+                      ? "text-gray-900"
+                      : "text-gray-400 group-hover:text-gray-600"
                   }`}
                 />
                 {/* Urgency Badge */}
@@ -92,7 +87,7 @@ export default function NavBar() {
 
               <span
                 className={`relative z-10 text-[10px] font-medium transition-colors duration-300 ${
-                  isActive ? "text-blue-400" : "text-neutral-500"
+                  isActive ? "text-gray-900" : "text-gray-400"
                 }`}
               >
                 {item.name}
