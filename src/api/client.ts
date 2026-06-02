@@ -41,7 +41,7 @@ async function tryRefreshToken(): Promise<string | null> {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://jazylym-production.up.railway.app';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://157.245.169.254.nip.io';
 
 export const apiClient = ky.create({
   prefixUrl: BASE_URL,
