@@ -9,7 +9,6 @@ import {
   useInitSubscribePayment,
   useApplyPromoCode,
   usePreviewPromoCode,
-  useBroadcasts,
   useMySubscriptions,
 } from "@/api/hooks";
 import { useTonConnectUI, useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
@@ -44,8 +43,7 @@ export default function ChatSubscriptionPage() {
   const { data: subsRes } = useMySubscriptions({}, { enabled: isAuthenticated });
   const isSubscribed = subsRes?.data?.items?.some(s => s.chat_id === chatId && s.status === "active") || false;
 
-  const { data: broadcastsRes } = useBroadcasts(chatId, { limit: 5 }, { enabled: !!chatId });
-  const broadcasts = broadcastsRes?.data?.items || [];
+
 
   const { mutateAsync: subscribe, isPending: isSubscribing } = useSubscribeToPlan();
   const { mutateAsync: applyPromo, isPending: isApplyingPromo } = useApplyPromoCode();
@@ -423,67 +421,7 @@ export default function ChatSubscriptionPage() {
         )}
       </div>
 
-      {/* Divider */}
-      <div className="mx-5 my-6 border-t" style={{ borderColor: "var(--border)" }} />
 
-      {/* Recent Feed */}
-      <div className="px-5 space-y-3">
-        <h2 className="font-semibold text-base" style={{ color: "var(--text-primary)" }}>
-          Recent posts
-        </h2>
-        {broadcasts.length > 0 ? (
-          <div className="space-y-2">
-            {broadcasts.map(post => (
-              <div
-                key={post.id}
-                className="rounded-xl border overflow-hidden"
-                style={{
-                  background: "var(--bg-card)",
-                  borderColor: "var(--border-subtle)",
-                  boxShadow: "var(--shadow-card)",
-                }}
-              >
-                <div className="p-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                      {post.sent_at ? new Date(post.sent_at).toLocaleDateString() : ""}
-                    </span>
-                    {isSubscribed
-                      ? <CheckCircle2 size={13} style={{ color: "#16a34a" }} />
-                      : <Lock size={13} style={{ color: "var(--text-muted)" }} />
-                    }
-                  </div>
-                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                    {post.title || "Update"}
-                  </p>
-                </div>
-
-                {!isSubscribed && (
-                  <div
-                    className="px-3 pb-3 flex items-center gap-2 text-xs"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    <Lock size={11} />
-                    Subscribers only
-                  </div>
-                )}
-
-                {isSubscribed && post.body && (
-                  <div className="px-3 pb-3">
-                    <p className="text-sm line-clamp-3 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                      {post.body}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm py-4 text-center" style={{ color: "var(--text-muted)" }}>
-            No posts yet.
-          </p>
-        )}
-      </div>
 
       {/* Divider */}
       <div className="mx-5 my-6 border-t" style={{ borderColor: "var(--border)" }} />

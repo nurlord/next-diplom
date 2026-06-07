@@ -514,7 +514,7 @@ function BroadcastSection({ chatId }: { chatId: number }) {
               <h5 className="font-bold text-sm">{b.title || "Untitled"}</h5>
               <Badge variant={b.status === "sent" ? "green" : "blue"}>{b.status}</Badge>
             </div>
-            <p className="text-xs text-neutral-400 leading-relaxed">{b.body}</p>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{b.body}</p>
             {b.status === "draft" && (
               <Button fullWidth size="sm" loading={isSending} onClick={() => sendB({ chatId, broadcastId: b.id })}>Send Now</Button>
             )}
@@ -531,10 +531,10 @@ function BroadcastSection({ chatId }: { chatId: number }) {
             <TextArea required value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="What's happening?" />
           </FormField>
           <div className="space-y-2">
-            <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest px-1">Live Preview</p>
-            <Card padding="sm" className="!bg-neutral-950 !border-blue-500/20">
-              <p className="font-bold text-sm text-white">{form.title || "Post Title"}</p>
-              <p className="text-xs text-neutral-400 mt-1">{form.body || "Post content will appear here..."}</p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest px-1">Live Preview</p>
+            <Card padding="sm" className="!bg-[var(--bg-subtle)] !border-[var(--border)]">
+              <p className="font-bold text-sm text-[var(--text-primary)]">{form.title || "Post Title"}</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-1">{form.body || "Post content will appear here..."}</p>
             </Card>
           </div>
           <Button type="submit" fullWidth size="lg" loading={isCreating}>Create Draft</Button>
@@ -584,12 +584,12 @@ function PromoSection({ chatId }: { chatId: number }) {
           </FormField>
           
           <FormField label="Discount Type">
-            <div className="flex p-1 bg-neutral-950 rounded-2xl border border-neutral-800">
+            <div className="flex p-1 bg-[var(--bg-subtle)] rounded-2xl border border-[var(--border)]">
               <button
                 type="button"
                 onClick={() => setForm({ ...form, discount_type: "fixed" })}
                 className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
-                  form.discount_type === "fixed" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500"
+                  form.discount_type === "fixed" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg" : "text-[var(--text-secondary)]"
                 }`}
               >
                 Fixed (TON)
@@ -598,7 +598,7 @@ function PromoSection({ chatId }: { chatId: number }) {
                 type="button"
                 onClick={() => setForm({ ...form, discount_type: "percent" })}
                 className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
-                  form.discount_type === "percent" ? "bg-neutral-800 text-white shadow-lg" : "text-neutral-500"
+                  form.discount_type === "percent" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg" : "text-[var(--text-secondary)]"
                 }`}
               >
                 Percent (%)
@@ -643,17 +643,17 @@ function ReviewsSection({ chatId }: { chatId: number }) {
         {reviews.map((r: any) => (
           <Card key={r.id} padding="sm" className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-white">{r.username || "Anonymous"}</span>
+              <span className="text-xs font-bold text-[var(--text-primary)]">{r.username || "Anonymous"}</span>
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={10} className={s <= (r.rating || 0) ? "fill-yellow-500 text-yellow-500" : "text-neutral-700"} />
+                  <Star key={s} size={10} className={s <= (r.rating || 0) ? "fill-yellow-500 text-yellow-500" : "text-[var(--text-muted)]"} />
                 ))}
               </div>
             </div>
-            <p className="text-xs text-neutral-400 leading-relaxed">{r.review_text}</p>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{r.review_text}</p>
           </Card>
         ))}
-        {!reviews.length && <Card className="!bg-neutral-900/50 !border-dashed text-center !p-10">No reviews found.</Card>}
+        {!reviews.length && <Card className="!bg-[var(--bg-subtle)] !border-dashed text-center !p-10 text-[var(--text-secondary)]">No reviews found.</Card>}
       </div>
     </div>
   );
