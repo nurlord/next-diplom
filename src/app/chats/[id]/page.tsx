@@ -242,7 +242,7 @@ export default function ChatSubscriptionPage() {
           boxShadow: "var(--shadow-card)",
         }}
       >
-        <Avatar text={chat.title} size="lg" />
+        <Avatar text={chat.title} src={chat.avatar} size="lg" />
         <div className="flex-1 min-w-0">
           <h1 className="font-semibold text-base truncate" style={{ color: "var(--text-primary)" }}>
             {chat.title}
