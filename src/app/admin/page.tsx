@@ -25,6 +25,7 @@ import { useAuthContext } from "@/providers/AuthProvider";
 import {
   queryKeys,
   useChats,
+  useChatById,
   useChatPlans,
   useCreateChatPlan,
   useChatAnalytics,
@@ -666,12 +667,28 @@ function SettingsSection({ chat }: { chat: any }) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { data: chatDetailRes } = useChatById(chat.id);
+  const chatDetail = chatDetailRes?.data || chat;
+
   const [form, setForm] = useState({
-    title: chat.title,
-    description: chat.description || "",
-    category_id: chat.category_id || 0,
-    is_active: chat.is_active,
+    title: chatDetail.title,
+    description: chatDetail.description || "",
+    category_id: chatDetail.category_id || 0,
+    is_active: chatDetail.is_active,
   });
+
+  useEffect(() => {
+    if (chatDetailRes?.data) {
+      setForm((prev) => ({
+        ...prev,
+        title: chatDetailRes.data.title || chat.title,
+        description: chatDetailRes.data.description || "",
+        category_id: chatDetailRes.data.category_id || 0,
+        is_active: chatDetailRes.data.is_active ?? chat.is_active,
+      }));
+    }
+  }, [chatDetailRes?.data, chat]);
+
   const [avatarPreview, setAvatarPreview] = useState<string | null>(chat.avatar || null);
   const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);

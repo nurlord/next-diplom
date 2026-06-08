@@ -234,7 +234,7 @@ export default function ExplorePage() {
             {filteredChats.map((chat) => (
               <Link href={`/chats/${chat.id}`} key={chat.id}>
                 <div className="bg-white border border-gray-100 shadow-sm p-3 rounded-xl flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-pointer mb-3">
-                  <Avatar text={chat.title} size="md" />
+                  <Avatar text={chat.title} src={chat.avatar} size="md" />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2">

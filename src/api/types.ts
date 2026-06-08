@@ -54,6 +54,7 @@ export interface Subscription {
   status?: string;
   subscription_id?: number;
   cancel_requested_at?: string;
+  chat_avatar?: string;
 }
 
 export interface SubscriptionEvent {

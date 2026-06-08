@@ -285,7 +285,7 @@ export default function HomePage() {
                   }`}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <Avatar text={sub.chat_title} size="md" />
+                    <Avatar text={sub.chat_title} src={sub.chat_avatar} size="md" />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-0.5">
                         <h3 className="font-semibold text-gray-900 truncate">
