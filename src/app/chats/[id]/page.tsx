@@ -255,7 +255,7 @@ export default function ChatSubscriptionPage() {
       {/* Description */}
       {chat.description && (
         <div className="mx-5 mt-3">
-          <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)", whiteSpace: "pre-wrap" }}>
             {chat.description}
           </p>
         </div>

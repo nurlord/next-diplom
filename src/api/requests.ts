@@ -2,18 +2,32 @@ import { apiClient } from "./client";
 import * as T from "./types";
 
 interface RawChat {
-  ID: number;
-  Title: string;
+  ID?: number;
+  id?: number;
+  Title?: string;
+  title?: string;
   Description?: string;
+  description?: string;
   Category?: string;
+  category?: string;
   CategoryID?: number;
+  category_id?: number;
   Type?: string;
+  type?: string;
   IsActive?: boolean;
+  is_active?: boolean;
   IsPremium?: boolean;
+  is_premium?: boolean;
   OwnerID?: number;
+  owner_id?: number;
   CreatedAt?: string;
+  created_at?: string;
   UpdatedAt?: string;
+  updated_at?: string;
   Username?: string;
+  username?: string;
+  Avatar?: string;
+  avatar?: string;
 }
 
 const cleanParams = <T extends object>(params?: T) => {
@@ -78,18 +92,19 @@ export const getChatById = (chat_id: number) =>
     .then((res) => {
       if (res.data) {
         res.data = {
-          id: res.data.ID,
-          title: res.data.Title,
-          description: res.data.Description,
-          category: res.data.Category,
-          category_id: res.data.CategoryID,
-          type: res.data.Type,
-          is_active: res.data.IsActive,
-          is_premium: res.data.IsPremium,
-          owner_id: res.data.OwnerID,
-          created_at: res.data.CreatedAt,
-          updated_at: res.data.UpdatedAt,
-          username: res.data.Username,
+          id: res.data.id ?? res.data.ID,
+          title: res.data.title ?? res.data.Title,
+          description: res.data.description ?? res.data.Description,
+          category: res.data.category ?? res.data.Category,
+          category_id: res.data.category_id ?? res.data.CategoryID,
+          type: res.data.type ?? res.data.Type,
+          is_active: res.data.is_active ?? res.data.IsActive,
+          is_premium: res.data.is_premium ?? res.data.IsPremium,
+          owner_id: res.data.owner_id ?? res.data.OwnerID,
+          created_at: res.data.created_at ?? res.data.CreatedAt,
+          updated_at: res.data.updated_at ?? res.data.UpdatedAt,
+          username: res.data.username ?? res.data.Username,
+          avatar: res.data.avatar ?? res.data.Avatar,
         } as unknown as RawChat; // Cast appropriately for the mapped structure
       }
       return res as unknown as T.ResponseEnvelope<T.Chat>;
