@@ -728,10 +728,11 @@ function SettingsSection({ chat }: { chat: any }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const { is_active, ...updateData } = form;
       await updateChat({
         chatId: chat.id,
         data: {
-          ...form,
+          ...updateData,
           ...(avatarBase64 !== null ? { avatar: avatarBase64 } : {}),
         },
       });
