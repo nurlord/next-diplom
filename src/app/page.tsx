@@ -312,15 +312,15 @@ export default function HomePage() {
                   <div className="flex gap-2 border-t border-gray-100 pt-3">
                     {sub.cancel_requested_at || optimisticCancelRequested.includes(sub.subscription_id!) ? (
                       <div className="px-3 py-2 text-xs font-medium text-gray-500 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border border-gray-100">
-                        Cancellation requested
+                        Cancel pending
                       </div>
                     ) : (
                       <button
                         onClick={() => sub.subscription_id && handleCancel(sub.subscription_id)}
-                        className="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center shrink-0 border border-red-100"
+                        className="px-3 py-2 text-xs font-medium text-red-500 bg-white hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center shrink-0 border border-gray-200 hover:border-red-200"
                         title="Request cancellation"
                       >
-                        Request cancellation
+                        Cancel
                       </button>
                     )}
                     <Link
