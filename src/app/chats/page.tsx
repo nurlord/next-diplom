@@ -91,7 +91,7 @@ export default function ChatsPage() {
                   <Avatar text={chat.title} src={chat.avatar} size="md" />
                   <div className="flex-1 min-w-0">
                     <p
-                      className="font-medium text-sm truncate"
+                      className="font-semibold truncate"
                       style={{ color: "var(--text-primary)" }}
                     >
                       {chat.title}
@@ -172,7 +172,7 @@ export default function ChatsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-0.5">
                       <p
-                        className="font-medium text-sm truncate"
+                        className="font-semibold truncate"
                         style={{ color: "var(--text-primary)" }}
                       >
                         {sub.chat_title}
