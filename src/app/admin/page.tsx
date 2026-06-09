@@ -4,7 +4,6 @@ import {
   TrendingUp,
   Users,
   ChevronDown,
-  MessageSquare,
   RotateCw,
   Plus,
   ShieldCheck,
@@ -46,7 +45,6 @@ import { fromNanoTON, toNanoTON } from "@/utils/ton";
 import { Avatar } from "@/components/ui/Avatar";
 import {
   PageWrapper,
-  PageHeader,
   Card,
   Badge,
   Button,
@@ -60,7 +58,7 @@ import {
 } from "@/components/ui";
 
 export default function AdminDashboard() {
-  const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
+  const { userId, isLoading: isAuthLoading } = useAuthContext();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -81,19 +79,25 @@ export default function AdminDashboard() {
   // Fetch all managed chats
   const { data: chatsRes, isLoading: chatsLoading } = useChats(
     userId ? { owner_id: userId } : undefined,
-    { enabled: !!userId }
+    { enabled: !!userId },
   );
   const chats = chatsRes?.data?.items || [];
 
   // Determine active chat
   const activeChatId = urlChatId ? parseInt(urlChatId) : null;
-  const myChat = chats.find((c) => c.id === activeChatId) || (chats.length > 0 ? chats[0] : null);
+  const myChat =
+    chats.find((c) => c.id === activeChatId) ||
+    (chats.length > 0 ? chats[0] : null);
 
   const handleSync = async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.chats });
     if (myChat?.id) {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.chatAnalytics(myChat.id) });
-      await queryClient.invalidateQueries({ queryKey: queryKeys.plans(myChat.id) });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chatAnalytics(myChat.id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.plans(myChat.id),
+      });
     }
     toast.success("Data synchronized");
   };
@@ -109,8 +113,10 @@ export default function AdminDashboard() {
     duration_days: "30",
   });
 
-  const { mutateAsync: createPlan, isPending: isCreatingPlan } = useCreateChatPlan();
-  const { mutateAsync: updatePlan, isPending: isUpdatingPlan } = useUpdatePlan();
+  const { mutateAsync: createPlan, isPending: isCreatingPlan } =
+    useCreateChatPlan();
+  const { mutateAsync: updatePlan, isPending: isUpdatingPlan } =
+    useUpdatePlan();
 
   const handleCreatePlan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +128,10 @@ export default function AdminDashboard() {
           title: newPlan.title,
           plan_type: newPlan.plan_type,
           price_nanoton: toNanoTON(newPlan.price).toString(),
-          duration_days: newPlan.plan_type === "lifetime" ? undefined : parseInt(newPlan.duration_days) || 30,
+          duration_days:
+            newPlan.plan_type === "lifetime"
+              ? undefined
+              : parseInt(newPlan.duration_days) || 30,
           trial_days: 0,
         } as any,
       });
@@ -165,13 +174,21 @@ export default function AdminDashboard() {
     <PageWrapper>
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
-        <Link href="/chats" className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors group">
+        <Link
+          href="/chats"
+          className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors group"
+        >
           <div className="p-2 bg-[var(--bg-subtle)] rounded-lg border border-[var(--border)] group-hover:border-[var(--border-subtle)]">
             <ChevronDown className="rotate-90" size={18} />
           </div>
           <span className="text-sm font-semibold tracking-wide">Dashboard</span>
         </Link>
-        <Button variant="secondary" size="sm" icon={RotateCw} onClick={handleSync} />
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={RotateCw}
+          onClick={handleSync}
+        />
       </div>
 
       {/* Selected Chat Header */}
@@ -180,7 +197,10 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-4">
             <Avatar text={myChat.title} src={myChat.avatar} size="lg" />
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold truncate" style={{ color: "var(--text-primary)" }}>
+              <h2
+                className="text-base font-semibold truncate"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {myChat.title}
               </h2>
               <div className="flex items-center gap-2 mt-1">
@@ -193,10 +213,20 @@ export default function AdminDashboard() {
       ) : (
         <div
           className="p-8 rounded-xl border border-dashed text-center"
-          style={{ background: "var(--bg-subtle)", borderColor: "var(--border-dashed)" }}
+          style={{
+            background: "var(--bg-subtle)",
+            borderColor: "var(--border-dashed)",
+          }}
         >
-          <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>No channel selected.</p>
-          <Button icon={Plus} onClick={() => setShowRegisterModal(true)}>Register Channel</Button>
+          <p
+            className="text-sm mb-4"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            No channel selected.
+          </p>
+          <Button icon={Plus} onClick={() => setShowRegisterModal(true)}>
+            Register Channel
+          </Button>
         </div>
       )}
 
@@ -247,9 +277,15 @@ export default function AdminDashboard() {
               }}
             />
           )}
-          {activeTab === "subscribers" && <SubscribersSection chatId={myChat.id} />}
-          {activeTab === "cancel-requests" && <CancelRequestsSection chatId={myChat.id} />}
-          {activeTab === "broadcasts" && <BroadcastSection chatId={myChat.id} />}
+          {activeTab === "subscribers" && (
+            <SubscribersSection chatId={myChat.id} />
+          )}
+          {activeTab === "cancel-requests" && (
+            <CancelRequestsSection chatId={myChat.id} />
+          )}
+          {activeTab === "broadcasts" && (
+            <BroadcastSection chatId={myChat.id} />
+          )}
           {activeTab === "promo" && <PromoSection chatId={myChat.id} />}
           {activeTab === "reviews" && <ReviewsSection chatId={myChat.id} />}
           {activeTab === "settings" && <SettingsSection chat={myChat} />}
@@ -257,24 +293,37 @@ export default function AdminDashboard() {
       )}
 
       {/* Modals */}
-      <Modal isOpen={showPlanModal} onClose={() => setShowPlanModal(false)} title="Create Plan" icon={TrendingUp}>
+      <Modal
+        isOpen={showPlanModal}
+        onClose={() => setShowPlanModal(false)}
+        title="Create Plan"
+        icon={TrendingUp}
+      >
         <form onSubmit={handleCreatePlan} className="space-y-6">
           <FormField label="Billing Type">
             <div className="flex p-1 bg-[var(--bg-subtle)] rounded-xl border border-[var(--border)]">
               <button
                 type="button"
-                onClick={() => setNewPlan({ ...newPlan, plan_type: "periodic" })}
+                onClick={() =>
+                  setNewPlan({ ...newPlan, plan_type: "periodic" })
+                }
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                  newPlan.plan_type === "periodic" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  newPlan.plan_type === "periodic"
+                    ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 Periodic
               </button>
               <button
                 type="button"
-                onClick={() => setNewPlan({ ...newPlan, plan_type: "lifetime" })}
+                onClick={() =>
+                  setNewPlan({ ...newPlan, plan_type: "lifetime" })
+                }
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                  newPlan.plan_type === "lifetime" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  newPlan.plan_type === "lifetime"
+                    ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 Lifetime
@@ -286,7 +335,9 @@ export default function AdminDashboard() {
               required
               placeholder="e.g. Premium Monthly"
               value={newPlan.title}
-              onChange={(e) => setNewPlan({ ...newPlan, title: e.target.value })}
+              onChange={(e) =>
+                setNewPlan({ ...newPlan, title: e.target.value })
+              }
             />
           </FormField>
           <div className="grid grid-cols-2 gap-4">
@@ -296,7 +347,9 @@ export default function AdminDashboard() {
                 type="number"
                 step="0.1"
                 value={newPlan.price}
-                onChange={(e) => setNewPlan({ ...newPlan, price: e.target.value })}
+                onChange={(e) =>
+                  setNewPlan({ ...newPlan, price: e.target.value })
+                }
               />
             </FormField>
             {newPlan.plan_type === "periodic" && (
@@ -305,20 +358,34 @@ export default function AdminDashboard() {
                   required
                   type="number"
                   value={newPlan.duration_days}
-                  onChange={(e) => setNewPlan({ ...newPlan, duration_days: e.target.value })}
+                  onChange={(e) =>
+                    setNewPlan({ ...newPlan, duration_days: e.target.value })
+                  }
                 />
               </FormField>
             )}
           </div>
-          <Button type="submit" fullWidth size="lg" loading={isCreatingPlan}>Create Plan</Button>
+          <Button type="submit" fullWidth size="lg" loading={isCreatingPlan}>
+            Create Plan
+          </Button>
         </form>
       </Modal>
 
-      <Modal isOpen={showEditPlanModal} onClose={() => setShowEditPlanModal(false)} title="Edit Plan" icon={Settings}>
+      <Modal
+        isOpen={showEditPlanModal}
+        onClose={() => setShowEditPlanModal(false)}
+        title="Edit Plan"
+        icon={Settings}
+      >
         {editingPlan && (
           <form onSubmit={handleUpdatePlan} className="space-y-6">
             <FormField label="Status">
-              <Select value={editingPlan.status} onChange={(e) => setEditingPlan({ ...editingPlan, status: e.target.value })}>
+              <Select
+                value={editingPlan.status}
+                onChange={(e) =>
+                  setEditingPlan({ ...editingPlan, status: e.target.value })
+                }
+              >
                 <option value="active">Active</option>
                 <option value="disabled">Disabled</option>
                 <option value="archived">Archived</option>
@@ -330,21 +397,43 @@ export default function AdminDashboard() {
                 type="number"
                 step="0.1"
                 value={editingPlan.price}
-                onChange={(e) => setEditingPlan({ ...editingPlan, price: e.target.value })}
+                onChange={(e) =>
+                  setEditingPlan({ ...editingPlan, price: e.target.value })
+                }
               />
             </FormField>
-            <Button type="submit" fullWidth size="lg" loading={isUpdatingPlan}>Save Changes</Button>
+            <Button type="submit" fullWidth size="lg" loading={isUpdatingPlan}>
+              Save Changes
+            </Button>
           </form>
         )}
       </Modal>
 
-      <Modal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} title="Register" icon={ShieldCheck}>
+      <Modal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        title="Register"
+        icon={ShieldCheck}
+      >
         <div className="text-center space-y-4">
           <p className="text-sm text-neutral-500 leading-relaxed">
             Add our bot as an administrator to your Telegram channel first.
           </p>
-          <Button fullWidth onClick={() => window.open("https://t.me/ton_jazylym_bot", "_blank")}>Open Bot</Button>
-          <Button variant="secondary" fullWidth onClick={() => setShowRegisterModal(false)}>Close</Button>
+          <Button
+            fullWidth
+            onClick={() =>
+              window.open("https://t.me/ton_jazylym_bot", "_blank")
+            }
+          >
+            Open Bot
+          </Button>
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={() => setShowRegisterModal(false)}
+          >
+            Close
+          </Button>
         </div>
       </Modal>
     </PageWrapper>
@@ -360,8 +449,17 @@ function AnalyticsSummary({ chatId }: { chatId: number }) {
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      <StatCard label="Subscribers" value={analytics.total_subscribers} icon={Users} />
-      <StatCard label="Earnings" value={fromNanoTON(analytics.revenue_confirmed)} suffix="TON" icon={Activity} />
+      <StatCard
+        label="Subscribers"
+        value={analytics.total_subscribers}
+        icon={Users}
+      />
+      <StatCard
+        label="Earnings"
+        value={fromNanoTON(analytics.revenue_confirmed)}
+        suffix="TON"
+        icon={Activity}
+      />
     </div>
   );
 }
@@ -372,32 +470,67 @@ function PlansSection({ chatId, onAddPlan, onEditPlan }: any) {
 
   return (
     <div className="space-y-4">
-      <SectionHeader title="Active Plans" action={<Button variant="ghost" size="sm" icon={Plus} onClick={onAddPlan} className="!text-blue-400">New Plan</Button>} />
+      <SectionHeader
+        title="Active Plans"
+        action={
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={Plus}
+            onClick={onAddPlan}
+            className="!text-blue-400"
+          >
+            New Plan
+          </Button>
+        }
+      />
       <div className="space-y-3">
         {plans.map((plan: any) => (
-          <Card key={plan.id} interactive className="group" padding="sm" onClick={() => onEditPlan(plan)}>
+          <Card
+            key={plan.id}
+            interactive
+            className="group"
+            padding="sm"
+            onClick={() => onEditPlan(plan)}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg bg-[var(--bg-subtle)] text-[var(--text-primary)] flex items-center justify-center font-bold">
                   {plan.plan_type === "lifetime" ? "∞" : "D"}
                 </div>
                 <div>
-                  <h5 className="font-semibold text-[var(--text-primary)]">{plan.title}</h5>
+                  <h5 className="font-semibold text-[var(--text-primary)]">
+                    {plan.title}
+                  </h5>
                   <p className="text-xs text-[var(--text-secondary)] font-medium mt-0.5">
-                    {plan.plan_type === "lifetime" ? "Lifetime Access" : `${plan.duration_days} Days Billing`}
+                    {plan.plan_type === "lifetime"
+                      ? "Lifetime Access"
+                      : `${plan.duration_days} Days Billing`}
                   </p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-lg font-semibold text-[var(--text-primary)] leading-none">
-                  {fromNanoTON(plan.price_nanoton)} <span className="text-[10px] font-normal text-[var(--text-muted)]">TON</span>
+                  {fromNanoTON(plan.price_nanoton)}{" "}
+                  <span className="text-[10px] font-normal text-[var(--text-muted)]">
+                    TON
+                  </span>
                 </p>
-                <Badge variant={plan.status === "active" ? "green" : "red"} className="mt-1">{plan.status}</Badge>
+                <Badge
+                  variant={plan.status === "active" ? "green" : "red"}
+                  className="mt-1"
+                >
+                  {plan.status}
+                </Badge>
               </div>
             </div>
           </Card>
         ))}
-        {!plans.length && <Card className="!bg-[var(--bg-subtle)] !border-dashed text-center !p-10 text-[var(--text-secondary)]">No plans created yet.</Card>}
+        {!plans.length && (
+          <Card className="!bg-[var(--bg-subtle)] !border-dashed text-center !p-10 text-[var(--text-secondary)]">
+            No plans created yet.
+          </Card>
+        )}
       </div>
     </div>
   );
@@ -411,43 +544,75 @@ function SubscribersSection({ chatId }: { chatId: number }) {
   return (
     <div className="space-y-4">
       <SectionHeader title="Subscribers" />
-      <Card padding="none" className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]">
+      <Card
+        padding="none"
+        className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]"
+      >
         {subscribers.map((sub: any) => (
-          <div key={sub.subscription_id} className="p-4 flex items-center justify-between border-[var(--border)]">
+          <div
+            key={sub.subscription_id}
+            className="p-4 flex items-center justify-between border-[var(--border)]"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[var(--bg-subtle)] text-[var(--text-primary)] flex items-center justify-center font-semibold text-sm uppercase">
                 {sub.username?.[0] || "?"}
               </div>
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">{sub.username || `User #${sub.user_id}`}</p>
-                <Badge variant={sub.status === "active" ? "green" : "neutral"} className="!text-[10px]">{sub.status}</Badge>
+                <p className="text-sm font-medium text-[var(--text-primary)]">
+                  {sub.username || `User #${sub.user_id}`}
+                </p>
+                <Badge
+                  variant={sub.status === "active" ? "green" : "neutral"}
+                  className="!text-[10px]"
+                >
+                  {sub.status}
+                </Badge>
               </div>
             </div>
             <Select
               className="!w-auto !py-1 !px-2 !text-xs !rounded-lg"
               value={sub.status}
-              onChange={(e) => updateStatus({ chatId, subscriptionId: sub.subscription_id, data: { status: e.target.value } })}
+              onChange={(e) =>
+                updateStatus({
+                  chatId,
+                  subscriptionId: sub.subscription_id,
+                  data: { status: e.target.value },
+                })
+              }
             >
               <option value="active">Active</option>
               <option value="disabled">Disabled</option>
             </Select>
           </div>
         ))}
-        {!subscribers.length && <div className="p-10 text-center text-sm text-[var(--text-secondary)]">No subscribers found.</div>}
+        {!subscribers.length && (
+          <div className="p-10 text-center text-sm text-[var(--text-secondary)]">
+            No subscribers found.
+          </div>
+        )}
       </Card>
     </div>
   );
 }
 
 function CancelRequestsSection({ chatId }: { chatId: number }) {
-  const { data: subsRes } = useChatSubscriptions(chatId, { status: "active", cancel_requested: true, limit: 50 });
+  const { data: subsRes } = useChatSubscriptions(chatId, {
+    status: "active",
+    cancel_requested: true,
+    limit: 50,
+  });
   const requests = subsRes?.data?.items || [];
-  const { mutateAsync: updateStatus, isPending } = useUpdateChatSubscriptionStatus();
+  const { mutateAsync: updateStatus, isPending } =
+    useUpdateChatSubscriptionStatus();
   const toast = useToast();
 
   const handleApprove = async (subId: number) => {
     try {
-      await updateStatus({ chatId, subscriptionId: subId, data: { status: "canceled" } });
+      await updateStatus({
+        chatId,
+        subscriptionId: subId,
+        data: { status: "canceled" },
+      });
       toast.success("Subscription canceled successfully.");
     } catch (e) {
       toast.handleError(e);
@@ -457,16 +622,26 @@ function CancelRequestsSection({ chatId }: { chatId: number }) {
   return (
     <div className="space-y-4">
       <SectionHeader title="Cancellation Requests" />
-      <Card padding="none" className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]">
+      <Card
+        padding="none"
+        className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]"
+      >
         {requests.map((sub: any) => (
-          <div key={sub.subscription_id} className="p-4 flex items-center justify-between border-[var(--border)]">
+          <div
+            key={sub.subscription_id}
+            className="p-4 flex items-center justify-between border-[var(--border)]"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[var(--bg-subtle)] text-[var(--text-primary)] flex items-center justify-center font-semibold text-sm uppercase">
                 {sub.username?.[0] || "?"}
               </div>
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">{sub.username || `User #${sub.user_id}`}</p>
-                <p className="text-xs text-[var(--text-secondary)]">Requested cancellation</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">
+                  {sub.username || `User #${sub.user_id}`}
+                </p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Requested cancellation
+                </p>
               </div>
             </div>
             <Button
@@ -478,7 +653,11 @@ function CancelRequestsSection({ chatId }: { chatId: number }) {
             </Button>
           </div>
         ))}
-        {!requests.length && <div className="p-10 text-center text-sm text-[var(--text-secondary)]">No pending requests.</div>}
+        {!requests.length && (
+          <div className="p-10 text-center text-sm text-[var(--text-secondary)]">
+            No pending requests.
+          </div>
+        )}
       </Card>
     </div>
   );
@@ -507,38 +686,88 @@ function BroadcastSection({ chatId }: { chatId: number }) {
 
   return (
     <div className="space-y-4">
-      <SectionHeader title="Broadcasts" action={<Button variant="ghost" size="sm" icon={Plus} onClick={() => setShowModal(true)} className="!text-blue-400">New Post</Button>} />
+      <SectionHeader
+        title="Broadcasts"
+        action={
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={Plus}
+            onClick={() => setShowModal(true)}
+            className="!text-blue-400"
+          >
+            New Post
+          </Button>
+        }
+      />
       <div className="space-y-3">
         {broadcasts.map((b: any) => (
           <Card key={b.id} padding="md" className="space-y-3">
             <div className="flex justify-between items-center">
               <h5 className="font-bold text-sm">{b.title || "Untitled"}</h5>
-              <Badge variant={b.status === "sent" ? "green" : "blue"}>{b.status}</Badge>
+              <Badge variant={b.status === "sent" ? "green" : "blue"}>
+                {b.status}
+              </Badge>
             </div>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{b.body}</p>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              {b.body}
+            </p>
             {b.status === "draft" && (
-              <Button fullWidth size="sm" loading={isSending} onClick={() => sendB({ chatId, broadcastId: b.id })}>Send Now</Button>
+              <Button
+                fullWidth
+                size="sm"
+                loading={isSending}
+                onClick={() => sendB({ chatId, broadcastId: b.id })}
+              >
+                Send Now
+              </Button>
             )}
           </Card>
         ))}
       </div>
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="New Broadcast" icon={Zap}>
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="New Broadcast"
+        icon={Zap}
+      >
         <form onSubmit={handleCreate} className="space-y-6">
           <FormField label="Post Title">
-            <Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Catchy headline" />
+            <Input
+              required
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Catchy headline"
+            />
           </FormField>
           <FormField label="Content Body">
-            <TextArea required value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="What's happening?" />
+            <TextArea
+              required
+              value={form.body}
+              onChange={(e) => setForm({ ...form, body: e.target.value })}
+              placeholder="What's happening?"
+            />
           </FormField>
           <div className="space-y-2">
-            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest px-1">Live Preview</p>
-            <Card padding="sm" className="!bg-[var(--bg-subtle)] !border-[var(--border)]">
-              <p className="font-bold text-sm text-[var(--text-primary)]">{form.title || "Post Title"}</p>
-              <p className="text-xs text-[var(--text-secondary)] mt-1">{form.body || "Post content will appear here..."}</p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest px-1">
+              Live Preview
+            </p>
+            <Card
+              padding="sm"
+              className="!bg-[var(--bg-subtle)] !border-[var(--border)]"
+            >
+              <p className="font-bold text-sm text-[var(--text-primary)]">
+                {form.title || "Post Title"}
+              </p>
+              <p className="text-xs text-[var(--text-secondary)] mt-1">
+                {form.body || "Post content will appear here..."}
+              </p>
             </Card>
           </div>
-          <Button type="submit" fullWidth size="lg" loading={isCreating}>Create Draft</Button>
+          <Button type="submit" fullWidth size="lg" loading={isCreating}>
+            Create Draft
+          </Button>
         </form>
       </Modal>
     </div>
@@ -546,11 +775,11 @@ function BroadcastSection({ chatId }: { chatId: number }) {
 }
 
 function PromoSection({ chatId }: { chatId: number }) {
-  const [form, setForm] = useState({ 
-    code: "", 
+  const [form, setForm] = useState({
+    code: "",
     discount_type: "fixed" as "fixed" | "percent",
-    discount_value: "0.1", 
-    max_redemptions: 10 
+    discount_value: "0.1",
+    max_redemptions: 10,
   });
   const { mutateAsync: createPromo, isPending } = useCreatePromoCode();
   const toast = useToast();
@@ -563,12 +792,20 @@ function PromoSection({ chatId }: { chatId: number }) {
         data: {
           code: form.code,
           discount_type: form.discount_type,
-          discount_value: form.discount_type === "fixed" ? toNanoTON(form.discount_value) : parseInt(form.discount_value),
+          discount_value:
+            form.discount_type === "fixed"
+              ? toNanoTON(form.discount_value)
+              : parseInt(form.discount_value),
           max_redemptions: form.max_redemptions,
           is_active: true,
         },
       });
-      setForm({ code: "", discount_type: "fixed", discount_value: "0.1", max_redemptions: 10 });
+      setForm({
+        code: "",
+        discount_type: "fixed",
+        discount_value: "0.1",
+        max_redemptions: 10,
+      });
       toast.success("Promo code created");
     } catch (err) {
       toast.handleError(err);
@@ -581,16 +818,25 @@ function PromoSection({ chatId }: { chatId: number }) {
       <Card>
         <form onSubmit={handleCreate} className="space-y-4">
           <FormField label="Code Name">
-            <Input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="SUMMER2024" />
+            <Input
+              required
+              value={form.code}
+              onChange={(e) =>
+                setForm({ ...form, code: e.target.value.toUpperCase() })
+              }
+              placeholder="SUMMER2024"
+            />
           </FormField>
-          
+
           <FormField label="Discount Type">
             <div className="flex p-1 bg-[var(--bg-subtle)] rounded-2xl border border-[var(--border)]">
               <button
                 type="button"
                 onClick={() => setForm({ ...form, discount_type: "fixed" })}
                 className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
-                  form.discount_type === "fixed" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg" : "text-[var(--text-secondary)]"
+                  form.discount_type === "fixed"
+                    ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg"
+                    : "text-[var(--text-secondary)]"
                 }`}
               >
                 Fixed (TON)
@@ -599,7 +845,9 @@ function PromoSection({ chatId }: { chatId: number }) {
                 type="button"
                 onClick={() => setForm({ ...form, discount_type: "percent" })}
                 className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${
-                  form.discount_type === "percent" ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg" : "text-[var(--text-secondary)]"
+                  form.discount_type === "percent"
+                    ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg"
+                    : "text-[var(--text-secondary)]"
                 }`}
               >
                 Percent (%)
@@ -608,25 +856,40 @@ function PromoSection({ chatId }: { chatId: number }) {
           </FormField>
 
           <div className="grid grid-cols-2 gap-4">
-            <FormField label={form.discount_type === "fixed" ? "Discount (TON)" : "Discount (%)"}>
-              <Input 
-                required 
-                type="number" 
-                step={form.discount_type === "fixed" ? "0.01" : "1"} 
-                value={form.discount_value} 
-                onChange={(e) => setForm({ ...form, discount_value: e.target.value })} 
+            <FormField
+              label={
+                form.discount_type === "fixed"
+                  ? "Discount (TON)"
+                  : "Discount (%)"
+              }
+            >
+              <Input
+                required
+                type="number"
+                step={form.discount_type === "fixed" ? "0.01" : "1"}
+                value={form.discount_value}
+                onChange={(e) =>
+                  setForm({ ...form, discount_value: e.target.value })
+                }
               />
             </FormField>
             <FormField label="Max Redemptions">
-              <Input 
-                required 
-                type="number" 
-                value={form.max_redemptions} 
-                onChange={(e) => setForm({ ...form, max_redemptions: parseInt(e.target.value) })} 
+              <Input
+                required
+                type="number"
+                value={form.max_redemptions}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    max_redemptions: parseInt(e.target.value),
+                  })
+                }
               />
             </FormField>
           </div>
-          <Button type="submit" fullWidth loading={isPending} icon={Plus}>Generate Promo Code</Button>
+          <Button type="submit" fullWidth loading={isPending} icon={Plus}>
+            Generate Promo Code
+          </Button>
         </form>
       </Card>
     </div>
@@ -644,17 +907,33 @@ function ReviewsSection({ chatId }: { chatId: number }) {
         {reviews.map((r: any) => (
           <Card key={r.id} padding="sm" className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-[var(--text-primary)]">{r.username || "Anonymous"}</span>
+              <span className="text-xs font-bold text-[var(--text-primary)]">
+                {r.username || "Anonymous"}
+              </span>
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={10} className={s <= (r.rating || 0) ? "fill-yellow-500 text-yellow-500" : "text-[var(--text-muted)]"} />
+                  <Star
+                    key={s}
+                    size={10}
+                    className={
+                      s <= (r.rating || 0)
+                        ? "fill-yellow-500 text-yellow-500"
+                        : "text-[var(--text-muted)]"
+                    }
+                  />
                 ))}
               </div>
             </div>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{r.review_text}</p>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              {r.review_text}
+            </p>
           </Card>
         ))}
-        {!reviews.length && <Card className="!bg-[var(--bg-subtle)] !border-dashed text-center !p-10 text-[var(--text-secondary)]">No reviews found.</Card>}
+        {!reviews.length && (
+          <Card className="!bg-[var(--bg-subtle)] !border-dashed text-center !p-10 text-[var(--text-secondary)]">
+            No reviews found.
+          </Card>
+        )}
       </div>
     </div>
   );
@@ -689,7 +968,9 @@ function SettingsSection({ chat }: { chat: any }) {
     }
   }, [chatDetailRes?.data, chat]);
 
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(chat.avatar || null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    chat.avatar || null,
+  );
   const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const toast = useToast();
@@ -750,17 +1031,32 @@ function SettingsSection({ chat }: { chat: any }) {
 
       {/* Avatar Upload */}
       <Card>
-        <p className="text-xs font-medium mb-3" style={{ color: "var(--text-secondary)" }}>Channel Avatar</p>
+        <p
+          className="text-xs font-medium mb-3"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          Channel Avatar
+        </p>
         <div className="flex items-center gap-4">
           {/* Preview */}
           <div
             className="w-16 h-16 rounded-xl overflow-hidden border flex items-center justify-center shrink-0"
-            style={{ borderColor: "var(--border)", background: "var(--bg-muted)" }}
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--bg-muted)",
+            }}
           >
             {avatarPreview ? (
-              <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
+              <img
+                src={avatarPreview}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <span className="text-xl font-semibold" style={{ color: "var(--text-muted)" }}>
+              <span
+                className="text-xl font-semibold"
+                style={{ color: "var(--text-muted)" }}
+              >
                 {chat.title?.[0]?.toUpperCase() || "?"}
               </span>
             )}
@@ -805,7 +1101,9 @@ function SettingsSection({ chat }: { chat: any }) {
           />
         </div>
         {avatarError && (
-          <p className="text-xs mt-2" style={{ color: "#dc2626" }}>{avatarError}</p>
+          <p className="text-xs mt-2" style={{ color: "#dc2626" }}>
+            {avatarError}
+          </p>
         )}
         {avatarBase64 && (
           <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>
@@ -818,23 +1116,42 @@ function SettingsSection({ chat }: { chat: any }) {
       <Card>
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Channel Title">
-            <Input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+            <Input
+              required
+              disabled
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
           </FormField>
           <FormField label="Description">
-            <TextArea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <TextArea
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+            />
           </FormField>
           <FormField label="Category">
-            <Select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}>
+            <Select
+              value={form.category_id}
+              onChange={(e) =>
+                setForm({ ...form, category_id: Number(e.target.value) })
+              }
+            >
               <option value={0}>Uncategorized</option>
               {categories.map((cat: any) => (
-                <option key={cat.id} value={cat.id}>{cat.category}</option>
+                <option key={cat.id} value={cat.id}>
+                  {cat.category}
+                </option>
               ))}
             </Select>
           </FormField>
 
           {/* Removed Visibility toggle */}
 
-          <Button type="submit" fullWidth loading={isPending}>Save Settings</Button>
+          <Button type="submit" fullWidth loading={isPending}>
+            Save Settings
+          </Button>
         </form>
       </Card>
 
@@ -844,9 +1161,15 @@ function SettingsSection({ chat }: { chat: any }) {
         style={{ background: "#fff5f5", borderColor: "#fecaca" }}
       >
         <div>
-          <p className="text-xs font-semibold mb-1" style={{ color: "#dc2626" }}>Archive Chat</p>
+          <p
+            className="text-xs font-semibold mb-1"
+            style={{ color: "#dc2626" }}
+          >
+            Archive Chat
+          </p>
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Archiving will disable new subscriptions, gifts, and promos. Active subscriptions become disabled.
+            Archiving will disable new subscriptions, gifts, and promos. Active
+            subscriptions become disabled.
           </p>
         </div>
         <ArchiveChatButton chatId={chat.id} />
@@ -860,7 +1183,11 @@ function ArchiveChatButton({ chatId }: { chatId: number }) {
   const toast = useToast();
 
   const handleArchive = async () => {
-    if (confirm("Are you sure you want to archive this chat? This cannot be undone from the app.")) {
+    if (
+      confirm(
+        "Are you sure you want to archive this chat? This cannot be undone from the app.",
+      )
+    ) {
       try {
         await archive(chatId);
         toast.success("Chat archived successfully.");
