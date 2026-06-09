@@ -274,7 +274,7 @@ export default function HomePage() {
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-4">
             {subscriptions.map((sub) => {
               const badge = getExpiryBadge(sub.expires_at);
               return (
