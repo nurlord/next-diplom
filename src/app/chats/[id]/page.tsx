@@ -390,13 +390,15 @@ export default function ChatSubscriptionPage() {
 
                 <button
                   onClick={() => handleSubscribe(tier.id!, tier.price_nanoton)}
-                  disabled={loadingPlanId !== null || isSubscribing || isApplyingPromo}
-                  className="w-full py-2.5 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
-                  style={{ background: "var(--accent)", color: "var(--text-inverse)" }}
-                  onMouseEnter={e => !(loadingPlanId !== null) && ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-hover)")}
-                  onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent)")}
+                  disabled={isSubscribed || loadingPlanId !== null || isSubscribing || isApplyingPromo}
+                  className="w-full py-2.5 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ background: isSubscribed ? "var(--bg-muted)" : "var(--accent)", color: isSubscribed ? "var(--text-muted)" : "var(--text-inverse)" }}
+                  onMouseEnter={e => !(isSubscribed || loadingPlanId !== null) && ((e.currentTarget as HTMLButtonElement).style.background = "var(--accent-hover)")}
+                  onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = isSubscribed ? "var(--bg-muted)" : "var(--accent)")}
                 >
-                  {loadingPlanId === tier.id || isSubscribing ? (
+                  {isSubscribed ? (
+                    "Subscribed"
+                  ) : loadingPlanId === tier.id || isSubscribing ? (
                     <span className="flex items-center gap-2">
                       <Loader2 size={14} className="animate-spin" />
                       {paymentStep === "init" && "Initializing..."}
