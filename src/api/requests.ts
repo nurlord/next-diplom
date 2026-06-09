@@ -1,9 +1,26 @@
 import { apiClient } from "./client";
 import * as T from "./types";
 
-const cleanParams = (params?: Record<string, any>) => {
+interface RawChat {
+  ID: number;
+  Title: string;
+  Description?: string;
+  Category?: string;
+  CategoryID?: number;
+  Type?: string;
+  IsActive?: boolean;
+  IsPremium?: boolean;
+  OwnerID?: number;
+  CreatedAt?: string;
+  UpdatedAt?: string;
+  Username?: string;
+}
+
+const cleanParams = <T extends object>(params?: T) => {
   if (!params) return undefined;
-  return Object.fromEntries(Object.entries(params).filter(([_, v]) => v !== undefined)) as any;
+  return Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined),
+  ) as Record<string, string | number | boolean>;
 };
 
 // Auth
@@ -57,7 +74,7 @@ export const getChatCategories = () =>
 export const getChatById = (chat_id: number) =>
   apiClient
     .get(`api/chats/${chat_id}`)
-    .json<T.ResponseEnvelope<any>>()
+    .json<T.ResponseEnvelope<RawChat>>()
     .then((res) => {
       if (res.data) {
         res.data = {
@@ -73,9 +90,9 @@ export const getChatById = (chat_id: number) =>
           created_at: res.data.CreatedAt,
           updated_at: res.data.UpdatedAt,
           username: res.data.Username,
-        };
+        } as unknown as RawChat; // Cast appropriately for the mapped structure
       }
-      return res as T.ResponseEnvelope<T.Chat>;
+      return res as unknown as T.ResponseEnvelope<T.Chat>;
     });
 
 export const updateChat = (chat_id: number, data: T.UpdateChatReq) =>
@@ -84,9 +101,7 @@ export const updateChat = (chat_id: number, data: T.UpdateChatReq) =>
     .json<T.ResponseEnvelope<T.Chat>>();
 
 export const archiveChat = (chat_id: number) =>
-  apiClient
-    .post(`api/chats/${chat_id}/archive`)
-    .json<{ status: string }>();
+  apiClient.post(`api/chats/${chat_id}/archive`).json<{ status: string }>();
 
 // Plans
 export const getChatPlans = (chat_id: number) =>
@@ -130,7 +145,9 @@ export const getChatSubscriptions = (
   params?: GetChatSubscriptionsParams,
 ) =>
   apiClient
-    .get(`api/chats/${chat_id}/subscriptions`, { searchParams: cleanParams(params) })
+    .get(`api/chats/${chat_id}/subscriptions`, {
+      searchParams: cleanParams(params),
+    })
     .json<T.ResponseEnvelope<T.PaginationData<T.ChatSubscription>>>();
 
 export const getChatSubscriptionStats = (chat_id: number) =>
@@ -195,12 +212,22 @@ export const getInviteLink = (chat_id: number) =>
     .get(`api/subscriptions/${chat_id}/invite`)
     .json<T.ResponseEnvelope<{ invite_link: string }>>();
 
-export const initSubscribePayment = (chat_id: number, plan_id: number, promo_code?: string) =>
+export const initSubscribePayment = (
+  chat_id: number,
+  plan_id: number,
+  promo_code?: string,
+) =>
   apiClient
-    .get(`api/subscriptions/${chat_id}/${plan_id}/init`, { searchParams: cleanParams({ promo_code }) })
+    .get(`api/subscriptions/${chat_id}/${plan_id}/init`, {
+      searchParams: cleanParams({ promo_code }),
+    })
     .json<T.ResponseEnvelope<T.SubscribeInitResponse>>();
 
-export const subscribeToPlan = (chat_id: number, plan_id: number, data: T.SubscribeWithTONReq) =>
+export const subscribeToPlan = (
+  chat_id: number,
+  plan_id: number,
+  data: T.SubscribeWithTONReq,
+) =>
   apiClient
     .post(`api/subscriptions/${chat_id}/${plan_id}`, { json: data })
     .json<
@@ -208,7 +235,9 @@ export const subscribeToPlan = (chat_id: number, plan_id: number, data: T.Subscr
     >();
 
 export const requestCancelSubscription = (subscription_id: number) =>
-  apiClient.post(`api/subscription-cancel-requests/${subscription_id}`).json<{ status: string }>();
+  apiClient
+    .post(`api/subscription-cancel-requests/${subscription_id}`)
+    .json<{ status: string }>();
 
 // --- Reviews ---
 export const submitReview = (chat_id: number, data: T.SubmitReviewReq) =>
@@ -303,7 +332,9 @@ export const listBroadcasts = (
   params?: { status?: string; limit?: number; offset?: number },
 ) =>
   apiClient
-    .get(`api/chats/${chat_id}/broadcasts`, { searchParams: cleanParams(params) })
+    .get(`api/chats/${chat_id}/broadcasts`, {
+      searchParams: cleanParams(params),
+    })
     .json<
       T.ResponseEnvelope<{
         items: T.Broadcast[];
@@ -366,7 +397,9 @@ export const applyPromoCode = (plan_id: number, data: T.ApplyPromoCodeReq) =>
 // --- Analytics ---
 export const getChatAnalytics = (chat_id: number, params?: T.AnalyticsFilter) =>
   apiClient
-    .get(`api/chats/${chat_id}/analytics`, { searchParams: cleanParams(params) })
+    .get(`api/chats/${chat_id}/analytics`, {
+      searchParams: cleanParams(params),
+    })
     .json<T.ResponseEnvelope<T.ChatMetrics>>();
 
 export const getCreatorAnalytics = (params?: T.AnalyticsFilter) =>

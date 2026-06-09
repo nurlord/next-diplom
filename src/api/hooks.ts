@@ -1,28 +1,32 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as requests from './requests';
-import * as T from './types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as requests from "./requests";
+import * as T from "./types";
 
 export const queryKeys = {
-  user: ['user'] as const,
-  chats: ['chats'] as const,
-  chat: (id: number) => ['chats', id] as const,
-  categories: ['categories'] as const,
-  plans: (chatId: number) => ['plans', chatId] as const,
-  plan: (planId: number) => ['plan', planId] as const,
-  chatSubscriptions: (chatId: number) => ['chatSubscriptions', chatId] as const,
-  chatStats: (chatId: number) => ['chatStats', chatId] as const,
-  subscriptionEvents: (chatId: number, subId: number) => ['events', chatId, subId] as const,
-  mySubscriptions: ['mySubscriptions'] as const,
-  invite: (chatId: number) => ['invite', chatId] as const,
-  reviews: (chatId: number) => ['reviews', chatId] as const,
-  privateChatSettings: (chatId: number) => ['privateChatSettings', chatId] as const,
-  dialogs: (chatId: number) => ['dialogs', chatId] as const,
-  dialogMessages: (chatId: number, dialogId: number) => ['dialogMessages', chatId, dialogId] as const,
-  broadcasts: (chatId: number) => ['broadcasts', chatId] as const,
-  broadcastDeliveries: (chatId: number, broadcastId: number) => ['broadcastDeliveries', chatId, broadcastId] as const,
-  chatAnalytics: (chatId: number) => ['chatAnalytics', chatId] as const,
-  creatorAnalytics: ['creatorAnalytics'] as const,
-  platformAnalytics: ['platformAnalytics'] as const,
+  user: ["user"] as const,
+  chats: ["chats"] as const,
+  chat: (id: number) => ["chats", id] as const,
+  categories: ["categories"] as const,
+  plans: (chatId: number) => ["plans", chatId] as const,
+  plan: (planId: number) => ["plan", planId] as const,
+  chatSubscriptions: (chatId: number) => ["chatSubscriptions", chatId] as const,
+  chatStats: (chatId: number) => ["chatStats", chatId] as const,
+  subscriptionEvents: (chatId: number, subId: number) =>
+    ["events", chatId, subId] as const,
+  mySubscriptions: ["mySubscriptions"] as const,
+  invite: (chatId: number) => ["invite", chatId] as const,
+  reviews: (chatId: number) => ["reviews", chatId] as const,
+  privateChatSettings: (chatId: number) =>
+    ["privateChatSettings", chatId] as const,
+  dialogs: (chatId: number) => ["dialogs", chatId] as const,
+  dialogMessages: (chatId: number, dialogId: number) =>
+    ["dialogMessages", chatId, dialogId] as const,
+  broadcasts: (chatId: number) => ["broadcasts", chatId] as const,
+  broadcastDeliveries: (chatId: number, broadcastId: number) =>
+    ["broadcastDeliveries", chatId, broadcastId] as const,
+  chatAnalytics: (chatId: number) => ["chatAnalytics", chatId] as const,
+  creatorAnalytics: ["creatorAnalytics"] as const,
+  platformAnalytics: ["platformAnalytics"] as const,
 };
 
 // --- Auth Hooks ---
@@ -78,7 +82,10 @@ export const useLinkUserWallet = () => {
 };
 
 // --- Chat Hooks ---
-export const useChats = (params?: requests.GetChatsParams, options?: { enabled?: boolean }) => {
+export const useChats = (
+  params?: requests.GetChatsParams,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.chats, params],
     queryFn: () => requests.getChats(params),
@@ -94,7 +101,10 @@ export const useChatCategories = (options?: { enabled?: boolean }) => {
   });
 };
 
-export const useChatById = (chatId: number, options?: { enabled?: boolean }) => {
+export const useChatById = (
+  chatId: number,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: queryKeys.chat(chatId),
     queryFn: () => requests.getChatById(chatId),
@@ -105,10 +115,12 @@ export const useChatById = (chatId: number, options?: { enabled?: boolean }) => 
 export const useUpdateChat = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, data }: { chatId: number; data: T.UpdateChatReq }) => 
+    mutationFn: ({ chatId, data }: { chatId: number; data: T.UpdateChatReq }) =>
       requests.updateChat(chatId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.chat(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.chat(variables.chatId),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.chats });
     },
   });
@@ -126,7 +138,10 @@ export const useArchiveChat = () => {
 };
 
 // --- Plan Hooks ---
-export const useChatPlans = (chatId: number, options?: { enabled?: boolean }) => {
+export const useChatPlans = (
+  chatId: number,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: queryKeys.plans(chatId),
     queryFn: () => requests.getChatPlans(chatId),
@@ -137,15 +152,25 @@ export const useChatPlans = (chatId: number, options?: { enabled?: boolean }) =>
 export const useCreateChatPlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, data }: { chatId: number; data: T.CreateSubscriptionPlanReq }) => 
-      requests.createChatPlan(chatId, data),
+    mutationFn: ({
+      chatId,
+      data,
+    }: {
+      chatId: number;
+      data: T.CreateSubscriptionPlanReq;
+    }) => requests.createChatPlan(chatId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.plans(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.plans(variables.chatId),
+      });
     },
   });
 };
 
-export const usePlanById = (planId: number, options?: { enabled?: boolean }) => {
+export const usePlanById = (
+  planId: number,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: queryKeys.plan(planId),
     queryFn: () => requests.getPlanById(planId),
@@ -156,19 +181,33 @@ export const usePlanById = (planId: number, options?: { enabled?: boolean }) => 
 export const useUpdatePlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ planId, data, chatId }: { planId: number; data: T.UpdateSubscriptionPlanReq; chatId?: number }) => 
-      requests.updatePlan(planId, data),
+    mutationFn: ({
+      planId,
+      data,
+    }: {
+      planId: number;
+      data: T.UpdateSubscriptionPlanReq;
+      chatId?: number;
+    }) => requests.updatePlan(planId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.plan(variables.planId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.plan(variables.planId),
+      });
       if (variables.chatId) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.plans(variables.chatId) });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.plans(variables.chatId),
+        });
       }
     },
   });
 };
 
 // --- Creator Subscriptions Hooks ---
-export const useChatSubscriptions = (chatId: number, params?: requests.GetChatSubscriptionsParams, options?: { enabled?: boolean }) => {
+export const useChatSubscriptions = (
+  chatId: number,
+  params?: requests.GetChatSubscriptionsParams,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.chatSubscriptions(chatId), params],
     queryFn: () => requests.getChatSubscriptions(chatId, params),
@@ -176,7 +215,10 @@ export const useChatSubscriptions = (chatId: number, params?: requests.GetChatSu
   });
 };
 
-export const useChatSubscriptionStats = (chatId: number, options?: { enabled?: boolean }) => {
+export const useChatSubscriptionStats = (
+  chatId: number,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: queryKeys.chatStats(chatId),
     queryFn: () => requests.getChatSubscriptionStats(chatId),
@@ -187,25 +229,45 @@ export const useChatSubscriptionStats = (chatId: number, options?: { enabled?: b
 export const useUpdateChatSubscriptionStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, subscriptionId, data }: { chatId: number; subscriptionId: number; data: T.UpdateChatSubscriptionStatusReq }) => 
-      requests.updateChatSubscriptionStatus(chatId, subscriptionId, data),
+    mutationFn: ({
+      chatId,
+      subscriptionId,
+      data,
+    }: {
+      chatId: number;
+      subscriptionId: number;
+      data: T.UpdateChatSubscriptionStatusReq;
+    }) => requests.updateChatSubscriptionStatus(chatId, subscriptionId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.chatSubscriptions(variables.chatId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.chatStats(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.chatSubscriptions(variables.chatId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.chatStats(variables.chatId),
+      });
     },
   });
 };
 
-export const useSubscriptionEvents = (chatId: number, subscriptionId: number, params?: requests.GetSubscriptionEventsParams, options?: { enabled?: boolean }) => {
+export const useSubscriptionEvents = (
+  chatId: number,
+  subscriptionId: number,
+  params?: requests.GetSubscriptionEventsParams,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.subscriptionEvents(chatId, subscriptionId), params],
-    queryFn: () => requests.getSubscriptionEvents(chatId, subscriptionId, params),
+    queryFn: () =>
+      requests.getSubscriptionEvents(chatId, subscriptionId, params),
     enabled: options?.enabled,
   });
 };
 
 // --- User Subscriptions Hooks ---
-export const useMySubscriptions = (params?: requests.GetMySubscriptionsParams, options?: { enabled?: boolean }) => {
+export const useMySubscriptions = (
+  params?: requests.GetMySubscriptionsParams,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.mySubscriptions, params],
     queryFn: () => requests.getMySubscriptions(params),
@@ -213,7 +275,10 @@ export const useMySubscriptions = (params?: requests.GetMySubscriptionsParams, o
   });
 };
 
-export const useInviteLink = (chatId: number, options?: { enabled?: boolean }) => {
+export const useInviteLink = (
+  chatId: number,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: queryKeys.invite(chatId),
     queryFn: () => requests.getInviteLink(chatId),
@@ -223,27 +288,41 @@ export const useInviteLink = (chatId: number, options?: { enabled?: boolean }) =
 
 export const useInitSubscribePayment = () => {
   return useMutation({
-    mutationFn: ({ chatId, planId, promoCode }: { chatId: number; planId: number; promoCode?: string }) => 
-      requests.initSubscribePayment(chatId, planId, promoCode),
+    mutationFn: ({
+      chatId,
+      planId,
+      promoCode,
+    }: {
+      chatId: number;
+      planId: number;
+      promoCode?: string;
+    }) => requests.initSubscribePayment(chatId, planId, promoCode),
   });
 };
 
 export const useSubscribeToPlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, planId, data }: { chatId: number; planId: number; data: T.SubscribeWithTONReq }) => 
-      requests.subscribeToPlan(chatId, planId, data),
+    mutationFn: ({
+      chatId,
+      planId,
+      data,
+    }: {
+      chatId: number;
+      planId: number;
+      data: T.SubscribeWithTONReq;
+    }) => requests.subscribeToPlan(chatId, planId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
     },
   });
 };
 
-
 export const useCancelSubscription = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (subscriptionId: number) => requests.requestCancelSubscription(subscriptionId),
+    mutationFn: (subscriptionId: number) =>
+      requests.requestCancelSubscription(subscriptionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
     },
@@ -254,15 +333,26 @@ export const useCancelSubscription = () => {
 export const useSubmitReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, data }: { chatId: number; data: T.SubmitReviewReq }) => 
-      requests.submitReview(chatId, data),
+    mutationFn: ({
+      chatId,
+      data,
+    }: {
+      chatId: number;
+      data: T.SubmitReviewReq;
+    }) => requests.submitReview(chatId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.reviews(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.reviews(variables.chatId),
+      });
     },
   });
 };
 
-export const usePublicReviews = (chatId: number, params?: { limit?: number; offset?: number }, options?: { enabled?: boolean }) => {
+export const usePublicReviews = (
+  chatId: number,
+  params?: { limit?: number; offset?: number },
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.reviews(chatId), params],
     queryFn: () => requests.getPublicReviews(chatId, params),
@@ -271,7 +361,10 @@ export const usePublicReviews = (chatId: number, params?: { limit?: number; offs
 };
 
 // --- Private Chat Hooks ---
-export const usePrivateChatSettings = (chatId: number, options?: { enabled?: boolean }) => {
+export const usePrivateChatSettings = (
+  chatId: number,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: queryKeys.privateChatSettings(chatId),
     queryFn: () => requests.getPrivateChatSettings(chatId),
@@ -282,15 +375,26 @@ export const usePrivateChatSettings = (chatId: number, options?: { enabled?: boo
 export const useUpdatePrivateChatSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, data }: { chatId: number; data: T.UpdatePrivateChatSettingsReq }) => 
-      requests.updatePrivateChatSettings(chatId, data),
+    mutationFn: ({
+      chatId,
+      data,
+    }: {
+      chatId: number;
+      data: T.UpdatePrivateChatSettingsReq;
+    }) => requests.updatePrivateChatSettings(chatId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.privateChatSettings(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.privateChatSettings(variables.chatId),
+      });
     },
   });
 };
 
-export const useDialogs = (chatId: number, params?: requests.GetDialogsParams, options?: { enabled?: boolean }) => {
+export const useDialogs = (
+  chatId: number,
+  params?: requests.GetDialogsParams,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.dialogs(chatId), params],
     queryFn: () => requests.getDialogs(chatId, params),
@@ -301,15 +405,29 @@ export const useDialogs = (chatId: number, params?: requests.GetDialogsParams, o
 export const useUpdateDialogStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, dialogId, data }: { chatId: number; dialogId: number; data: T.UpdateDialogStatusReq }) => 
-      requests.updateDialogStatus(chatId, dialogId, data),
+    mutationFn: ({
+      chatId,
+      dialogId,
+      data,
+    }: {
+      chatId: number;
+      dialogId: number;
+      data: T.UpdateDialogStatusReq;
+    }) => requests.updateDialogStatus(chatId, dialogId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.dialogs(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dialogs(variables.chatId),
+      });
     },
   });
 };
 
-export const useDialogMessages = (chatId: number, dialogId: number, params?: { limit?: number; offset?: number }, options?: { enabled?: boolean }) => {
+export const useDialogMessages = (
+  chatId: number,
+  dialogId: number,
+  params?: { limit?: number; offset?: number },
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.dialogMessages(chatId, dialogId), params],
     queryFn: () => requests.getDialogMessages(chatId, dialogId, params),
@@ -320,10 +438,22 @@ export const useDialogMessages = (chatId: number, dialogId: number, params?: { l
 export const useSendMessageToDialog = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, dialogId, data }: { chatId: number; dialogId: number; data: T.SendMessageReq }) => 
-      requests.sendMessage(chatId, dialogId, data),
+    mutationFn: ({
+      chatId,
+      dialogId,
+      data,
+    }: {
+      chatId: number;
+      dialogId: number;
+      data: T.SendMessageReq;
+    }) => requests.sendMessage(chatId, dialogId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.dialogMessages(variables.chatId, variables.dialogId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dialogMessages(
+          variables.chatId,
+          variables.dialogId,
+        ),
+      });
     },
   });
 };
@@ -332,15 +462,26 @@ export const useSendMessageToDialog = () => {
 export const useCreateBroadcast = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, data }: { chatId: number; data: T.CreateBroadcastReq }) => 
-      requests.createBroadcast(chatId, data),
+    mutationFn: ({
+      chatId,
+      data,
+    }: {
+      chatId: number;
+      data: T.CreateBroadcastReq;
+    }) => requests.createBroadcast(chatId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.broadcasts(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.broadcasts(variables.chatId),
+      });
     },
   });
 };
 
-export const useBroadcasts = (chatId: number, params?: { status?: string; limit?: number; offset?: number }, options?: { enabled?: boolean }) => {
+export const useBroadcasts = (
+  chatId: number,
+  params?: { status?: string; limit?: number; offset?: number },
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.broadcasts(chatId), params],
     queryFn: () => requests.listBroadcasts(chatId, params),
@@ -351,18 +492,31 @@ export const useBroadcasts = (chatId: number, params?: { status?: string; limit?
 export const useSendBroadcast = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chatId, broadcastId }: { chatId: number; broadcastId: number }) => 
-      requests.sendBroadcast(chatId, broadcastId),
+    mutationFn: ({
+      chatId,
+      broadcastId,
+    }: {
+      chatId: number;
+      broadcastId: number;
+    }) => requests.sendBroadcast(chatId, broadcastId),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.broadcasts(variables.chatId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.broadcasts(variables.chatId),
+      });
     },
   });
 };
 
-export const useBroadcastDeliveries = (chatId: number, broadcastId: number, params?: { limit?: number; offset?: number }, options?: { enabled?: boolean }) => {
+export const useBroadcastDeliveries = (
+  chatId: number,
+  broadcastId: number,
+  params?: { limit?: number; offset?: number },
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.broadcastDeliveries(chatId, broadcastId), params],
-    queryFn: () => requests.listBroadcastDeliveries(chatId, broadcastId, params),
+    queryFn: () =>
+      requests.listBroadcastDeliveries(chatId, broadcastId, params),
     enabled: options?.enabled,
   });
 };
@@ -370,7 +524,7 @@ export const useBroadcastDeliveries = (chatId: number, broadcastId: number, para
 // --- Gift & Promo Hooks ---
 export const useCreateGift = () => {
   return useMutation({
-    mutationFn: ({ planId, data }: { planId: number; data: T.CreateGiftReq }) => 
+    mutationFn: ({ planId, data }: { planId: number; data: T.CreateGiftReq }) =>
       requests.createGift(planId, data),
   });
 };
@@ -387,23 +541,38 @@ export const useRedeemGift = () => {
 
 export const useCreatePromoCode = () => {
   return useMutation({
-    mutationFn: ({ chatId, data }: { chatId: number; data: T.CreatePromoCodeReq }) => 
-      requests.createPromoCode(chatId, data),
+    mutationFn: ({
+      chatId,
+      data,
+    }: {
+      chatId: number;
+      data: T.CreatePromoCodeReq;
+    }) => requests.createPromoCode(chatId, data),
   });
 };
 
 export const usePreviewPromoCode = () => {
   return useMutation({
-    mutationFn: ({ planId, data }: { planId: number; data: T.PromoCodePreviewReq }) => 
-      requests.previewPromoCode(planId, data),
+    mutationFn: ({
+      planId,
+      data,
+    }: {
+      planId: number;
+      data: T.PromoCodePreviewReq;
+    }) => requests.previewPromoCode(planId, data),
   });
 };
 
 export const useApplyPromoCode = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ planId, data }: { planId: number; data: T.ApplyPromoCodeReq }) => 
-      requests.applyPromoCode(planId, data),
+    mutationFn: ({
+      planId,
+      data,
+    }: {
+      planId: number;
+      data: T.ApplyPromoCodeReq;
+    }) => requests.applyPromoCode(planId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
     },
@@ -411,7 +580,11 @@ export const useApplyPromoCode = () => {
 };
 
 // --- Analytics Hooks ---
-export const useChatAnalytics = (chatId: number, params?: T.AnalyticsFilter, options?: { enabled?: boolean }) => {
+export const useChatAnalytics = (
+  chatId: number,
+  params?: T.AnalyticsFilter,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.chatAnalytics(chatId), params],
     queryFn: () => requests.getChatAnalytics(chatId, params),
@@ -419,7 +592,10 @@ export const useChatAnalytics = (chatId: number, params?: T.AnalyticsFilter, opt
   });
 };
 
-export const useCreatorAnalytics = (params?: T.AnalyticsFilter, options?: { enabled?: boolean }) => {
+export const useCreatorAnalytics = (
+  params?: T.AnalyticsFilter,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.creatorAnalytics, params],
     queryFn: () => requests.getCreatorAnalytics(params),
@@ -427,7 +603,10 @@ export const useCreatorAnalytics = (params?: T.AnalyticsFilter, options?: { enab
   });
 };
 
-export const usePlatformAnalytics = (params?: T.AnalyticsFilter, options?: { enabled?: boolean }) => {
+export const usePlatformAnalytics = (
+  params?: T.AnalyticsFilter,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [...queryKeys.platformAnalytics, params],
     queryFn: () => requests.getPlatformAnalytics(params),

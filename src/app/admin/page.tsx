@@ -16,10 +16,11 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import * as T from "@/api/types";
 import { useAuthContext } from "@/providers/AuthProvider";
 import {
   queryKeys,
@@ -61,7 +62,6 @@ export default function AdminDashboard() {
   const { userId, isLoading: isAuthLoading } = useAuthContext();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const urlChatId = searchParams.get("chatId");
   const toast = useToast();
 
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
   // Plan management
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showEditPlanModal, setShowEditPlanModal] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<any>(null);
+  const [editingPlan, setEditingPlan] = useState<(T.SubscriptionPlan & { price?: string }) | null>(null);
   const [newPlan, setNewPlan] = useState({
     title: "",
     price: "0",
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
               ? undefined
               : parseInt(newPlan.duration_days) || 30,
           trial_days: 0,
-        } as any,
+        } as T.CreateSubscriptionPlanReq,
       });
       setShowPlanModal(false);
       toast.success("Plan created successfully");
@@ -144,13 +144,13 @@ export default function AdminDashboard() {
 
   const handleUpdatePlan = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingPlan || !myChat?.id) return;
+    if (!editingPlan || !editingPlan.id || !myChat?.id) return;
     try {
       await updatePlan({
         planId: editingPlan.id,
         chatId: myChat.id,
         data: {
-          price_nanoton: toNanoTON(editingPlan.price).toString(),
+          price_nanoton: toNanoTON(editingPlan.price || "0").toString(),
           trial_days: 0,
           status: editingPlan.status,
         },
@@ -161,6 +161,16 @@ export default function AdminDashboard() {
       toast.handleError(err);
     }
   };
+
+  const tabs = [
+    { id: "plans" as const, label: "Plans", icon: Layers },
+    { id: "subscribers" as const, label: "Subs", icon: Users },
+    { id: "cancel-requests" as const, label: "Cancel Reqs", icon: Settings }, // reusing an icon
+    { id: "broadcasts" as const, label: "Feed", icon: Zap },
+    { id: "promo" as const, label: "Promo", icon: Tag },
+    { id: "reviews" as const, label: "Reviews", icon: Star },
+    { id: "settings" as const, label: "Config", icon: Settings },
+  ];
 
   if (isAuthLoading || chatsLoading) {
     return (
@@ -236,18 +246,10 @@ export default function AdminDashboard() {
       {/* Tab Navigation */}
       {myChat?.id && (
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {[
-            { id: "plans", label: "Plans", icon: Layers },
-            { id: "subscribers", label: "Subs", icon: Users },
-            { id: "cancel-requests", label: "Cancel Reqs", icon: Settings }, // reusing an icon
-            { id: "broadcasts", label: "Feed", icon: Zap },
-            { id: "promo", label: "Promo", icon: Tag },
-            { id: "reviews", label: "Reviews", icon: Star },
-            { id: "settings", label: "Config", icon: Settings },
-          ].map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap border ${
                 activeTab === tab.id
                   ? "bg-[var(--text-primary)] text-[var(--bg-card)] border-[var(--text-primary)] shadow-sm"
@@ -268,10 +270,10 @@ export default function AdminDashboard() {
             <PlansSection
               chatId={myChat.id}
               onAddPlan={() => setShowPlanModal(true)}
-              onEditPlan={(plan: any) => {
+              onEditPlan={(plan: T.SubscriptionPlan) => {
                 setEditingPlan({
                   ...plan,
-                  price: fromNanoTON(plan.price_nanoton),
+                  price: fromNanoTON(plan.price_nanoton || 0).toString(),
                 });
                 setShowEditPlanModal(true);
               }}
@@ -464,7 +466,13 @@ function AnalyticsSummary({ chatId }: { chatId: number }) {
   );
 }
 
-function PlansSection({ chatId, onAddPlan, onEditPlan }: any) {
+interface PlansSectionProps {
+  chatId: number;
+  onAddPlan: () => void;
+  onEditPlan: (plan: T.SubscriptionPlan) => void;
+}
+
+function PlansSection({ chatId, onAddPlan, onEditPlan }: PlansSectionProps) {
   const { data: plansRes } = useChatPlans(chatId);
   const plans = plansRes?.data || [];
 
@@ -485,7 +493,7 @@ function PlansSection({ chatId, onAddPlan, onEditPlan }: any) {
         }
       />
       <div className="space-y-3">
-        {plans.map((plan: any) => (
+        {plans.map((plan: T.SubscriptionPlan) => (
           <Card
             key={plan.id}
             interactive
@@ -548,7 +556,7 @@ function SubscribersSection({ chatId }: { chatId: number }) {
         padding="none"
         className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]"
       >
-        {subscribers.map((sub: any) => (
+        {subscribers.map((sub: T.ChatSubscription) => (
           <div
             key={sub.subscription_id}
             className="p-4 flex items-center justify-between border-[var(--border)]"
@@ -575,7 +583,7 @@ function SubscribersSection({ chatId }: { chatId: number }) {
               onChange={(e) =>
                 updateStatus({
                   chatId,
-                  subscriptionId: sub.subscription_id,
+                  subscriptionId: sub.subscription_id!,
                   data: { status: e.target.value },
                 })
               }
@@ -626,7 +634,7 @@ function CancelRequestsSection({ chatId }: { chatId: number }) {
         padding="none"
         className="overflow-hidden divide-y divide-[var(--border)] !rounded-2xl border-[var(--border)]"
       >
-        {requests.map((sub: any) => (
+        {requests.map((sub: T.ChatSubscription) => (
           <div
             key={sub.subscription_id}
             className="p-4 flex items-center justify-between border-[var(--border)]"
@@ -647,7 +655,7 @@ function CancelRequestsSection({ chatId }: { chatId: number }) {
             <Button
               size="sm"
               loading={isPending}
-              onClick={() => handleApprove(sub.subscription_id)}
+              onClick={() => handleApprove(sub.subscription_id!)}
             >
               Approve Cancel
             </Button>
@@ -701,7 +709,7 @@ function BroadcastSection({ chatId }: { chatId: number }) {
         }
       />
       <div className="space-y-3">
-        {broadcasts.map((b: any) => (
+        {broadcasts.map((b: T.Broadcast) => (
           <Card key={b.id} padding="md" className="space-y-3">
             <div className="flex justify-between items-center">
               <h5 className="font-bold text-sm">{b.title || "Untitled"}</h5>
@@ -717,7 +725,7 @@ function BroadcastSection({ chatId }: { chatId: number }) {
                 fullWidth
                 size="sm"
                 loading={isSending}
-                onClick={() => sendB({ chatId, broadcastId: b.id })}
+                onClick={() => sendB({ chatId, broadcastId: b.id! })}
               >
                 Send Now
               </Button>
@@ -904,7 +912,7 @@ function ReviewsSection({ chatId }: { chatId: number }) {
     <div className="space-y-4">
       <SectionHeader title="Community Reviews" />
       <div className="space-y-3">
-        {reviews.map((r: any) => (
+        {reviews.map((r: T.Review) => (
           <Card key={r.id} padding="sm" className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold text-[var(--text-primary)]">
@@ -939,14 +947,14 @@ function ReviewsSection({ chatId }: { chatId: number }) {
   );
 }
 
-function SettingsSection({ chat }: { chat: any }) {
+function SettingsSection({ chat }: { chat: T.Chat }) {
   const { data: catsRes } = useChatCategories();
   const categories = catsRes?.data || [];
   const { mutateAsync: updateChat, isPending } = useUpdateChat();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: chatDetailRes } = useChatById(chat.id);
+  const { data: chatDetailRes } = useChatById(chat.id!);
   const chatDetail = chatDetailRes?.data || chat;
 
   const [form, setForm] = useState({
@@ -956,17 +964,17 @@ function SettingsSection({ chat }: { chat: any }) {
     is_active: chatDetail.is_active,
   });
 
-  useEffect(() => {
-    if (chatDetailRes?.data) {
-      setForm((prev) => ({
-        ...prev,
-        title: chatDetailRes.data.title || chat.title,
-        description: chatDetailRes.data.description || "",
-        category_id: chatDetailRes.data.category_id || 0,
-        is_active: chatDetailRes.data.is_active ?? chat.is_active,
-      }));
-    }
-  }, [chatDetailRes?.data, chat]);
+  const [prevChatDetail, setPrevChatDetail] = useState<T.Chat | null>(null);
+
+  if (chatDetailRes?.data && chatDetailRes.data !== prevChatDetail) {
+    setPrevChatDetail(chatDetailRes.data);
+    setForm({
+      title: chatDetailRes.data.title || chat.title,
+      description: chatDetailRes.data.description || "",
+      category_id: chatDetailRes.data.category_id || 0,
+      is_active: chatDetailRes.data.is_active ?? chat.is_active,
+    });
+  }
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     chat.avatar || null,
@@ -996,7 +1004,7 @@ function SettingsSection({ chat }: { chat: any }) {
 
   const handleRemoveAvatar = async () => {
     try {
-      await updateChat({ chatId: chat.id, data: { avatar: "" } });
+      await updateChat({ chatId: chat.id!, data: { avatar: "" } });
       setAvatarPreview(null);
       setAvatarBase64(null);
       queryClient.invalidateQueries({ queryKey: queryKeys.chats });
@@ -1009,9 +1017,13 @@ function SettingsSection({ chat }: { chat: any }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { is_active, ...updateData } = form;
+      const updateData = {
+        title: form.title,
+        description: form.description,
+        category_id: form.category_id,
+      };
       await updateChat({
-        chatId: chat.id,
+        chatId: chat.id!,
         data: {
           ...updateData,
           ...(avatarBase64 !== null ? { avatar: avatarBase64 } : {}),
@@ -1047,6 +1059,7 @@ function SettingsSection({ chat }: { chat: any }) {
             }}
           >
             {avatarPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={avatarPreview}
                 alt="avatar"
@@ -1139,7 +1152,7 @@ function SettingsSection({ chat }: { chat: any }) {
               }
             >
               <option value={0}>Uncategorized</option>
-              {categories.map((cat: any) => (
+              {categories.map((cat: T.Category) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.category}
                 </option>
@@ -1172,7 +1185,7 @@ function SettingsSection({ chat }: { chat: any }) {
             subscriptions become disabled.
           </p>
         </div>
-        <ArchiveChatButton chatId={chat.id} />
+        <ArchiveChatButton chatId={chat.id!} />
       </div>
     </div>
   );

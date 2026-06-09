@@ -127,14 +127,14 @@ export default function ExplorePage() {
             <p className="text-xs text-gray-500 mb-2 uppercase tracking-widest font-black text-[10px]">Sort By</p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: "newest", label: "Newest First" },
-                { id: "oldest", label: "Oldest First" },
-                { id: "alpha_asc", label: "Alphabet (A-Z)" },
-                { id: "alpha_desc", label: "Alphabet (Z-A)" },
+                { id: "newest" as const, label: "Newest First" },
+                { id: "oldest" as const, label: "Oldest First" },
+                { id: "alpha_asc" as const, label: "Alphabet (A-Z)" },
+                { id: "alpha_desc" as const, label: "Alphabet (Z-A)" },
               ].map((option) => (
                 <button
                   key={option.id}
-                  onClick={() => setSortBy(option.id as any)}
+                  onClick={() => setSortBy(option.id)}
                   className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 border text-center ${
                     sortBy === option.id
                       ? "bg-gray-900 border-gray-900 text-white shadow-md shadow-gray-900/10"

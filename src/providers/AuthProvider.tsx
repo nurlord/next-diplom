@@ -49,7 +49,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
         }
       });
       console.log('TG Mock Environment Initialized');
-    } catch (e) {
+    } catch {
       // Ignore if already mocked
     }
   }
@@ -126,9 +126,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(true);
         setUserId(response.data.user_id ?? null);
         setAuthError(null);
-      } catch (error: any) {
+      } catch (error) {
         console.error("Authentication failed", error);
-        setAuthError(error?.message || "Authentication logic failed");
+        setAuthError(error instanceof Error ? error.message : "Authentication logic failed");
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);

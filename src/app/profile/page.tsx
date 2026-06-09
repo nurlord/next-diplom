@@ -5,13 +5,11 @@ import {
   ChevronRight,
   Users,
   Hash,
-  History,
   ArrowDownLeft,
   RefreshCw,
   Settings,
-  Layers,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "@/providers/AuthProvider";
 import {
@@ -36,10 +34,13 @@ import {
   CardSkeleton,
   Skeleton,
 } from "@/components/ui";
-import { X } from "lucide-react";
 
 export default function ProfilePage() {
-  const { userId, isAuthenticated, isLoading: isAuthLoading } = useAuthContext();
+  const {
+    userId,
+    isAuthenticated,
+    isLoading: isAuthLoading,
+  } = useAuthContext();
   const queryClient = useQueryClient();
   const [showProfileModal, setShowProfileModal] = useState(false);
 
@@ -48,39 +49,47 @@ export default function ProfilePage() {
   });
   const user = userRes?.data;
 
-  const { data: creatorAnalyticsRes, isLoading: isCreatorLoading } = useCreatorAnalytics(undefined, {
-    enabled: isAuthenticated,
-  });
+  const { data: creatorAnalyticsRes, isLoading: isCreatorLoading } =
+    useCreatorAnalytics(undefined, {
+      enabled: isAuthenticated,
+    });
   const creatorAnalytics = creatorAnalyticsRes?.data;
 
-  const { data: platformAnalyticsRes, isLoading: isPlatformLoading } = usePlatformAnalytics(undefined, {
+  const { data: platformAnalyticsRes } = usePlatformAnalytics(undefined, {
     enabled: isAuthenticated,
   });
   const platformAnalytics = platformAnalyticsRes?.data;
 
   const { data: chatsRes } = useChats(
     userId ? { owner_id: userId } : undefined,
-    { enabled: !!userId }
+    { enabled: !!userId },
   );
   const chats = chatsRes?.data?.items || [];
 
-  const { data: mySubsRes, isLoading: isSubsLoading } = useMySubscriptions({ limit: 10 }, { enabled: !!userId });
-  const paymentHistory = (mySubsRes?.data?.items || [])
-    .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
+  const { data: mySubsRes, isLoading: isSubsLoading } = useMySubscriptions(
+    { limit: 10 },
+    { enabled: !!userId },
+  );
+  const paymentHistory = (mySubsRes?.data?.items || []).sort(
+    (a, b) =>
+      new Date(b.created_at || "").getTime() -
+      new Date(a.created_at || "").getTime(),
+  );
 
   const [profileForm, setProfileForm] = useState({
     first_name: "",
     last_name: "",
   });
 
-  useEffect(() => {
-    if (user) {
-      setProfileForm({
-        first_name: user.first_name || "",
-        last_name: user.last_name || "",
-      });
-    }
-  }, [user]);
+  const [prevUserId, setPrevUserId] = useState<number | undefined>(undefined);
+
+  if (user && user.id !== prevUserId) {
+    setPrevUserId(user.id);
+    setProfileForm({
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
+    });
+  }
 
   const { mutateAsync: updateProfile, isPending: isUpdatingProfile } =
     useUpdateUserProfile();
@@ -97,7 +106,9 @@ export default function ProfilePage() {
 
   const handleSync = async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.user });
-    await queryClient.invalidateQueries({ queryKey: queryKeys.creatorAnalytics });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.creatorAnalytics,
+    });
   };
 
   if (isAuthLoading || isUserLoading) {
@@ -110,7 +121,6 @@ export default function ProfilePage() {
 
   return (
     <div className="pb-24 pt-6 px-5 space-y-8 animate-in fade-in duration-300 text-gray-900">
-
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -149,7 +159,7 @@ export default function ProfilePage() {
 
       {/* Wallet */}
       <div className="animate-in fade-in duration-300">
-        <WalletSection userId={user?.id} savedWallet={user?.wallet_address} />
+        <WalletSection savedWallet={user?.wallet_address} />
       </div>
 
       {/* Creator Analytics (With clean Skeleton states to avoid layout jumps) */}
@@ -187,7 +197,9 @@ export default function ProfilePage() {
                   </p>
                   <span className="text-sm font-medium text-gray-500">TON</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Across all subscription tiers</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Across all subscription tiers
+                </p>
               </div>
 
               {/* Stats Grid */}
@@ -206,7 +218,9 @@ export default function ProfilePage() {
                     <Hash size={14} className="text-gray-400" />
                     <p className="text-xs text-gray-500">Channels</p>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">{chats.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {chats.length}
+                  </p>
                   <Link href="/chats">
                     <p className="text-xs text-gray-500 hover:text-gray-900 inline-flex items-center gap-0.5 mt-1 transition-colors">
                       Manage <ChevronRight size={10} />
@@ -219,7 +233,7 @@ export default function ProfilePage() {
         </section>
       )}
 
-      {/* Platform Analytics (Admin only - Fades in cleanly only for authorized users) */}
+      {/* Platform Analytics (Admin only  Fades in cleanly only for authorized users) */}
       {platformAnalytics && (
         <section className="space-y-3 animate-in fade-in duration-300">
           <div className="flex items-center justify-between px-1">
@@ -233,13 +247,19 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
               <div>
                 <p className="text-xs text-gray-500 mb-1">Total Subscribers</p>
-                <p className="text-xl font-bold text-gray-900">{platformAnalytics.total_subscribers ?? 0}</p>
+                <p className="text-xl font-bold text-gray-900">
+                  {platformAnalytics.total_subscribers ?? 0}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-1">Active</p>
                 <div className="flex items-baseline gap-1.5">
-                  <p className="text-xl font-bold text-gray-900">{platformAnalytics.active_subscribers ?? 0}</p>
-                  <span className="text-xs text-gray-400">/ {platformAnalytics.total_subscribers ?? 0}</span>
+                  <p className="text-xl font-bold text-gray-900">
+                    {platformAnalytics.active_subscribers ?? 0}
+                  </p>
+                  <span className="text-xs text-gray-400">
+                    / {platformAnalytics.total_subscribers ?? 0}
+                  </span>
                 </div>
               </div>
             </div>
@@ -249,13 +269,20 @@ export default function ProfilePage() {
               <div className="flex justify-between text-xs text-gray-500">
                 <span>Retention</span>
                 <span>
-                  {Math.round(((platformAnalytics.active_subscribers ?? 0) / (platformAnalytics.total_subscribers || 1)) * 100)}%
+                  {Math.round(
+                    ((platformAnalytics.active_subscribers ?? 0) /
+                      (platformAnalytics.total_subscribers || 1)) *
+                      100,
+                  )}
+                  %
                 </span>
               </div>
               <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
                 <div
                   className="bg-gray-900 h-full rounded-full transition-all duration-1000"
-                  style={{ width: `${Math.min(100, ((platformAnalytics.active_subscribers ?? 0) / (platformAnalytics.total_subscribers || 1)) * 100)}%` }}
+                  style={{
+                    width: `${Math.min(100, ((platformAnalytics.active_subscribers ?? 0) / (platformAnalytics.total_subscribers || 1)) * 100)}%`,
+                  }}
                 />
               </div>
             </div>
@@ -263,7 +290,9 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-gray-50 border border-gray-100 p-3 rounded-lg">
                 <p className="text-xs text-gray-500 mb-1">New Subs</p>
-                <p className="text-lg font-bold text-gray-900">{platformAnalytics.new_subscriptions ?? 0}</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {platformAnalytics.new_subscriptions ?? 0}
+                </p>
               </div>
               <div className="bg-gray-50 border border-gray-100 p-3 rounded-lg">
                 <p className="text-xs text-gray-500 mb-1">Revenue</p>
@@ -299,17 +328,26 @@ export default function ProfilePage() {
                   <ArrowDownLeft size={16} className="text-gray-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 text-sm truncate">{sub.chat_title}</p>
+                  <p className="font-medium text-gray-900 text-sm truncate">
+                    {sub.chat_title}
+                  </p>
                   <p className="text-xs text-gray-500 truncate">
-                    {sub.plan_title} · {sub.created_at ? new Date(sub.created_at).toLocaleDateString() : "—"}
+                    {sub.plan_title} ·{" "}
+                    {sub.created_at
+                      ? new Date(sub.created_at).toLocaleDateString()
+                      : "—"}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold text-gray-900">
                     {fromNanoTON(sub.price_nanoton || 0)}
-                    <span className="text-xs font-normal text-gray-500 ml-1">TON</span>
+                    <span className="text-xs font-normal text-gray-500 ml-1">
+                      TON
+                    </span>
                   </p>
-                  <span className="text-[10px] text-green-600 font-medium">confirmed</span>
+                  <span className="text-[10px] text-green-600 font-medium">
+                    confirmed
+                  </span>
                 </div>
               </div>
             ))
@@ -333,21 +371,20 @@ export default function ProfilePage() {
             <Input
               required
               value={profileForm.first_name}
-              onChange={e => setProfileForm({ ...profileForm, first_name: e.target.value })}
+              onChange={(e) =>
+                setProfileForm({ ...profileForm, first_name: e.target.value })
+              }
             />
           </FormField>
           <FormField label="Last Name">
             <Input
               value={profileForm.last_name}
-              onChange={e => setProfileForm({ ...profileForm, last_name: e.target.value })}
+              onChange={(e) =>
+                setProfileForm({ ...profileForm, last_name: e.target.value })
+              }
             />
           </FormField>
-          <Button
-            type="submit"
-            fullWidth
-            size="lg"
-            loading={isUpdatingProfile}
-          >
+          <Button type="submit" fullWidth size="lg" loading={isUpdatingProfile}>
             {isUpdatingProfile ? "Saving..." : "Save Changes"}
           </Button>
         </form>

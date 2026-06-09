@@ -1,27 +1,32 @@
 import { Wallet, CheckCircle2, AlertCircle } from "lucide-react";
 import { useTonAddress, TonConnectButton } from "@tonconnect/ui-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLinkUserWallet } from "@/api/hooks";
 import { useToast } from "@/providers/ToastProvider";
 import { Button } from "@/components/ui";
 
-export function WalletSection({ userId, savedWallet }: { userId?: number; savedWallet?: string }) {
+export function WalletSection({ savedWallet }: { savedWallet?: string }) {
   const tonAddress = useTonAddress();
-  const [linkedWallet, setLinkedWallet] = useState<string | null>(null);
+  const [linkedWallet, setLinkedWallet] = useState<string | null>(savedWallet || null);
   const [walletError, setWalletError] = useState<string | null>(null);
 
-  const { mutateAsync: linkWallet, isPending: isLinkingWallet } = useLinkUserWallet();
-  const toast = useToast();
+  const [prevTonAddress, setPrevTonAddress] = useState<string>(tonAddress);
+  const [prevSavedWallet, setPrevSavedWallet] = useState<string | undefined>(savedWallet);
 
-  useEffect(() => {
+  if (tonAddress !== prevTonAddress) {
+    setPrevTonAddress(tonAddress);
     setWalletError(null);
-  }, [tonAddress]);
+  }
 
-  useEffect(() => {
+  if (savedWallet !== prevSavedWallet) {
+    setPrevSavedWallet(savedWallet);
     if (savedWallet) {
       setLinkedWallet(savedWallet);
     }
-  }, [savedWallet]);
+  }
+
+  const { mutateAsync: linkWallet, isPending: isLinkingWallet } = useLinkUserWallet();
+  const toast = useToast();
 
   const handleLinkWallet = async () => {
     if (!tonAddress) return;
@@ -30,10 +35,10 @@ export function WalletSection({ userId, savedWallet }: { userId?: number; savedW
       await linkWallet({ wallet_address: tonAddress });
       setLinkedWallet(tonAddress);
       toast.success("Payout wallet linked!");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to link wallet:", err);
       toast.handleError(err);
-      setWalletError(err.message || "Failed to link wallet.");
+      setWalletError(err instanceof Error ? err.message : "Failed to link wallet.");
     }
   };
 

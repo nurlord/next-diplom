@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback } from "react";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { ApiError } from "@/api/client";
 import { HTTPError } from "ky";
@@ -17,7 +17,7 @@ interface ToastMessage {
 interface ToastContextType {
   success: (message: string) => void;
   error: (message: string) => void;
-  handleError: (err: any) => void;
+  handleError: (err: unknown) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -37,7 +37,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const success = useCallback((message: string) => addToast(message, "success"), [addToast]);
   const error = useCallback((message: string) => addToast(message, "error"), [addToast]);
 
-  const handleError = useCallback(async (err: any) => {
+  const handleError = useCallback(async (err: unknown) => {
     console.error('Toast Error Handler:', err);
     let message = "An unexpected error occurred";
     

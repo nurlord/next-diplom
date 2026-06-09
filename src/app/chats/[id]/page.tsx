@@ -15,7 +15,6 @@ import { useTonConnectUI, useTonAddress, TonConnectButton } from "@tonconnect/ui
 import { Cell, beginCell, Address } from "@ton/core";
 import {
   CheckCircle2,
-  Lock,
   ArrowLeft,
   Share2,
   MessageCircle,
@@ -46,7 +45,7 @@ export default function ChatSubscriptionPage() {
 
 
   const { mutateAsync: subscribe, isPending: isSubscribing } = useSubscribeToPlan();
-  const { mutateAsync: applyPromo, isPending: isApplyingPromo } = useApplyPromoCode();
+  const { isPending: isApplyingPromo } = useApplyPromoCode();
   const { mutateAsync: initPayment } = useInitSubscribePayment();
 
   const [tonConnectUI] = useTonConnectUI();
@@ -106,9 +105,9 @@ export default function ChatSubscriptionPage() {
       setPaymentStep("verifying");
       const res = await subscribe({ chatId, planId, data: { tx_hash: txHash, wallet_address: tonAddress, promo_code: promoCode } });
       setSuccessData({ invite_link: res.data?.invite_link, amount: fromNanoTON(price) });
-    } catch (e: any) {
+    } catch (e) {
       toast.handleError(e);
-      setErrorMsg(e?.message || "Subscription failed.");
+      setErrorMsg(e instanceof Error ? e.message : "Subscription failed.");
     } finally {
       setLoadingPlanId(null);
       setPaymentStep(null);
@@ -121,9 +120,9 @@ export default function ChatSubscriptionPage() {
     try {
       const res = await previewPromo({ planId, data: { code: promoCode } });
       setPromoPreview(res.data);
-    } catch (err: any) {
+    } catch (err) {
       toast.handleError(err);
-      setPromoError(err.message || "Invalid promo code.");
+      setPromoError(err instanceof Error ? err.message : "Invalid promo code.");
       setPromoPreview(null);
     }
   };

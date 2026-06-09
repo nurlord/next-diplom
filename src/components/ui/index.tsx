@@ -187,6 +187,7 @@ export function Card({
         border rounded-xl
         relative overflow-hidden transition-all
         ${cardPadding[padding]}
+        ${glowStyles[glow]}
         ${interactive ? "cursor-pointer active:scale-[0.98]" : ""}
         ${className}
       `.trim()}
@@ -376,7 +377,7 @@ export function FormField({ label, children, className = "" }: FormFieldProps) {
 }
 
 /** Standardized text input */
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 export function Input({ className = "", style, ...props }: InputProps) {
   return (
@@ -394,8 +395,7 @@ export function Input({ className = "", style, ...props }: InputProps) {
 }
 
 /** Standardized textarea */
-interface TextAreaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export function TextArea({ className = "", style, ...props }: TextAreaProps) {
   return (

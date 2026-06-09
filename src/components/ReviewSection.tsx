@@ -5,7 +5,6 @@ import { Star, MessageSquare, Send } from "lucide-react";
 import { usePublicReviews, useSubmitReview, useMySubscriptions } from "@/api/hooks";
 import { useAuthContext } from "@/providers/AuthProvider";
 import { useToast } from "@/providers/ToastProvider";
-import { useEffect } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 
 interface ReviewSectionProps {
@@ -41,7 +40,7 @@ export default function ReviewSection({ chatId }: ReviewSectionProps) {
       setReviewText(""); setRating(5); setShowForm(false); setError(null);
       toast.success("Review submitted!");
       refetch();
-    } catch (err: any) {
+    } catch (err) {
       toast.handleError(err);
     }
   };

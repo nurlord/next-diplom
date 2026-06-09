@@ -155,7 +155,7 @@ export interface UpdateChatReq {
 // Envelope responses definition
 export interface ErrorResponse {
   code?: string;
-  fields?: Record<string, any>;
+  fields?: Record<string, unknown>;
   message?: string;
   request_id?: string;
 }
@@ -364,8 +364,8 @@ export interface AnalyticsMetrics {
   revenue_confirmed: number;
 }
 
-export interface ChatMetrics extends AnalyticsMetrics {}
-export interface CreatorMetrics extends AnalyticsMetrics {}
+export type ChatMetrics = AnalyticsMetrics;
+export type CreatorMetrics = AnalyticsMetrics;
 
 export interface PlatformMetrics {
   total_subscribers?: number;

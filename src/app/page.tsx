@@ -10,7 +10,6 @@ import {
 import {
   MessageCircle,
   ExternalLink,
-  Trash2,
   Gift,
   Loader2,
   Clock,
@@ -24,13 +23,7 @@ import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { getExpiryBadge, daysUntil } from "@/utils/date";
-import {
-  Button,
-  Card,
-  Modal,
-  Input,
-  FormField,
-} from "@/components/ui";
+import { Button, Modal, Input, FormField } from "@/components/ui";
 
 function OpenChatButton({ chatId }: { chatId: number }) {
   const [enabled, setEnabled] = useState(false);
@@ -77,9 +70,7 @@ function OnboardingScreen() {
         <div className="w-12 h-12 rounded-xl bg-gray-900 flex items-center justify-center mb-5">
           <span className="text-white font-bold text-lg">J</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          Jazylym
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Jazylym</h1>
         <p className="text-gray-500 text-sm leading-relaxed">
           Subscribe to Telegram channels and groups using TON.
         </p>
@@ -90,22 +81,30 @@ function OnboardingScreen() {
         <div className="flex items-start gap-3">
           <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 shrink-0" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Log in with Telegram</p>
-            <p className="text-xs text-gray-500 mt-0.5">No passwords or email required.</p>
+            <p className="text-sm font-medium text-gray-900">
+              Log in with Telegram
+            </p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              No passwords or email required.
+            </p>
           </div>
         </div>
         <div className="flex items-start gap-3">
           <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 shrink-0" />
           <div>
             <p className="text-sm font-medium text-gray-900">Browse channels</p>
-            <p className="text-xs text-gray-500 mt-0.5">Find creators and communities to support.</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Find creators and communities to support.
+            </p>
           </div>
         </div>
         <div className="flex items-start gap-3">
           <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 shrink-0" />
           <div>
             <p className="text-sm font-medium text-gray-900">Pay with TON</p>
-            <p className="text-xs text-gray-500 mt-0.5">Fast, low-fee crypto payments.</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Fast, low-fee crypto payments.
+            </p>
           </div>
         </div>
       </div>
@@ -159,7 +158,9 @@ export default function HomePage() {
       const diff = e.changedTouches[0].clientY - touchStartY.current;
       if (diff > 80 && el.scrollTop === 0 && !isRefreshing) {
         setIsRefreshing(true);
-        await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.mySubscriptions,
+        });
         setTimeout(() => setIsRefreshing(false), 800);
       }
     };
@@ -171,16 +172,20 @@ export default function HomePage() {
     };
   }, [isRefreshing, queryClient]);
 
-  const [optimisticCancelRequested, setOptimisticCancelRequested] = useState<number[]>([]);
+  const [optimisticCancelRequested, setOptimisticCancelRequested] = useState<
+    number[]
+  >([]);
 
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (!giftId) return;
       await redeemGift(parseInt(giftId));
-      await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.mySubscriptions,
+      });
       toast.success("Gift redeemed!");
-      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred("success");
       setShowRedeemModal(false);
       setGiftId("");
     } catch (err) {
@@ -190,16 +195,24 @@ export default function HomePage() {
 
   const handleCancel = async (id: number) => {
     if (
-      confirm("Request cancellation for this subscription? The creator will review your request.")
+      confirm(
+        "Request cancellation for this subscription? The creator will review your request.",
+      )
     ) {
-      setOptimisticCancelRequested(prev => [...prev, id]);
+      setOptimisticCancelRequested((prev) => [...prev, id]);
       try {
         await cancelSub(id);
-        await queryClient.invalidateQueries({ queryKey: queryKeys.mySubscriptions });
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.mySubscriptions,
+        });
         toast.success("Cancellation requested");
-        window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+        window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred(
+          "success",
+        );
       } catch (err) {
-        setOptimisticCancelRequested(prev => prev.filter(oid => oid !== id));
+        setOptimisticCancelRequested((prev) =>
+          prev.filter((oid) => oid !== id),
+        );
         toast.handleError(err);
       }
     }
@@ -240,7 +253,10 @@ export default function HomePage() {
   }
 
   return (
-    <div ref={containerRef} className="pb-14 pt-6 px-5 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto h-full">
+    <div
+      ref={containerRef}
+      className="pb-14 pt-6 px-5 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto h-full"
+    >
       {/* Pull to refresh indicator */}
       {isRefreshing && (
         <div className="flex justify-center -mt-2 mb-1 animate-in fade-in">
@@ -257,7 +273,9 @@ export default function HomePage() {
         <>
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Subscriptions</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Subscriptions
+              </h1>
               {urgentCount > 0 && (
                 <p className="text-xs text-orange-600 font-medium mt-0.5 flex items-center gap-1">
                   <Clock size={11} />
@@ -285,13 +303,19 @@ export default function HomePage() {
                   }`}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <Avatar text={sub.chat_title} src={sub.chat_avatar} size="md" />
+                    <Avatar
+                      text={sub.chat_title}
+                      src={sub.chat_avatar}
+                      size="md"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-0.5">
                         <h3 className="font-semibold text-gray-900 truncate">
                           {sub.chat_title}
                         </h3>
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border flex items-center gap-1 shrink-0 ml-2 ${badge.bg} ${badge.color} ${badge.border}`}>
+                        <span
+                          className={`text-[10px] font-medium px-2 py-0.5 rounded-full border flex items-center gap-1 shrink-0 ml-2 ${badge.bg} ${badge.color} ${badge.border}`}
+                        >
                           {badge.urgent && <Clock size={9} />}
                           {badge.label}
                         </span>
@@ -302,7 +326,8 @@ export default function HomePage() {
                         </span>
                         {sub.expires_at && (
                           <span className="text-xs text-gray-400">
-                            · Until {new Date(sub.expires_at).toLocaleDateString()}
+                            · Until{" "}
+                            {new Date(sub.expires_at).toLocaleDateString()}
                           </span>
                         )}
                       </div>
@@ -310,13 +335,17 @@ export default function HomePage() {
                   </div>
 
                   <div className="flex gap-2 border-t border-gray-100 pt-3">
-                    {sub.cancel_requested_at || optimisticCancelRequested.includes(sub.subscription_id!) ? (
+                    {sub.cancel_requested_at ||
+                    optimisticCancelRequested.includes(sub.subscription_id!) ? (
                       <div className="px-3 py-2 text-xs font-medium text-gray-500 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 border border-gray-100">
                         Cancel pending
                       </div>
                     ) : (
                       <button
-                        onClick={() => sub.subscription_id && handleCancel(sub.subscription_id)}
+                        onClick={() =>
+                          sub.subscription_id &&
+                          handleCancel(sub.subscription_id)
+                        }
                         className="px-3 py-2 text-xs font-medium text-red-500 bg-white hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center shrink-0 border border-gray-200 hover:border-red-200"
                         title="Request cancellation"
                       >
@@ -356,12 +385,7 @@ export default function HomePage() {
               placeholder="Enter gift ID"
             />
           </FormField>
-          <Button
-            type="submit"
-            fullWidth
-            size="lg"
-            loading={isRedeeming}
-          >
+          <Button type="submit" fullWidth size="lg" loading={isRedeeming}>
             {isRedeeming ? "Redeeming..." : "Redeem"}
           </Button>
         </form>

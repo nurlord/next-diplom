@@ -17,14 +17,20 @@ if (typeof window !== 'undefined') {
   }
 }
 
+interface TelegramWebApp {
+  expand: () => void;
+  ready: () => void;
+}
+
 export function TelegramInit() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         // Attempt to expand the webapp to full height
-        if ((window as any).Telegram?.WebApp) {
-          (window as any).Telegram.WebApp.expand();
-          (window as any).Telegram.WebApp.ready();
+        const telegram = (window as unknown as { Telegram?: { WebApp?: TelegramWebApp } }).Telegram;
+        if (telegram?.WebApp) {
+          telegram.WebApp.expand();
+          telegram.WebApp.ready();
         }
       } catch (e) {
         console.error('Failed to expand Telegram WebApp', e);
