@@ -75,7 +75,7 @@ export default function ChatsPage() {
             ))}
           </div>
         ) : managedChats.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {managedChats.map(chat => (
               <Link href={`/admin?chatId=${chat.id}`} key={chat.id}>
                 <div
@@ -155,7 +155,7 @@ export default function ChatsPage() {
             ))}
           </div>
         ) : subscriptions.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {subscriptions.map(sub => (
               <Link href={`/chats/${sub.chat_id}`} key={sub.subscription_id}>
                 <div
